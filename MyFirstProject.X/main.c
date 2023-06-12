@@ -117,7 +117,8 @@ int main()
     // Switch off all leds at once in the beginning
     LED4 = LED5 = LED6 = LED7 = LEDOFF;
     
-    setupUART2();
+    //setupUART2();
+    setupUART1();
     //setupPWM();
     //setupButtons();
 

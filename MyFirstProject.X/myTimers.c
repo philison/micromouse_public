@@ -255,7 +255,7 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
     static int myCount=0;
 
-    char buffer[2];
+    char buffer[10];
     // sprintf(buffer, "Hello World %d\n", myCount);
     sprintf(buffer, "a");
 
@@ -264,7 +264,7 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
          myCount=0;
          LED5=~LED5;
     }
-    // putsUART2(buffer);
+    putsUART1(buffer);
 
     //LED5=~LED5;
 
