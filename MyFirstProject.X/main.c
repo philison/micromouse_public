@@ -50,6 +50,8 @@
 #include "myTimers.h"
 #include "myPWM.h"
 #include "serialComms.h"
+#include "adc.h"
+#include "dma.h"
 
 
 /// Defines----------------------------
@@ -120,8 +122,14 @@ int main()
     
     //setupUART2();
     
-    //setupPWM();
+    setupPWM();
     //setupButtons();
+    
+    setupADC1();
+    startADC1();
+    initDmaChannel4();
+    
+
 
 
     while(1)

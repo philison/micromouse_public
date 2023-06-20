@@ -2,6 +2,7 @@
 #include "IOconfig.h"
 #include "myPWM.h"
 #include "serialComms.h"
+#include "dma.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -250,28 +251,29 @@ void startTimer1(void)
 
 
 /* Write a value to the UART using the putsUART1 function */
-void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-{
-    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
-    static int myCount=0;
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
 
-    char buffer[10];
-    // sprintf(buffer, "Hello World %d\n", myCount);
-    sprintf(buffer, "U");
+//     char buffer[10];
+//     // sprintf(buffer, "Hello World %d\n", myCount);
+//     sprintf(buffer, "U");
 
-    if (myCount >= 100){
-         //putsUART2(buffer);
-         myCount=0;
-         LED5=~LED5;
-    }
-    putsUART1(buffer);
+//     if (myCount >= 100){
+//          //putsUART2(buffer);
+//          myCount=0;
+//          LED5=~LED5;
+//     }
+//     //putsUART1(buffer);
 
-    //LED5=~LED5;
-    LED4=~LED4;
+//     //LED5=~LED5;
+//     //LED4=~LED4;
 
-    myCount++;
+//     myCount++;
 
-}//
+// }//
+
 
 /* Write a value to the UART directely by putting the message into the U1TXREG Register */
 // void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
@@ -291,3 +293,30 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 
 // }//
 
+
+
+/* A2D Conversion of the Poti and setting the PWM DC Cyle to the read value. Additionally writing the value to the UART */
+void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+{
+    /**
+     * Dim LED4 with the potentiometer. 
+     * The potentiometer value can be red from the define TEST_SENSOR
+    */
+
+    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag
+
+    // Convert the value of the potentiometer to a percentage for the PWM
+        float potiPercentage = (float)TEST_SENSOR / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
+    P1DC1 = potiPercentage * MYPWM_MAX; //to get 100% DC, you need to write twice the PER Value (2*26666), PWM Duty Cycle 1 Register
+
+
+    // UART
+    char buffer[10];
+    // PWM
+    sprintf(buffer, "%i", TEST_SENSOR);
+    // Other Analog Pin
+    sprintf(buffer, "%i", IO_1);
+    putsUART1(buffer);
+
+    LED4=~LED4;
+}

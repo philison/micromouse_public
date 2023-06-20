@@ -9,6 +9,8 @@
       <itemPath>myPWM.h</itemPath>
       <itemPath>myButtons.h</itemPath>
       <itemPath>serialComms.h</itemPath>
+      <itemPath>adc.h</itemPath>
+      <itemPath>dma.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -23,6 +25,8 @@
       <itemPath>myPWM.c</itemPath>
       <itemPath>myButtons.c</itemPath>
       <itemPath>serialComms.c</itemPath>
+      <itemPath>adc.c</itemPath>
+      <itemPath>dma.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
