@@ -250,7 +250,7 @@ void startTimer1(void)
 // }//
 
 
-
+/* Write a value to the UART using the putsUART1 function */
 // void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 // {
 //     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
@@ -275,6 +275,7 @@ void startTimer1(void)
 // }//
 
 
+/* Write a value to the UART directely by putting the message into the U1TXREG Register */
 // void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 // {
 //     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
