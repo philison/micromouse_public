@@ -37,7 +37,14 @@ void initDmaChannel4(void)
 void __attribute__((interrupt, auto_psv)) _DMA4Interrupt(void)
 {
 	IFS2bits.DMA4IF 		= 0;	// Clear DMA interrupt
-	LED6 = ~LED6;
+	static unsigned int counter = 0;
+	counter++;
+	if(counter == 100000)
+	{
+		LED6 = ~LED6;
+		counter = 0;
+	}
+	// LED6 = ~LED6;
 };
 
 

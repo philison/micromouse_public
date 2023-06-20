@@ -308,8 +308,8 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     // Convert the value of the potentiometer to a percentage for the PWM
     
     // float potiPercentage = (float)TEST_SENSOR / 1024.0f;
-    // float potiPercentage = (float)TEST_SENSOR / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
-    float potiPercentage = (TEST_SENSOR+0.0) / 4096.0; // 12 bit ADC therfore 2^12 = 4096 
+    float potiPercentage = (float)TEST_SENSOR / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
+    // float potiPercentage = (TEST_SENSOR+0.0) / 4096.0; // 12 bit ADC therfore 2^12 = 4096 
     P1DC1 = potiPercentage * MYPWM_MAX; //to get 100% DC, you need to write twice the PER Value (2*26666), PWM Duty Cycle 1 Register
 
 
@@ -319,6 +319,7 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     // sprintf(buffer, "Hello\r");
 
     sprintf(buffer, "%i", TEST_SENSOR);
+    sprintf(buffer, "%i", IO_1);
 
 
     putsUART1(buffer);

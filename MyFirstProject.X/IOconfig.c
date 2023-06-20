@@ -21,8 +21,8 @@ void setupIO()
     
     TRISBbits.TRISB8=0;// UART1 TX
 
-    // Configure RB5 as an input pin
-    // TRISBbits.TRISB5 = 1;  // Set RB5 as an input
+    // Configure RB5 as an input pin to register switch presses
+    TRISBbits.TRISB5 = 1;  // Set RB5 as an input (Switch in Starter Kit)
     __builtin_enable_interrupts();
 
     // Configure Ponti input Pin
