@@ -8,7 +8,10 @@ void setupIO()
 {
 
     int i;
-    AD1PCFGL=0xFFFF; //all pins are now digital, by default they are analogue
+    // AD1PCFGL=0xFFFF; //all pins are now digital, by default they are analogue
+    // AD1PCFGL=0xFFDF; //all pins are now digital, by default they are analogue
+    AD1PCFGL=0xFFDE; //all pins are now digital, by default they are analogue
+
     
     // set LEDs as output
     TRISBbits.TRISB15 = 0;
@@ -19,8 +22,13 @@ void setupIO()
     TRISBbits.TRISB8=0;// UART1 TX
 
     // Configure RB5 as an input pin
-    TRISBbits.TRISB5 = 1;  // Set RB5 as an input
+    // TRISBbits.TRISB5 = 1;  // Set RB5 as an input
     __builtin_enable_interrupts();
+
+    // Configure Ponti input Pin
+    // TRISBbits.TRISB3 = 1;  // Set RB3 / AN5 as an input
+    // TRISAbits.TRISA0 = 1;  // Set AN0 as an input
+
 
     //PIN MAPPING
     

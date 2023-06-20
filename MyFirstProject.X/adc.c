@@ -7,6 +7,8 @@
 
 #include "adc.h"
 #include <xc.h>
+#include "serialComms.h"
+#include "IOconfig.h"
 
 
 
@@ -58,12 +60,13 @@ void setupADC1()
     //AD1CON2bits.BUFS=x; //indicates which buffer is currently written (only if BUFM=1)
     AD1CON2bits.SMPI=1;//!!!CHANGE HERE!!! Selects Increment Rate for DMA Addresses bits or number of sample/conversion operations per interrupt
                        // update, now only set  to 1 because we scan 2 channels
+    // AD1CON2bits.SMPI=0;//!!!CHANGE HERE!!! Selects Increment Rate for DMA Addresses bits or number of sample/conversion operations per interrupt
     AD1CON2bits.BUFM=0; //always fill buffer starting at address 0x00
     AD1CON2bits.ALTS=0; //always use channel A and do not alternate
 
     //ADCON3
     AD1CON3bits.ADRC=0;// use internal clock source
-    AD1CON3bits.SAMC=0x05; //auto sample time bits, number of Tad
+    AD1CON3bits.SAMC=0x05; //auto sample time bits, number of Tad   SAMC = SampleCount
                            //only valid when SSRC=0b111
     AD1CON3bits.ADCS=0x06 ;//8-bits to derive ADC clock
                            //Tad= TCY ? (ADCS<7:0> + 1)
@@ -73,7 +76,8 @@ void setupADC1()
 
 
     //AD1CSSL (input scan select register)
-    AD1CSSL= 0b0000000000100001; //select the analog channel 0 and 5 !!!CHANGE HERE!!!
+    AD1CSSL= 0b0000000000100001; //select the analog channel 0 and 5 !!!CHANGE HERE!!! Select channels to sample always starts with the LSB and this is also the order the data is put in the buffer
+    // AD1CSSL= 0b0000000000100000; //select the analog channel 0 and 5 !!!CHANGE HERE!!! Select channels to sample always starts with the LSB and this is also the order the data is put in the buffer
 
 
     AD1CHS123bits.CH123NA = 0b00; //negative input for S/H 123 is Vref -
@@ -86,3 +90,16 @@ void setupADC1()
 
 }
 
+// void __attribute__((interrupt, no_auto_psv)) _ADCInterrupt(void)
+// {
+//     unsigned int temperature;
+//     IFS0bits.AD1IF=0; //reset the interrupt flag
+//     AD1CON1bits.ASAM=0; //stop the sampling
+//     //now read the data from the buffers ADCBUF0, ADCBUF1 etc.
+//     potentiometer=ADC1BUF0; //get the result
+//     //temperature=ADC1BUF1;
+//     //do something with the data
+    
+//     U1TXREG='D';
+//     LED4=~LED4;
+// }

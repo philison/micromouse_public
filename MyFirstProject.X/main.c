@@ -120,8 +120,11 @@ int main()
     
     //setupUART2();
     
-    //setupPWM();
+    setupPWM();
     //setupButtons();
+    
+    setupADC1();
+    startADC1();
 
 
     while(1)
