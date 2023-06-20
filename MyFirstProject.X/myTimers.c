@@ -294,8 +294,7 @@ void startTimer1(void)
 
 
 
-/* A2D Conversion of the Poti */
-// TEST_SENSOR
+/* A2D Conversion of the Poti and setting the PWM DC Cyle to the read value. Additionally writing the value to the UART */
 void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 {
     /**
@@ -306,22 +305,16 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag
 
     // Convert the value of the potentiometer to a percentage for the PWM
-    
-    // float potiPercentage = (float)TEST_SENSOR / 1024.0f;
-    float potiPercentage = (float)TEST_SENSOR / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
-    // float potiPercentage = (TEST_SENSOR+0.0) / 4096.0; // 12 bit ADC therfore 2^12 = 4096 
+        float potiPercentage = (float)TEST_SENSOR / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
     P1DC1 = potiPercentage * MYPWM_MAX; //to get 100% DC, you need to write twice the PER Value (2*26666), PWM Duty Cycle 1 Register
 
 
+    // UART
     char buffer[10];
-    // sprintf(buffer, "Hello World %d\n", myCount);
-    // sprintf(buffer, "%d\n", TEST_SENSOR);
-    // sprintf(buffer, "Hello\r");
-
+    // PWM
     sprintf(buffer, "%i", TEST_SENSOR);
+    // Other Analog Pin
     sprintf(buffer, "%i", IO_1);
-
-
     putsUART1(buffer);
 
     LED4=~LED4;

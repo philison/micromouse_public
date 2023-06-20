@@ -25,7 +25,7 @@ void setupIO()
     TRISBbits.TRISB5 = 1;  // Set RB5 as an input (Switch in Starter Kit)
     __builtin_enable_interrupts();
 
-    // Configure Ponti input Pin
+    // Configure Ponti input Pin, Apperently not needed ?????
     // TRISBbits.TRISB3 = 1;  // Set RB3 / AN5 as an input
     // TRISAbits.TRISA0 = 1;  // Set AN0 as an input
 
