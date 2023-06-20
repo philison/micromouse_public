@@ -53,7 +53,7 @@
 
 
 /// Defines----------------------------
-#define SEVEN_MEG_OSC 0//set to 1 if we use slow (7.3728 MHz) oscillator and not 16 MHz
+#define SEVEN_MEG_OSC 1//set to 1 if we use slow (7.3728 MHz) oscillator and not 16 MHz
 
 /*
  * 
@@ -107,6 +107,7 @@ int main()
     setupIO(); //configures inputs and outputs
     //initTimer1(4166); //creates a 10ms timer interrupt
     initTimer1inMS(10.0);
+    setupUART1();
     startTimer1();
     
     // LED4 = 1; //switches off
@@ -117,7 +118,8 @@ int main()
     // Switch off all leds at once in the beginning
     LED4 = LED5 = LED6 = LED7 = LEDOFF;
     
-    setupUART2();
+    //setupUART2();
+    
     //setupPWM();
     //setupButtons();
 

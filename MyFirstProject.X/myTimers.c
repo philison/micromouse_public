@@ -249,25 +249,45 @@ void startTimer1(void)
 // }//
 
 
-
+/* Write a value to the UART using the putsUART1 function */
 void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 {
     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
     static int myCount=0;
 
-    char buffer[2];
+    char buffer[10];
     // sprintf(buffer, "Hello World %d\n", myCount);
-    sprintf(buffer, "a");
+    sprintf(buffer, "U");
 
     if (myCount >= 100){
          //putsUART2(buffer);
          myCount=0;
          LED5=~LED5;
     }
-    // putsUART2(buffer);
+    putsUART1(buffer);
 
     //LED5=~LED5;
+    LED4=~LED4;
 
     myCount++;
 
 }//
+
+/* Write a value to the UART directely by putting the message into the U1TXREG Register */
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     if (myCount >= 100){
+//          //putsUART2(buffer);
+//          myCount=0;
+//          LED5=~LED5;
+//     }
+
+//     myCount++;
+
+//     U1TXREG='U';
+
+// }//
+

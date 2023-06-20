@@ -14,41 +14,42 @@
  * for standard communication speed of 9600 kbit/s
  * choose 173 (factor 6)
 */
-// void setupUART1(void)
-// {
-// 	U1MODEbits.UARTEN=0; //switch the uart off during set-up
-// 	U1BRG=28; // baud rate register
-// 	U1MODEbits.LPBACK=0; // in loopback mode for test! TODO: set to no loop-back (=0) after test 
+void setupUART1(void)
+{
+	U1MODEbits.UARTEN=0; //switch the uart off during set-up
+	U1BRG=28; // baud rate register
+	// U1BRG=173; // baud rate register
+	U1MODEbits.LPBACK=0; // in loopback mode for test! TODO: set to no loop-back (=0) after test 
 	
-// 	U1MODEbits.WAKE=0; //do not wake up on serial port activity
+	U1MODEbits.WAKE=0; //do not wake up on serial port activity
 
-// 	U1MODEbits.ABAUD=0; //no auto baud rate detection
-// 	U1MODEbits.PDSEL=0; //select 8 bits date, no parity
-// 	U1MODEbits.STSEL=0; //one stop bit
-//     U1MODEbits.BRGH = 0; // No High Speed Mode
+	U1MODEbits.ABAUD=0; //no auto baud rate detection
+	U1MODEbits.PDSEL=0; //select 8 bits date, no parity
+	U1MODEbits.STSEL=0; //one stop bit
+    U1MODEbits.BRGH = 0; // No High Speed Mode
 
 
-// 	IFS0bits.U1RXIF=0; //reset the receive interrupt flag
-// 	IFS0bits.U1TXIF=0; //reset the transmission interrupt flag
+	IFS0bits.U1RXIF=0; //reset the receive interrupt flag
+	IFS0bits.U1TXIF=0; //reset the transmission interrupt flag
     
-// 	IPC2bits.U1RXIP=3; //set the RX interrupt priority
-// 	IPC3bits.U1TXIP=5; //set the TX interrupt priority
+	IPC2bits.U1RXIP=3; //set the RX interrupt priority
+	IPC3bits.U1TXIP=5; //set the TX interrupt priority
 
-// 	U1STAbits.URXISEL=0; //generate a receive interrupt as soon as a character has arrived
-// 	U1STAbits.UTXEN=1; //enable the transmission of data
+	U1STAbits.URXISEL=0; //generate a receive interrupt as soon as a character has arrived
+	U1STAbits.UTXEN=1; //enable the transmission of data
 
-// 	IEC0bits.U1RXIE=1; //enable the receive interrupt
-// 	IEC0bits.U1TXIE=0; //disable the transmit interrupt
+	IEC0bits.U1RXIE=0; //enable the receive interrupt
+	IEC0bits.U1TXIE=0; //disable the transmit interrupt
 
-// 	//FINALLY, 
-// 	U1MODEbits.UARTEN=1; //switch the uart on
+	//FINALLY, 
+	U1MODEbits.UARTEN=1; //switch the uart on
 
-//   	U1STAbits.UTXEN=1; //enable transmission
+  	U1STAbits.UTXEN=1; //enable transmission
 	
     
-// //   	U1MODE = 0x8000; /* Reset UART to 8-n-1, alt pins, and enable */
-// //	U1STA  = 0x0440; /* Reset status register and enable TX & RX*/
-// }
+//   	U1MODE = 0x8000; /* Reset UART to 8-n-1, alt pins, and enable */
+//	U1STA  = 0x0440; /* Reset status register and enable TX & RX*/
+}
 
 
 // Setup UART2
