@@ -123,7 +123,10 @@ int main()
     
     //setupUART2();
     
-    //setupPWM();
+    setupPWM();
+    setPWM_DCpercentage(&P1DC1, 0.9);
+    LATAbits.LATA0 = 0; // Set Motor direction to forward
+
     //setupButtons();
 
 
