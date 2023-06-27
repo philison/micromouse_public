@@ -3,6 +3,7 @@
 #include "myPWM.h"
 #include "serialComms.h"
 #include "motorEncoders.h"
+#include "motorControl.h"
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -294,6 +295,35 @@ void startTimer1(void)
 
 
 
+// /* Read Motor Encoder Values */
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     long motor_count = getPositionInCounts_1();
+//     int motor_vel = getVelocityInCountsPerSample_1();
+
+//     char buffer[10];
+//     // sprintf(buffer, "%ld\r\n", motor_count);
+//     sprintf(buffer, "%i\r\n", motor_vel);
+
+//     if (myCount >= 100){
+//          //putsUART2(buffer);
+//          myCount=0;
+//          LED5=~LED5;
+//     }
+//     putsUART1(buffer);
+
+//     //LED5=~LED5;
+//     //LED4=~LED4;
+
+//     myCount++;
+
+// }//
+
+
+
 /* Read Motor Encoder Values */
 void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 {
@@ -301,16 +331,24 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     static int myCount=0;
 
     long motor_count = getPositionInCounts_1();
+    int motor_vel = getVelocityInCountsPerSample_1();
 
-    char buffer[10];
-    sprintf(buffer, "%ld\r\n", motor_count);
+    float pwm = pi_vel_controller(17.0, motor_vel);
+    // setPWM_DCpercentage(&P1DC1, pwm);
+    char buffer[40];
+    // sprintf(buffer, "%ld\r\n", motor_count);
+    sprintf(buffer, "PWM: %.2f, Vel: %i\r\n",pwm, motor_vel);
+    putsUART1(buffer);
+
+    // sprintf(buffer, "%i\r\n", motor_vel);
+    // putsUART1(buffer);
+
 
     if (myCount >= 100){
          //putsUART2(buffer);
          myCount=0;
          LED5=~LED5;
     }
-    putsUART1(buffer);
 
     //LED5=~LED5;
     //LED4=~LED4;
@@ -318,3 +356,5 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     myCount++;
 
 }//
+
+
