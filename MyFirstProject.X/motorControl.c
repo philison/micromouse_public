@@ -4,10 +4,12 @@
 
 //#include math.h
 
-// void pd_vel_controller(float targetVelocity, float currentVelocity, float *pwm)
+/***
+ * A simple PI-Controler to drive the motor at a targetVelocity via PWM
+***/
 float pi_vel_controller(float targetVelocity, int currentVelocity)
 {
-    //float currentVelocity = getVelocityInCountsPerSample_1();
+    //float currentVelocity = getVelocityInCountsPerSample_1(); // The control loop does not work if the function is called within the function
     float error = targetVelocity - currentVelocity; // -20
     float pwm = 0;
     float kp = 0.01;
