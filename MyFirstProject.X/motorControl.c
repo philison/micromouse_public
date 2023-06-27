@@ -5,7 +5,7 @@
 //#include math.h
 
 /***
- * A simple PI-Controler to drive the motor at a targetVelocity via PWM
+ * A simple PI-Controller to drive the motor at a targetVelocity via PWM
 ***/
 float pi_vel_controller(float targetVelocity, int currentVelocity)
 {
