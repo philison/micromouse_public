@@ -33,9 +33,9 @@ void setupIO()
 
     
     //PERIPHERAL QEA Encoder 1, receives data from RP10
-   // RPINR14bits.QEA1R = 10; 
+   RPINR14bits.QEA1R = 10; 
     //PERIPHERAL QEB Encoder 1, receives data from RP11
-   // RPINR14bits.QEB1R = 11;
+   RPINR14bits.QEB1R = 11;
     
     
     //OUTPUT PIN receives data from which PERIPHERAL, 

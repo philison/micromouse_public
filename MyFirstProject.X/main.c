@@ -108,6 +108,9 @@ int main()
     //initTimer1(4166); //creates a 10ms timer interrupt
     initTimer1inMS(10.0);
     setupUART1();
+    // unsigned int 
+    initQEI1(0);
+
     startTimer1();
     
     // LED4 = 1; //switches off
