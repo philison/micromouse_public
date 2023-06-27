@@ -108,8 +108,11 @@ int main()
  
     setupIO(); //configures inputs and outputs
     //initTimer1(4166); //creates a 10ms timer interrupt
-    initTimer1inMS(10.0);
+    initTimer1inMS(1.0);
     setupUART1();
+    // unsigned int 
+    initQEI1(0);
+
     startTimer1();
     
     // LED4 = 1; //switches off
@@ -123,6 +126,10 @@ int main()
     //setupUART2();
     
     setupPWM();
+
+    // setPWM_DCpercentage(&P1DC1, 0.1);
+    LATAbits.LATA0 = 0; // Set Motor direction to forward
+    
     //setupButtons();
     
     setupADC1();
@@ -135,7 +142,7 @@ int main()
     while(1)
     {
         
-       
+
     };
  
     

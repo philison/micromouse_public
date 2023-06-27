@@ -41,9 +41,9 @@ void setupIO()
 
     
     //PERIPHERAL QEA Encoder 1, receives data from RP10
-   // RPINR14bits.QEA1R = 10; 
+   RPINR14bits.QEA1R = 10; 
     //PERIPHERAL QEB Encoder 1, receives data from RP11
-   // RPINR14bits.QEB1R = 11;
+   RPINR14bits.QEB1R = 11;
     
     
     //OUTPUT PIN receives data from which PERIPHERAL, 
@@ -53,7 +53,9 @@ void setupIO()
     // UART to be used with programmer 
     // RPOR4bits.RP8R = 0b00101; //output Pin RP8 gets data from peripheral U2 TX 
 
-   
+    // PIN for Motor HBridge Control
+    TRISAbits.TRISA0 = 0; // SET RA0 as output to send a logic high or low to the H-Bridge
+
     //after mapping we lock again
      __builtin_write_OSCCONL(OSCCON | 0x40); // Lock PPS registers (lock again!)
      

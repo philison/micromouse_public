@@ -2,7 +2,10 @@
 #include "IOconfig.h"
 #include "myPWM.h"
 #include "serialComms.h"
+#include "motorEncoders.h"
+#include "motorControl.h"
 #include "dma.h"
+
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -265,10 +268,10 @@ void startTimer1(void)
 //          myCount=0;
 //          LED5=~LED5;
 //     }
-//     //putsUART1(buffer);
+//     putsUART1(buffer);
 
 //     //LED5=~LED5;
-//     //LED4=~LED4;
+//     LED4=~LED4;
 
 //     myCount++;
 
@@ -294,29 +297,91 @@ void startTimer1(void)
 // }//
 
 
-
 /* A2D Conversion of the Poti and setting the PWM DC Cyle to the read value. Additionally writing the value to the UART */
+//void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+//{
+//    /**
+//     * Dim LED4 with the potentiometer. 
+//     * The potentiometer value can be red from the define TEST_SENSOR
+//    */
+
+//    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag
+
+//    // Convert the value of the potentiometer to a percentage for the PWM
+//        float potiPercentage = (float)TEST_SENSOR / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
+//    P1DC1 = potiPercentage * MYPWM_MAX; //to get 100% DC, you need to write twice the PER Value (2*26666), PWM Duty Cycle 1 Register
+
+
+//    // UART
+//    char buffer[10];
+//    // PWM
+//    sprintf(buffer, "%i", TEST_SENSOR);
+//    // Other Analog Pin
+//    sprintf(buffer, "%i", IO_1);
+//    putsUART1(buffer);
+
+//    LED4=~LED4;
+//}
+
+
+// /* Read Motor Encoder Values */
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     long motor_count = getPositionInCounts_1();
+//     int motor_vel = getVelocityInCountsPerSample_1();
+
+//     char buffer[10];
+//     // sprintf(buffer, "%ld\r\n", motor_count);
+//     sprintf(buffer, "%i\r\n", motor_vel);
+
+//     if (myCount >= 100){
+//          //putsUART2(buffer);
+//          myCount=0;
+//          LED5=~LED5;
+//     }
+//     putsUART1(buffer);
+
+//     //LED5=~LED5;
+//     //LED4=~LED4;
+
+//     myCount++;
+
+// }//
+
+
+
+/* Read Motor Encoder Values */
 void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 {
-    /**
-     * Dim LED4 with the potentiometer. 
-     * The potentiometer value can be red from the define TEST_SENSOR
-    */
+    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+    static int myCount=0;
 
-    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag
+    long motor_count = getPositionInCounts_1();
+    int motor_vel = getVelocityInCountsPerSample_1();
 
-    // Convert the value of the potentiometer to a percentage for the PWM
-        float potiPercentage = (float)TEST_SENSOR / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
-    P1DC1 = potiPercentage * MYPWM_MAX; //to get 100% DC, you need to write twice the PER Value (2*26666), PWM Duty Cycle 1 Register
-
-
-    // UART
-    char buffer[10];
-    // PWM
-    sprintf(buffer, "%i", TEST_SENSOR);
-    // Other Analog Pin
-    sprintf(buffer, "%i", IO_1);
+    float pwm = pi_vel_controller(17.0, motor_vel);
+    // setPWM_DCpercentage(&P1DC1, pwm);
+    char buffer[40];
+    // sprintf(buffer, "%ld\r\n", motor_count);
+    sprintf(buffer, "PWM: %.2f, Vel: %i\r\n",pwm, motor_vel);
     putsUART1(buffer);
 
-    LED4=~LED4;
-}
+    // sprintf(buffer, "%i\r\n", motor_vel);
+    // putsUART1(buffer);
+
+
+    if (myCount >= 100){
+         //putsUART2(buffer);
+         myCount=0;
+         LED5=~LED5;
+    }
+
+    //LED5=~LED5;
+    //LED4=~LED4;
+
+    myCount++;
+
+}//
