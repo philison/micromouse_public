@@ -10,6 +10,7 @@
       <itemPath>myButtons.h</itemPath>
       <itemPath>serialComms.h</itemPath>
       <itemPath>motorEncoders.h</itemPath>
+      <itemPath>motorControl.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -25,6 +26,7 @@
       <itemPath>myButtons.c</itemPath>
       <itemPath>serialComms.c</itemPath>
       <itemPath>motorEncoders.c</itemPath>
+      <itemPath>motorControl.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

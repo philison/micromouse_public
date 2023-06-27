@@ -1,6 +1,6 @@
 
 #include <xc.h>
-#include "gpio.h"
+//#include "gpio.h"
 #include "motorEncoders.h"
 //file global
 
