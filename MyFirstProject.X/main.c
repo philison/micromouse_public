@@ -50,6 +50,8 @@
 #include "myTimers.h"
 #include "myPWM.h"
 #include "serialComms.h"
+#include "adc.h"
+#include "dma.h"
 
 
 /// Defines----------------------------
@@ -124,11 +126,17 @@ int main()
     //setupUART2();
     
     setupPWM();
+
     // setPWM_DCpercentage(&P1DC1, 0.1);
     LATAbits.LATA0 = 0; // Set Motor direction to forward
     
-
     //setupButtons();
+    
+    setupADC1();
+    startADC1();
+    initDmaChannel4();
+    
+
 
 
     while(1)
