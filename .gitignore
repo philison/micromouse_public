@@ -28,3 +28,7 @@
 # Misc
 .svn
 *.bak
+/mazerunner.X/build/
+/mazerunner.X/dist/
+/MyFirstProject.X/build/
+/MyFirstProject.X/dist/
