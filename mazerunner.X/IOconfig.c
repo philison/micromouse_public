@@ -36,19 +36,21 @@ void setupIO()
     __builtin_write_OSCCONL(OSCCON & 0xbf); // clear bit 6 (unlock, they are usually write protected)
     
     // PERIPHERAL receives data from which INPUT  
-    RPINR18bits.U1RXR = 9; //mapped to RP9 is U1 RX, CHANGE THIS
+    RPINR18bits.U1RXR = 7; //mapped to RP7 is U1 RX, CHANGE THIS // MAZERUNNER
     // RPINR19bits.U2RXR = 9; //mapped to RP9 is U2 RX, CHANGE THIS
 
-    
-    //PERIPHERAL QEA Encoder 1, receives data from RP10
-   RPINR14bits.QEA1R = 10; 
-    //PERIPHERAL QEB Encoder 1, receives data from RP11
-   RPINR14bits.QEB1R = 11;
-    
-    
     //OUTPUT PIN receives data from which PERIPHERAL, 
     //see table 11-2 in datasheet to check peripheral codes 
-    RPOR4bits.RP8R = 0b00011; //output bin RP2 gets data from peripheral U1 TX 
+    RPOR4bits.RP8R = 0b00011; //output bin RP8 gets data from peripheral U1 TX  // MAZERUNNER
+
+
+    //PERIPHERAL QEA Encoder 1, receives data from RP10
+   RPINR14bits.QEA1R = 24; // mazerunner change
+    //PERIPHERAL QEB Encoder 1, receives data from RP11
+   RPINR14bits.QEB1R = 25; // mazerunner change
+    
+    
+
     
     // UART to be used with programmer 
     // RPOR4bits.RP8R = 0b00101; //output Pin RP8 gets data from peripheral U2 TX 
