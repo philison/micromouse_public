@@ -4,6 +4,15 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>IOconfig.h</itemPath>
+      <itemPath>adc.h</itemPath>
+      <itemPath>dma.h</itemPath>
+      <itemPath>motorControl.h</itemPath>
+      <itemPath>motorEncoders.h</itemPath>
+      <itemPath>myButtons.h</itemPath>
+      <itemPath>myPWM.h</itemPath>
+      <itemPath>myTimers.h</itemPath>
+      <itemPath>serialComms.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -12,6 +21,16 @@
     <logicalFolder name="SourceFiles"
                    displayName="Source Files"
                    projectFiles="true">
+      <itemPath>IOconfig.c</itemPath>
+      <itemPath>adc.c</itemPath>
+      <itemPath>dma.c</itemPath>
+      <itemPath>main.c</itemPath>
+      <itemPath>motorControl.c</itemPath>
+      <itemPath>motorEncoders.c</itemPath>
+      <itemPath>myButtons.c</itemPath>
+      <itemPath>myPWM.c</itemPath>
+      <itemPath>myTimers.c</itemPath>
+      <itemPath>serialComms.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
