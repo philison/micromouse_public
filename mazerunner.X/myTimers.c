@@ -363,7 +363,7 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 
     char buffer[40];
     // sprintf(buffer, "%ld\r\n", motor_count);
-    sprintf(buffer, "Motor_v_1: %i\r\n  Motor_v_2: %i\r\n\n", motor_vel_1, motor_vel_2);
+    sprintf(buffer, "Motor_v_1: %i\r\nMotor_v_2: %i\r\n\n", motor_vel_1, motor_vel_2);
 
     if (myCount >= 100){
          //putsUART2(buffer);

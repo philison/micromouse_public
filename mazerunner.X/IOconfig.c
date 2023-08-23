@@ -56,10 +56,14 @@ void setupIO()
     RPOR4bits.RP8R = 0b00011; //output bin RP8 gets data from peripheral U1 TX  // MAZERUNNER
 
 
-    //PERIPHERAL QEA Encoder 1, receives data from RP10
-   RPINR14bits.QEA1R = 24; // mazerunner change
-    //PERIPHERAL QEB Encoder 1, receives data from RP11
-   RPINR14bits.QEB1R = 25; // mazerunner change
+
+    //PERIPHERAL QEA Encoder 1, receives data from RP24 and RP25
+    RPINR14bits.QEA1R = 24; // mazerunner change
+    RPINR14bits.QEB1R = 25; // mazerunner change
+
+    //PERIPHERAL QEA Encoder 2, receives data from RP19 and RP20
+    RPINR16bits.QEA2R = 19; // mazerunner change
+    RPINR16bits.QEB2R = 20; // mazerunner change
     
     
 
