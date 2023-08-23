@@ -148,7 +148,7 @@ int main()
     // setPWM_DCpercentage(&P1DC1, 0.1);
     // LATAbits.LATA0 = 0; // Set Motor direction to forward
     
-    //setupButtons();
+    setupButtons();
     
     // setupADC1();
     // startADC1();

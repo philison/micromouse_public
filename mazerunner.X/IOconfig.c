@@ -28,8 +28,13 @@ void setupIO()
     
     TRISBbits.TRISB8=0;// UART1 TX
 
-    // Configure RB5 as an input pin to register switch presses
-    TRISBbits.TRISB5 = 1;  // Set RB5 as an input (Switch in Starter Kit)
+    // // Configure RB5 as an input pin to register switch presses
+    // TRISBbits.TRISB5 = 1;  // Set RB5 as an input (Switch in Starter Kit)
+    // __builtin_enable_interrupts();
+
+    // Mazerunner
+    // Configure RC5 as an input pin to register switch presses
+    TRISCbits.TRISC5 = 1;  // Set RC5 as an input (Switch in Mazerunner)
     __builtin_enable_interrupts();
 
     // Configure Ponti input Pin, Apperently not needed ?????

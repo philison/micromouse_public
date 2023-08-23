@@ -31,7 +31,7 @@
 
 
 // SWITCH CONFIG Mazerunner
-#define SW2 PORTCbits.RC5
+#define SW1 PORTCbits.RC5
 
 // OLD CONFIG
 // #define SW1 !PORTBbits.RB5 
