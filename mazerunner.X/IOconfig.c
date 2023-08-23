@@ -68,7 +68,10 @@ void setupIO()
     // RPOR4bits.RP8R = 0b00101; //output Pin RP8 gets data from peripheral U2 TX 
 
     // PIN for Motor HBridge Control
-    // TRISAbits.TRISA0 = 0; // SET RA0 as output to send a logic high or low to the H-Bridge
+    // Left Motor: PWM1H1 (Pin: RB14), PWM1L1 (Pin: RB15) (PWM Pin pair 1 of the PWM Module 1)
+    // Right Motor: PWM1H2 (Pin: RB12), PWM1L2 (Pin: RB13) (PWM Pin pair 2 of the PWM Module 1)
+    TRISBbits.TRISB15 = 0; // SET RA0 as output to send a logic high or low to the H-Bridge
+    TRISBbits.TRISB13 = 0; // SET RA0 as output to send a logic high or low to the H-Bridge
 
     //after mapping we lock again
      __builtin_write_OSCCONL(OSCCON | 0x40); // Lock PPS registers (lock again!)

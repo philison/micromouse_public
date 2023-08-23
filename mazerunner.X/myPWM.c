@@ -10,6 +10,15 @@
 #endif
 
 
+/* Mazerunner Config:
+* Left Motor: PWM1H1 (Pin: RB14), PWM1L1 (Pin: RB15) (PWM Pin pair 1 of the PWM Module 1)
+* Right Motor: PWM1H2 (Pin: RB12), PWM1L2 (Pin: RB13) (PWM Pin pair 2 of the PWM Module 1)
+* 
+* // Datasheet H-Bridge
+* PWM1Lx goes to the H-Bridge input xIN1
+* PWM1Hx goes to the H-Bridge input xIN2
+*/
+
 
 void setupPWM()
 {
@@ -20,18 +29,28 @@ void setupPWM()
     P1TCONbits.PTEN = 0; // Switch off PWM generator
     P1TCONbits.PTCKPS = 0b00; // Sets prescaler, available are 1(00),4(01),16(10) or 64(11)
     P1TPER = MYPWM_MAX/2; //15 bit register
-    PWM1CON1bits.PMOD1 = 1; // set PWM unit 1 to independent mode
-    
+    PWM1CON1bits.PMOD1 = 1; // Left Motor PWM Pin pair/ set PWM unit 1 to independent mode: sets the PWM output pin pair such that both pins are either active high or low -> not complementary / Complementary mode would be 0
+    PWM1CON1bits.PMOD2 = 1; // Right Motor PWM Pin pair
+
+
+    // 0 = disable PWM driver, I/O pin becomes general purpose I/O, Value can be written to it via the Latch
+    // 1 = enable PWM driver, PWM output appears on the I/O pin
     PWM1CON1bits.PEN1H = 1; // enable  PWM driver PWM1H1
-    PWM1CON1bits.PEN2H = 0; // disable PWM driver, I/O pin becomes general purpose I/O
-    PWM1CON1bits.PEN3H = 0; // disable PWM driver
     PWM1CON1bits.PEN1L = 0; // disable PWM driver 
+
+    PWM1CON1bits.PEN2H = 1; // disable PWM driver, I/O pin becomes general purpose I/O
     PWM1CON1bits.PEN2L = 0; // disable PWM driver
+
+    PWM1CON1bits.PEN3H = 0; // disable PWM driver
     PWM1CON1bits.PEN3L = 0; // disable PWM driver
 
+
     P1TCONbits.PTEN = 1; // Switch on PWM generator
-    P1DC1 = .01*MYPWM_MAX; //to get 100% DC, you need to write twice the PER Value (2*26666), PWM Duty Cycle 1 Register
-    P1DC2 = 0;
+
+    // Set the PWM Duty Cycle Registers for the 3 PWM pairs of PWM module 1
+    // P1DC1 = .01*MYPWM_MAX; //to get 100% DC, you need to write twice the PER Value (2*26666), PWM Duty Cycle 1 Register
+    P1DC1 = .01*MYPWM_MAX_MAZE_MOTOR; // Limit the Motor PWM max duty cycle to 66% for mazerunner to limit the motor voltage to 6V (from 9V H-Bridge Supply) 
+    P1DC2 = .01*MYPWM_MAX_MAZE_MOTOR;
     P1DC3 = 0;
 
 
@@ -48,6 +67,16 @@ void setPWM_DCpercentage(uint16_t *pwmDutyCycleRegister, float percentage)
     *pwmDutyCycleRegister = percentage * MYPWM_MAX;
 }
 
+
+void setPWM_DCpercentage_Motor(uint16_t *pwmDutyCycleRegister, float percentage)
+{
+    // Add error handling to prefent a duty cycle higher than 100% -> percentage > 1.0f
+    if (percentage <= 1.0f)
+    {
+        *pwmDutyCycleRegister = percentage * MYPWM_MAX_MAZE_MOTOR;
+    }
+    
+}
 
 // // Ex 5.4.5
 // void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)

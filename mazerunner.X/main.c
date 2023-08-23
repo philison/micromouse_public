@@ -128,7 +128,10 @@ int main()
     initTimer1inMS(1.0);
     setupUART1();
     // unsigned int 
-    // initQEI1(0);
+
+    // Init Encoders
+    initQEI1(0);
+    initQEI2(0);
 
     startTimer1();
     
@@ -143,10 +146,15 @@ int main()
     
     //setupUART2();
     
-    // setupPWM();
+    setupPWM();
 
     // setPWM_DCpercentage(&P1DC1, 0.1);
-    // LATAbits.LATA0 = 0; // Set Motor direction to forward
+
+    // Set PWM Pin for Motors
+    // Left Motor: PWM1H1 (Pin: RB14), PWM1L1 (Pin: RB15) (PWM Pin pair 1 of the PWM Module 1)
+    // Right Motor: PWM1H2 (Pin: RB12), PWM1L2 (Pin: RB13) (PWM Pin pair 2 of the PWM Module 1)
+    LATBbits.LATB15 = 0; // Set Motor direction to forward
+    LATBbits.LATB13 = 0; // Set Motor direction to forward
     
     setupButtons();
     
