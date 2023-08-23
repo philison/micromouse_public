@@ -431,15 +431,10 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     float sensor_right_distance_in_percentage = (float)SENSOR_RIGHT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096
 
 
-    // UART
-    char buffer[40];
-    // Sensor Values
+    // UART Buffer
+    char buffer[100];
+    // Print Sensor Values
     sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
-    // sprintf(buffer, "SLP: %3i,\tSFP: %3i,\tSRP: %3i\n\r", (int)(sensor_left_distance_in_percentage*100), (int)(sensor_front_distance_in_percentage*100), (int)(sensor_right_distance_in_percentage*100));    
-    // sprintf(buffer, "SLP: %3i,\tSFP: %3i,\tSRP: %3i\n\r", int(sensor_left_distance_in_percentage*100), int(sensor_front_distance_in_percentage*100), int(sensor_right_distance_in_percentage*100));    
-    // Other Analog Pin
-    // sprintf(buffer, "%i", IO_1);
     putsUART1(buffer);
 
-    // LED4=~LED4;
 }

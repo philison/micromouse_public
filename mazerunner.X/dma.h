@@ -33,6 +33,5 @@ void initDmaChannel4(void);
 #define SENSOR_LEFT adcData[2] //AN6
 
 
-
 #endif	/* DMA_H */
 

@@ -9,8 +9,12 @@ void setupIO()
 
     int i;
     // AD1PCFGL=0xFFFF; //all pins are now digital, by default they are analogue
-    // AD1PCFGL=0xFFDF; //all pins are now digital, by default they are analogue
-    AD1PCFGL=0xFFDE; //all pins are now digital, by default they are analogue
+    // AD1PCFGL=0xFFDF; 
+    // AD1PCFGL=0xFFDE; 
+
+    // Set all pins to be digital, except the pins used with the A2DC module (e.g. AN4, AN5, AN6)
+    // define inverse of 0b0000000001110000 from AD1CSSL
+    AD1PCFGL=0b1111111110001111; // Set all pins to digital except AN4, AN5, AN6 which are analogue to measure the IR-Sensor voltages
 
     
     // // set LEDs as output
@@ -39,6 +43,9 @@ void setupIO()
 
     // Configure Ponti input Pin, Apperently not needed ?????
     // TRISBbits.TRISB3 = 1;  // Set RB3 / AN5 as an input
+    // TRISBbits.TRISB3 = 1; 
+    // TRISBbits.TRISB2 = 1;
+    // TRISCbits.TRISC0 = 1;
     // TRISAbits.TRISA0 = 1;  // Set AN0 as an input
 
 

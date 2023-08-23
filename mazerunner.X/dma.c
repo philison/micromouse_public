@@ -20,32 +20,32 @@ void initDmaChannel4(void)
 	DMA4REQbits.IRQSEL	= 13;	// DMA Peripheral IRQ number select (ADC1)
 
 	DMA4STA 	        = (__builtin_dmaoffset(&(adcData[0]))); // start address of DMA RAM
-	DMA4PAD 		= (volatile unsigned int) &ADC1BUF0;			// address of peripheral sfr (0x0300)
-	DMA4CNT			 = 2;	// Mazerunner
+	DMA4PAD 			= (volatile unsigned int) &ADC1BUF0;			// address of peripheral sfr (0x0300)
+	DMA4CNT			 	= 2;	// Mazerunner 
 	// DMA4CNT			 = 1;	// we have 2 a2d  s/h channels for  measurement !!!CHANGE HERE!!!   More samples will be stored in the array if value higher
 	// DMA4CNT			 = 0;	// we have 1 a2d s/h channel 
 
     // Interrupt settings
 	IFS2bits.DMA4IF 	= 0;	// Clear DMA interrupt
-	// IEC2bits.DMA4IE 	= 0;	// disable interrupt
-	IEC2bits.DMA4IE 	= 1;	// enable interrupt
+	IEC2bits.DMA4IE 	= 0;	// disable interrupt
+	// IEC2bits.DMA4IE 	= 1;	// enable interrupt
 	IPC11bits.DMA4IP 	= 5;	// set priority of interrupt
 
 	DMA4CONbits.CHEN 	= 1;	// enable channel
 
 }
 
-void __attribute__((interrupt, auto_psv)) _DMA4Interrupt(void)
-{
-	IFS2bits.DMA4IF 		= 0;	// Clear DMA interrupt
-	// static unsigned int counter = 0;
-	// counter++;
-	// if(counter == 100000)
-	// {
-	// 	LED4 = ~LED4;
-	// 	counter = 0;
-	// }
-	// LED4 = ~LED4;
-};
+// void __attribute__((interrupt, auto_psv)) _DMA4Interrupt(void)
+// {
+// 	IFS2bits.DMA4IF 		= 0;	// Clear DMA interrupt
+// 	// static unsigned int counter = 0;
+// 	// counter++;
+// 	// if(counter == 100000)
+// 	// {
+// 	// 	LED4 = ~LED4;
+// 	// 	counter = 0;
+// 	// }
+// 	// LED4 = ~LED4;
+// };
 
 

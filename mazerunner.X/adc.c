@@ -77,7 +77,9 @@ void setupADC1()
 
 
     //AD1CSSL (input scan select register) (LSB = AN0, MSB = AN9)
-    AD1CSSL= 0b0000000001110000; // Mazerunner
+    AD1CSSL= 0b0000000001110000; // Mazerunner Read AN4, AN5, AN6
+    // AD1CSSL= 0b0000000000010000; // Mazerunner
+    // AD1CSSL= 0b0000000000000010; // Mazerunner
     // AD1CSSL= 0b0000000000100001; //select the analog channel 0 and 5 !!!CHANGE HERE!!! Select channels to sample always starts with the LSB and this is also the order the data is put in the buffer
     // AD1CSSL= 0b0000000000100000; //select the analog channel 0 and 5 !!!CHANGE HERE!!! Select channels to sample always starts with the LSB and this is also the order the data is put in the buffer
 
