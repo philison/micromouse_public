@@ -169,30 +169,30 @@ void startTimer1(void)
 //     }
 // }//
 
-// Test Hello World Blinking
-void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-{
-    /**
-     * Implement a software counter in your Timer1 ISR which will allow you
-     * to toggle LED6 with exactly 1Hz while LED5 keeps on blinking with a frequency of 50Hz
-     * The ISR should be called every 1ms
-    */
-    static int myCount=0;
-    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+// Test Hello World Blinking Mazerunner
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     /**
+//      * Implement a software counter in your Timer1 ISR which will allow you
+//      * to toggle LED6 with exactly 1Hz while LED5 keeps on blinking with a frequency of 50Hz
+//      * The ISR should be called every 1ms
+//     */
+//     static int myCount=0;
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
 
-    myCount++;
+//     myCount++;
 
-    if(myCount % 20 == 0)
-    {
-        LED1=~LED1;
-    }
+//     if(myCount % 20 == 0)
+//     {
+//         LED1=~LED1;
+//     }
 
-    if(myCount == 1000)
-    {
-        LED3=~LED3;
-        myCount=0;
-    }
-}//
+//     if(myCount == 1000)
+//     {
+//         LED3=~LED3;
+//         myCount=0;
+//     }
+// }//
 
 // // Ex 5.4.5
 // void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
@@ -278,29 +278,28 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 // }//
 
 
-/* Write a value to the UART using the putsUART1 function */
-// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-// {
-//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
-//     static int myCount=0;
+/* Write a value to the UART using the putsUART1 function - Mazerunner */
+void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+{
+    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+    static int myCount=0;
 
-//     char buffer[10];
-//     // sprintf(buffer, "Hello World %d\n", myCount);
-//     sprintf(buffer, "U");
+    char buffer[20];
+    // sprintf(buffer, "Hello World %d\n", myCount);
+    sprintf(buffer, "Hello Roman");
 
-//     if (myCount >= 100){
-//          //putsUART2(buffer);
-//          myCount=0;
-//          LED5=~LED5;
-//     }
-//     putsUART1(buffer);
+    if (myCount >= 1000){
+        //putsUART2(buffer);
+        putsUART1(buffer);
+        myCount=0;
+        LED4=~LED4;
+    }
 
-//     //LED5=~LED5;
-//     LED4=~LED4;
+    // LED4=~LED4;
 
-//     myCount++;
+    myCount++;
 
-// }//
+}//
 
 
 /* Write a value to the UART directely by putting the message into the U1TXREG Register */

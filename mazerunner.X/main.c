@@ -126,7 +126,7 @@ int main()
     setupIO(); //configures inputs and outputs
     //initTimer1(4166); //creates a 10ms timer interrupt
     initTimer1inMS(1.0);
-    // setupUART1();
+    setupUART1();
     // unsigned int 
     // initQEI1(0);
 
