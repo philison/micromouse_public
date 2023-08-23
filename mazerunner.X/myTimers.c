@@ -322,8 +322,8 @@ void startTimer1(void)
 
 
 /* A2D Conversion of the Poti and setting the PWM DC Cyle to the read value. Additionally writing the value to the UART */
-//void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-//{
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
 //    /**
 //     * Dim LED4 with the potentiometer. 
 //     * The potentiometer value can be red from the define TEST_SENSOR
@@ -332,7 +332,7 @@ void startTimer1(void)
 //    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag
 
 //    // Convert the value of the potentiometer to a percentage for the PWM
-//        float potiPercentage = (float)TEST_SENSOR / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
+//    float potiPercentage = (float)TEST_SENSOR / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
 //    P1DC1 = potiPercentage * MYPWM_MAX; //to get 100% DC, you need to write twice the PER Value (2*26666), PWM Duty Cycle 1 Register
 
 
@@ -345,38 +345,38 @@ void startTimer1(void)
 //    putsUART1(buffer);
 
 //    LED4=~LED4;
-//}
+// }
 
 
 /* Read Motor Encoder Values */
-void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-{
-    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
-    static int myCount=0;
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
 
-    setPWM_DCpercentage_Motor(&P1DC1, 0.5f);
-    setPWM_DCpercentage_Motor(&P1DC2, 0.5f);
+//     setPWM_DCpercentage_Motor(&P1DC1, 0.5f);
+//     setPWM_DCpercentage_Motor(&P1DC2, 0.5f);
 
-    long motor_count = getPositionInCounts_1();
-    int motor_vel_1 = getVelocityInCountsPerSample_1();
-    int motor_vel_2 = getVelocityInCountsPerSample_2(); 
+//     long motor_count = getPositionInCounts_1();
+//     int motor_vel_1 = getVelocityInCountsPerSample_1();
+//     int motor_vel_2 = getVelocityInCountsPerSample_2(); 
 
-    char buffer[40];
-    // sprintf(buffer, "%ld\r\n", motor_count);
-    sprintf(buffer, "Motor_v_1: %i\r\nMotor_v_2: %i\r\n\n", motor_vel_1, motor_vel_2);
+//     char buffer[40];
+//     // sprintf(buffer, "%ld\r\n", motor_count);
+//     sprintf(buffer, "Motor_v_1: %i\r\nMotor_v_2: %i\r\n\n", motor_vel_1, motor_vel_2);
 
-    if (myCount >= 100){
-         //putsUART2(buffer);
-         myCount=0;
-         LED2=~LED2;
-    }
-    putsUART1(buffer);
+//     if (myCount >= 100){
+//          //putsUART2(buffer);
+//          myCount=0;
+//          LED2=~LED2;
+//     }
+//     putsUART1(buffer);
 
-    //LED4=~LED4;
+//     //LED4=~LED4;
 
-    myCount++;
+//     myCount++;
 
-}//
+// }//
 
 
 
@@ -412,3 +412,34 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 //     myCount++;
 
 // }//
+
+
+
+/* A2D Conversion of the 3 IR-Sensors. Additionally writing the value to the UART */
+void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+{
+    /**
+    * Dim LED4 with the potentiometer. 
+    * The potentiometer value can be red from the define TEST_SENSOR
+    */
+
+    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag
+
+    // Convert the value of the potentiometer to a percentage for the PWM
+    float sensor_left_distance_in_percentage = (float)SENSOR_LEFT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
+    float sensor_front_distance_in_percentage = (float)SENSOR_FRONT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
+    float sensor_right_distance_in_percentage = (float)SENSOR_RIGHT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096
+
+
+    // UART
+    char buffer[40];
+    // Sensor Values
+    sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
+    // sprintf(buffer, "SLP: %3i,\tSFP: %3i,\tSRP: %3i\n\r", (int)(sensor_left_distance_in_percentage*100), (int)(sensor_front_distance_in_percentage*100), (int)(sensor_right_distance_in_percentage*100));    
+    // sprintf(buffer, "SLP: %3i,\tSFP: %3i,\tSRP: %3i\n\r", int(sensor_left_distance_in_percentage*100), int(sensor_front_distance_in_percentage*100), int(sensor_right_distance_in_percentage*100));    
+    // Other Analog Pin
+    // sprintf(buffer, "%i", IO_1);
+    putsUART1(buffer);
+
+    // LED4=~LED4;
+}

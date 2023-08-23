@@ -58,7 +58,8 @@ void setupADC1()
     AD1CON2bits.CSCNA=1; //enable analog input SCAN on channel 0
     AD1CON2bits.CHPS=0b11; // important for 10 bit mode //unimplemented in 12-bit mode
     //AD1CON2bits.BUFS=x; //indicates which buffer is currently written (only if BUFM=1)
-    AD1CON2bits.SMPI=1;//!!!CHANGE HERE!!! Selects Increment Rate for DMA Addresses bits or number of sample/conversion operations per interrupt
+    // Mazerunner change: scan 3 channels for 3 Sensors
+    AD1CON2bits.SMPI=2;//!!!CHANGE HERE!!! Selects Increment Rate for DMA Addresses bits or number of sample/conversion operations per interrupt
                        // update, now only set  to 1 because we scan 2 channels
     // AD1CON2bits.SMPI=0;//!!!CHANGE HERE!!! Selects Increment Rate for DMA Addresses bits or number of sample/conversion operations per interrupt
     AD1CON2bits.BUFM=0; //always fill buffer starting at address 0x00
@@ -75,8 +76,9 @@ void setupADC1()
     AD1CON4bits.DMABL=0b000;//<2:0>: Selects Number of DMA Buffer Locations per Analog Input bits
 
 
-    //AD1CSSL (input scan select register)
-    AD1CSSL= 0b0000000000100001; //select the analog channel 0 and 5 !!!CHANGE HERE!!! Select channels to sample always starts with the LSB and this is also the order the data is put in the buffer
+    //AD1CSSL (input scan select register) (LSB = AN0, MSB = AN9)
+    AD1CSSL= 0b0000000001110000; // Mazerunner
+    // AD1CSSL= 0b0000000000100001; //select the analog channel 0 and 5 !!!CHANGE HERE!!! Select channels to sample always starts with the LSB and this is also the order the data is put in the buffer
     // AD1CSSL= 0b0000000000100000; //select the analog channel 0 and 5 !!!CHANGE HERE!!! Select channels to sample always starts with the LSB and this is also the order the data is put in the buffer
 
 

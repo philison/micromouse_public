@@ -21,7 +21,8 @@ void initDmaChannel4(void)
 
 	DMA4STA 	        = (__builtin_dmaoffset(&(adcData[0]))); // start address of DMA RAM
 	DMA4PAD 		= (volatile unsigned int) &ADC1BUF0;			// address of peripheral sfr (0x0300)
-	DMA4CNT			 = 1;	// we have 2 a2d  s/h channels for  measurement !!!CHANGE HERE!!!   More samples will be stored in the array if value higher
+	DMA4CNT			 = 2;	// Mazerunner
+	// DMA4CNT			 = 1;	// we have 2 a2d  s/h channels for  measurement !!!CHANGE HERE!!!   More samples will be stored in the array if value higher
 	// DMA4CNT			 = 0;	// we have 1 a2d s/h channel 
 
     // Interrupt settings
@@ -37,13 +38,13 @@ void initDmaChannel4(void)
 void __attribute__((interrupt, auto_psv)) _DMA4Interrupt(void)
 {
 	IFS2bits.DMA4IF 		= 0;	// Clear DMA interrupt
-	static unsigned int counter = 0;
-	counter++;
-	if(counter == 100000)
-	{
-		LED4 = ~LED4;
-		counter = 0;
-	}
+	// static unsigned int counter = 0;
+	// counter++;
+	// if(counter == 100000)
+	// {
+	// 	LED4 = ~LED4;
+	// 	counter = 0;
+	// }
 	// LED4 = ~LED4;
 };
 

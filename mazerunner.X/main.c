@@ -126,8 +126,13 @@ int main()
     setupIO(); //configures inputs and outputs
     //initTimer1(4166); //creates a 10ms timer interrupt
     initTimer1inMS(1.0);
-    setupUART1();
-    // unsigned int 
+
+    /* UART or Bluetooth Module ?
+    * Set the Baudrate in the Baudrate register (U1BRG) 
+    * Bluetooth: 9600 kbit/s
+    * UART: 57600 kbit/s
+    */
+    setupUART1(); 
 
     // Init Encoders
     initQEI1(0);
@@ -158,9 +163,10 @@ int main()
     
     setupButtons();
     
-    // setupADC1();
-    // startADC1();
-    // initDmaChannel4();
+    // IR-Seonsor Setup
+    setupADC1();
+    startADC1();
+    initDmaChannel4();
     
 
 

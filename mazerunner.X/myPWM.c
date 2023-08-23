@@ -49,8 +49,8 @@ void setupPWM()
 
     // Set the PWM Duty Cycle Registers for the 3 PWM pairs of PWM module 1
     // P1DC1 = .01*MYPWM_MAX; //to get 100% DC, you need to write twice the PER Value (2*26666), PWM Duty Cycle 1 Register
-    P1DC1 = .01*MYPWM_MAX_MAZE_MOTOR; // Limit the Motor PWM max duty cycle to 66% for mazerunner to limit the motor voltage to 6V (from 9V H-Bridge Supply) 
-    P1DC2 = .01*MYPWM_MAX_MAZE_MOTOR;
+    P1DC1 = .0*MYPWM_MAX_MAZE_MOTOR; // Limit the Motor PWM max duty cycle to 66% for mazerunner to limit the motor voltage to 6V (from 9V H-Bridge Supply) 
+    P1DC2 = .0*MYPWM_MAX_MAZE_MOTOR;
     P1DC3 = 0;
 
 
