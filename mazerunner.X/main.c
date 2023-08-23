@@ -55,6 +55,7 @@
 
 
 /// Defines----------------------------
+// #define SEVEN_MEG_OSC 1//set to 1 if we use slow (7.3728 MHz) oscillator and not 16 MHz
 #define SEVEN_MEG_OSC 1//set to 1 if we use slow (7.3728 MHz) oscillator and not 16 MHz
 
 /*
@@ -63,36 +64,52 @@
 int main() 
 {
     int pinStatus;
-#if (SEVEN_MEG_OSC == 0) 
-     /*** oscillator setup --------------------------------------------------
-     * The external oscillator runs at 16MHz
-     * PLL is used to generate 53.3 MHz clock (FOSC)
-     * The relationship between oscillator and cycle frequency: FCY = FOSC/2
-     * Have a look at "PLL Configuration" paragraph in the mcu manual
+
+
+//      Mazerunner Osci config:
+//      /*** oscillator setup --------------------------------------------------
+//      * The external oscillator runs at 20MHz
+//      * PLL is used to generate 53.3 MHz clock (FOSC)
+//      * The relationship between oscillator and cycle frequency: FCY = FOSC/2
+//      * Have a look at "PLL Configuration" paragraph in the mcu manual
     
-     * Result: FCY = 0.5 * (16MHz*20/(3*2)) = 26.666 MIPS, Tcycle=37.5nsec
-    ---------------------------------------------------------------------***/
-    PLLFBDbits.PLLDIV = 18;                      //set PPL to M=20 (18+2)
+//      * Result: FCY = 0.5 * (20MHz*16/(3*2)) = 26.666 MIPS, Tcycle=37.5nsec
+//     ---------------------------------------------------------------------***/
+    PLLFBDbits.PLLDIV = 14;           //
     CLKDIVbits.PLLPRE = 1;            //N1 = input/3
     CLKDIVbits.PLLPOST = 0;           //N2 = output/2
+
+
+// #if (SEVEN_MEG_OSC == 0) 
+//      /*** oscillator setup --------------------------------------------------
+//      * The external oscillator runs at 16MHz
+//      * PLL is used to generate 53.3 MHz clock (FOSC)
+//      * The relationship between oscillator and cycle frequency: FCY = FOSC/2
+//      * Have a look at "PLL Configuration" paragraph in the mcu manual
+    
+//      * Result: FCY = 0.5 * (16MHz*20/(3*2)) = 26.666 MIPS, Tcycle=37.5nsec
+//     ---------------------------------------------------------------------***/
+//     PLLFBDbits.PLLDIV = 18;                      //set PPL to M=20 (18+2)
+//     CLKDIVbits.PLLPRE = 1;            //N1 = input/3
+//     CLKDIVbits.PLLPOST = 0;           //N2 = output/2
     
     
     
-#else //Below the 7.3728 Setup 
+// #else //Below the 7.3728 Setup 
     
-         /*** oscillator setup --------------------------------------------------
-     * The external oscillator runs at 7.3728 MHz
-     * PLL is used to generate 53.3 MHz clock (FOSC)
-     * The relationship between oscillator and cycle frequency: FCY = FOSC/2
-     * Have a look at "PLL Configuration" paragraph in the mcu manual
+//          /*** oscillator setup --------------------------------------------------
+//      * The external oscillator runs at 7.3728 MHz
+//      * PLL is used to generate 53.3 MHz clock (FOSC)
+//      * The relationship between oscillator and cycle frequency: FCY = FOSC/2
+//      * Have a look at "PLL Configuration" paragraph in the mcu manual
     
-     * Result: FCY = 0.5 * (7.3728 MHz*29/(2*2)) = 26.73 MIPS, which is 
-          * not exactl Tcycle=37.5nsec, but close enough for our purposes
-    ---------------------------------------------------------------------***/
-    PLLFBDbits.PLLDIV = 27;                      //set PPL to M=29 (27+2)
-    CLKDIVbits.PLLPRE = 0;            //N1 = input/2
-    CLKDIVbits.PLLPOST = 0;           //N2 = output/2
-#endif //SEVEN_MEG_OSC == 0
+//      * Result: FCY = 0.5 * (7.3728 MHz*29/(2*2)) = 26.73 MIPS, which is 
+//           * not exactl Tcycle=37.5nsec, but close enough for our purposes
+//     ---------------------------------------------------------------------***/
+//     PLLFBDbits.PLLDIV = 27;                      //set PPL to M=29 (27+2)
+//     CLKDIVbits.PLLPRE = 0;            //N1 = input/2
+//     CLKDIVbits.PLLPOST = 0;           //N2 = output/2
+// #endif //SEVEN_MEG_OSC == 0
     
     
         /* Clock switch to incorporate PLL*/
@@ -109,9 +126,9 @@ int main()
     setupIO(); //configures inputs and outputs
     //initTimer1(4166); //creates a 10ms timer interrupt
     initTimer1inMS(1.0);
-    setupUART1();
+    // setupUART1();
     // unsigned int 
-    initQEI1(0);
+    // initQEI1(0);
 
     startTimer1();
     
@@ -121,20 +138,21 @@ int main()
     // LED7 = LEDOFF;
 
     // Switch off all leds at once in the beginning
-    LED4 = LED5 = LED6 = LED7 = LEDOFF;
+    // LED4 = LED5 = LED6 = LED7 = LEDOFF;
+    LED2 = LED4 = LEDOFF;
     
     //setupUART2();
     
-    setupPWM();
+    // setupPWM();
 
     // setPWM_DCpercentage(&P1DC1, 0.1);
-    LATAbits.LATA0 = 0; // Set Motor direction to forward
+    // LATAbits.LATA0 = 0; // Set Motor direction to forward
     
     //setupButtons();
     
-    setupADC1();
-    startADC1();
-    initDmaChannel4();
+    // setupADC1();
+    // startADC1();
+    // initDmaChannel4();
     
 
 

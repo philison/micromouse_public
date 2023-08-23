@@ -169,6 +169,31 @@ void startTimer1(void)
 //     }
 // }//
 
+// Test Hello World Blinking
+void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+{
+    /**
+     * Implement a software counter in your Timer1 ISR which will allow you
+     * to toggle LED6 with exactly 1Hz while LED5 keeps on blinking with a frequency of 50Hz
+     * The ISR should be called every 1ms
+    */
+    static int myCount=0;
+    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+
+    myCount++;
+
+    if(myCount % 20 == 0)
+    {
+        LED1=~LED1;
+    }
+
+    if(myCount == 1000)
+    {
+        LED3=~LED3;
+        myCount=0;
+    }
+}//
+
 // // Ex 5.4.5
 // void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 // {
@@ -353,35 +378,35 @@ void startTimer1(void)
 
 
 
-/* Read Motor Encoder Values */
-void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-{
-    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
-    static int myCount=0;
+// /* Read Motor Encoder Values */
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
 
-    long motor_count = getPositionInCounts_1();
-    int motor_vel = getVelocityInCountsPerSample_1();
+//     long motor_count = getPositionInCounts_1();
+//     int motor_vel = getVelocityInCountsPerSample_1();
 
-    float pwm = pi_vel_controller(17.0, motor_vel);
-    // setPWM_DCpercentage(&P1DC1, pwm);
-    char buffer[40];
-    // sprintf(buffer, "%ld\r\n", motor_count);
-    sprintf(buffer, "PWM: %.2f, Vel: %i\r\n",pwm, motor_vel);
-    putsUART1(buffer);
+//     float pwm = pi_vel_controller(17.0, motor_vel);
+//     // setPWM_DCpercentage(&P1DC1, pwm);
+//     char buffer[40];
+//     // sprintf(buffer, "%ld\r\n", motor_count);
+//     sprintf(buffer, "PWM: %.2f, Vel: %i\r\n",pwm, motor_vel);
+//     putsUART1(buffer);
 
-    // sprintf(buffer, "%i\r\n", motor_vel);
-    // putsUART1(buffer);
+//     // sprintf(buffer, "%i\r\n", motor_vel);
+//     // putsUART1(buffer);
 
 
-    if (myCount >= 100){
-         //putsUART2(buffer);
-         myCount=0;
-         LED5=~LED5;
-    }
+//     if (myCount >= 100){
+//          //putsUART2(buffer);
+//          myCount=0;
+//          LED5=~LED5;
+//     }
 
-    //LED5=~LED5;
-    //LED4=~LED4;
+//     //LED5=~LED5;
+//     //LED4=~LED4;
 
-    myCount++;
+//     myCount++;
 
-}//
+// }//

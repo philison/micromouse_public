@@ -13,11 +13,18 @@ void setupIO()
     AD1PCFGL=0xFFDE; //all pins are now digital, by default they are analogue
 
     
+    // // set LEDs as output
+    // TRISBbits.TRISB15 = 0;
+    // TRISBbits.TRISB14 = 0;
+    // TRISBbits.TRISB13 = 0;
+    // TRISBbits.TRISB12 = 0;
+
+    // LED CONFIG Mazerunner
     // set LEDs as output
-    TRISBbits.TRISB15 = 0;
-    TRISBbits.TRISB14 = 0;
-    TRISBbits.TRISB13 = 0;
-    TRISBbits.TRISB12 = 0;
+    TRISBbits.TRISB6 = 0;
+    TRISBbits.TRISB5 = 0;
+    TRISBbits.TRISB10 = 0;
+    TRISBbits.TRISB11 = 0;
     
     TRISBbits.TRISB8=0;// UART1 TX
 
@@ -56,7 +63,7 @@ void setupIO()
     // RPOR4bits.RP8R = 0b00101; //output Pin RP8 gets data from peripheral U2 TX 
 
     // PIN for Motor HBridge Control
-    TRISAbits.TRISA0 = 0; // SET RA0 as output to send a logic high or low to the H-Bridge
+    // TRISAbits.TRISA0 = 0; // SET RA0 as output to send a logic high or low to the H-Bridge
 
     //after mapping we lock again
      __builtin_write_OSCCONL(OSCCON | 0x40); // Lock PPS registers (lock again!)

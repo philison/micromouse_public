@@ -41,10 +41,10 @@ void __attribute__((interrupt, auto_psv)) _DMA4Interrupt(void)
 	counter++;
 	if(counter == 100000)
 	{
-		LED6 = ~LED6;
+		LED4 = ~LED4;
 		counter = 0;
 	}
-	// LED6 = ~LED6;
+	// LED4 = ~LED4;
 };
 
 
