@@ -348,35 +348,45 @@ void startTimer1(void)
 // }
 
 
-/* Read Motor Encoder Values */
-// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-// {
-//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
-//     static int myCount=0;
+// Mazerunner
+/* Read Motor Encoder Values and set Motor Velocity*/
+void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+{
+    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+    static int myCount=0;
 
-//     setPWM_DCpercentage_Motor(&P1DC1, 0.5f);
-//     setPWM_DCpercentage_Motor(&P1DC2, 0.5f);
+    setPWM_DCpercentage_Motor(&P1DC1, 0.5f);
+    setPWM_DCpercentage_Motor(&P1DC2, 0.5f);
 
-//     long motor_count = getPositionInCounts_1();
-//     int motor_vel_1 = getVelocityInCountsPerSample_1();
-//     int motor_vel_2 = getVelocityInCountsPerSample_2(); 
+    long motor_count = getPositionInCounts_1();
+    // int motor_vel_Right = getVelocityInCountsPerSample_1();
+    // int motor_vel_Left = getVelocityInCountsPerSample_2(); 
 
-//     char buffer[40];
-//     // sprintf(buffer, "%ld\r\n", motor_count);
-//     sprintf(buffer, "Motor_v_1: %i\r\nMotor_v_2: %i\r\n\n", motor_vel_1, motor_vel_2);
+    
+    // float motor_vel_Left = getVelocityInRadPerSecond_Left();
+    // float motor_vel_Right = getVelocityInRadPerSecond_Right(); 
 
-//     if (myCount >= 100){
-//          //putsUART2(buffer);
-//          myCount=0;
-//          LED2=~LED2;
-//     }
-//     putsUART1(buffer);
+    float motor_vel_Left = getVelocityInRoundsPerMinute_Left();
+    float motor_vel_Right = getVelocityInRoundsPerMinute_Right(); 
 
-//     //LED4=~LED4;
+    char buffer[100];
+    // sprintf(buffer, "%ld\r\n", motor_count);
+    // sprintf(buffer, "Motor_v_Left: %i\r\nMotor_v_Right: %i\r\n\n", motor_vel_Left, motor_vel_Right);
+    sprintf(buffer, "Motor_v_Left: %.2f\r\nMotor_v_Right: %.2f\r\n\n", motor_vel_Left, motor_vel_Right);
+    // sprintf(buffer, "Motor_v_Left: %f\r\nMotor_v_Right: %f\r\n\n", motor_vel_Left, motor_vel_Right);
 
-//     myCount++;
+    if (myCount >= 100){
+         //putsUART2(buffer);
+         myCount=0;
+         LED2=~LED2;
+    }
+    putsUART1(buffer);
 
-// }//
+    //LED4=~LED4;
+
+    myCount++;
+
+}//
 
 
 
@@ -415,26 +425,27 @@ void startTimer1(void)
 
 
 
+// Mazerunner 
 /* A2D Conversion of the 3 IR-Sensors. Additionally writing the value to the UART */
-void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-{
-    /**
-    * Dim LED4 with the potentiometer. 
-    * The potentiometer value can be red from the define TEST_SENSOR
-    */
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     /**
+//     * Dim LED4 with the potentiometer. 
+//     * The potentiometer value can be red from the define TEST_SENSOR
+//     */
 
-    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag
 
-    // Convert the value of the potentiometer to a percentage for the PWM
-    float sensor_left_distance_in_percentage = (float)SENSOR_LEFT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
-    float sensor_front_distance_in_percentage = (float)SENSOR_FRONT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
-    float sensor_right_distance_in_percentage = (float)SENSOR_RIGHT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096
+//     // Convert the value of the potentiometer to a percentage for the PWM
+//     float sensor_left_distance_in_percentage = (float)SENSOR_LEFT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
+//     float sensor_front_distance_in_percentage = (float)SENSOR_FRONT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
+//     float sensor_right_distance_in_percentage = (float)SENSOR_RIGHT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096
 
 
-    // UART Buffer
-    char buffer[100];
-    // Print Sensor Values
-    sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
-    putsUART1(buffer);
+//     // UART Buffer
+//     char buffer[100];
+//     // Print Sensor Values
+//     sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
+//     putsUART1(buffer);
 
-}
+// }

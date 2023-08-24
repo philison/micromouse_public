@@ -14,11 +14,17 @@
 void initQEI1( unsigned int  startPos);
 void initQEI2( unsigned int  startPos);
 float getPositionInRad();
-//float getVelocityInRadPerSecond();
+// float getVelocityInRadPerSecond();
 long getPositionInCounts_1();
 int getVelocityInCountsPerSample_1();
 long getPositionInCounts_2();
 int getVelocityInCountsPerSample_2();
+
+float getVelocityInRadPerSecond_Right();
+float getVelocityInRadPerSecond_Left();
+
+float getVelocityInRoundsPerMinute_Left();
+float getVelocityInRoundsPerMinute_Right();
 
 extern long rotationCount1;
 extern long rotationCount2;

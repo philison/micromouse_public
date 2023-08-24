@@ -183,3 +183,90 @@ float getVelocityInRadPerSecond()
 
 
 }
+
+float getVelocityInRadPerSecond_Right()
+{
+
+    static long oldPosition;
+    float velocity;
+    long currentPosition;
+
+        //disable interrupts to make sure we have consistent data
+    _NSTDIS=1;
+    GET_ENCODER_1 (currentPosition);
+    _NSTDIS=0;
+    velocity=3.141592 *2* ((currentPosition-oldPosition)*1000.0) / (33*4*16);
+
+    oldPosition=currentPosition;
+    return velocity;
+
+}
+
+
+float getVelocityInRadPerSecond_Left()
+{
+
+    static long oldPosition;
+    float velocity;
+    long currentPosition;
+
+    //disable interrupts to make sure we have consistent data
+    _NSTDIS=1;
+    GET_ENCODER_2 (currentPosition);
+    _NSTDIS=0;
+    velocity=3.141592 *2* ((currentPosition-oldPosition)*1000.0) / (33*4*16);
+
+    oldPosition=currentPosition;
+    return velocity;
+
+}
+
+
+float getVelocityInRoundsPerMinute_Left() {
+    static long oldPosition;
+    float velocity;
+    long currentPosition;
+
+    //disable interrupts to make sure we have consistent data
+    _NSTDIS=1;
+    GET_ENCODER_1 (currentPosition);
+    _NSTDIS=0;
+    velocity=60.0 * ((currentPosition-oldPosition)*1000.0) / (33.0*4.0*16.0);
+
+    oldPosition=currentPosition;
+    return velocity;
+}
+
+
+float getVelocityInRoundsPerMinute_Right() {
+    static long oldPosition;
+    float velocity;
+    long currentPosition;
+
+    //disable interrupts to make sure we have consistent data
+    _NSTDIS=1;
+    GET_ENCODER_2 (currentPosition);
+    _NSTDIS=0;
+    float nbr_of_rounds_per_second = (currentPosition-oldPosition) / (33.0*4.0*16.0) * 1000.0;
+    velocity=60.0 * nbr_of_rounds_per_second;
+
+    oldPosition=currentPosition;
+    return velocity;
+}
+
+
+// float getVelocityInDegreePerSecond_Left()
+// {
+//     static long oldPosition;
+//     float velocity;
+//     long currentPosition;
+
+//         //disable interrupts to make sure we have consistent data
+//     _NSTDIS=1;
+//     GET_ENCODER_1 (currentPosition);
+//     _NSTDIS=0;
+//     velocity=360 *2* ((currentPosition-oldPosition)*0.01) / (33*4*16);
+    
+//     oldPosition=currentPosition;
+//     return velocity;
+// }
