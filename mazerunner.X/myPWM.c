@@ -46,13 +46,24 @@ void setupPWM()
     *   1L2 <--> BIN1
     */
 
+    /*
+        PWM Control of Motor Speed
+
+        RB15/RB13 | RB14/RB12 | FUNCTION
+        -------------------------------
+        PWM       | 0         | Forward PWM, fast decay
+        1         | PWM       | Forward PWM, slow decay
+        0         | PWM       | Reverse PWM, fast decay
+        PWM       | 1         | Reverse PWM, slow decay
+    */
+
     // Left Motor:
     // Reverse & fast decay OR Forward & slow decay
-    // PWM1CON1bits.PEN1H = 1; // enable  PWM driver PWM1H1
-    // PWM1CON1bits.PEN1L = 0; // disable PWM driver, I/O pin becomes general purpose I/O 
+    PWM1CON1bits.PEN1H = 1; // enable  PWM driver PWM1H1
+    PWM1CON1bits.PEN1L = 0; // disable PWM driver, I/O pin becomes general purpose I/O 
     // Forward & fast decay OR Reverse & slow decay
-    PWM1CON1bits.PEN1H = 0; // disable PWM driver PWM1H1
-    PWM1CON1bits.PEN1L = 1; // enable PWM driver 
+    // PWM1CON1bits.PEN1H = 0; // disable PWM driver PWM1H1
+    // PWM1CON1bits.PEN1L = 1; // enable PWM driver 
 
 
     // Right Motor:
@@ -63,10 +74,9 @@ void setupPWM()
     // PWM1CON1bits.PEN2H = 0; // disable PWM driver
     // PWM1CON1bits.PEN2L = 1; // enable PWM driver
 
-
+    // Third PWM Generator
     PWM1CON1bits.PEN3H = 0; // disable PWM driver
     PWM1CON1bits.PEN3L = 0; // disable PWM driver
-
 
     P1TCONbits.PTEN = 1; // Switch on PWM generator
 
