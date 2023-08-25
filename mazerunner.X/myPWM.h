@@ -37,6 +37,8 @@
 void setupPWM();
 void modulatePWMwithSINE(uint16_t *pwmDutyCycleRegister);
 void setPWM_DCpercentage(uint16_t *pwmDutyCycleRegister, float percentage);
+void setPWM_DCpercentage_Motor(uint16_t *pwmDutyCycleRegister, float percentage);
+void setPWM_DCpercentage_Motor_inverted(uint16_t *pwmDutyCycleRegister, float percentage);
 
 void forward_slow_decay_left();
 void forward_slow_decay_right();
@@ -47,6 +49,9 @@ void forward_fast_decay_left();
 void forward_fast_decay_right();
 void reverse_fast_decay_left();
 void reverse_fast_decay_right();
+
+void set_DC_and_motor_state_left(float dc, char *motor_state);
+void set_DC_and_motor_state_right(float dc, char *motor_state);
 
 #endif	/* __MYPWM_H__ */
 

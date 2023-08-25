@@ -58,6 +58,10 @@
 // #define SEVEN_MEG_OSC 1//set to 1 if we use slow (7.3728 MHz) oscillator and not 16 MHz
 #define SEVEN_MEG_OSC 1//set to 1 if we use slow (7.3728 MHz) oscillator and not 16 MHz
 
+
+/// Global Variables-------------------
+float timer_time = 1.0; // in [ms]
+
 /*
  * 
  */
@@ -125,7 +129,7 @@ int main()
  
     setupIO(); //configures inputs and outputs
     //initTimer1(4166); //creates a 10ms timer interrupt
-    initTimer1inMS(1.0);
+    initTimer1inMS(timer_time);
 
     /* UART or Bluetooth Module ?
     * Set the Baudrate in the Baudrate register (U1BRG) 
@@ -154,8 +158,18 @@ int main()
     setupPWM();
 
     // setPWM_DCpercentage(&P1DC1, 0.1);
-    setPWM_DCpercentage_Motor(&P1DC1, 0.5f);
-    setPWM_DCpercentage_Motor(&P1DC2, 0.5f);
+    // set_DC_and_motor_state_left(0.5, "forward_slow_decay");
+    set_DC_and_motor_state_right(0.5, "forward_slow_decay");
+
+    // set_DC_and_motor_state_left(0.5, "forward_fast_decay");
+    // set_DC_and_motor_state_right(0.5, "forward_fast_decay");
+
+    // set_DC_and_motor_state_left(0.5, "reverse_slow_decay");
+    // set_DC_and_motor_state_right(0.5, "reverse_slow_decay");
+
+    // set_DC_and_motor_state_left(0.5, "reverse_fast_decay");
+    // set_DC_and_motor_state_right(0.5, "reverse_fast_decay");
+
 
 
     // Set PWM Pin for Motors

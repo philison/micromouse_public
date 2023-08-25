@@ -87,8 +87,10 @@ void setupPWM()
     PWM1CON1bits.PEN2L = 1;
 
     // Set forward / reverse and slow / fast decay Mode
-    forward_slow_decay_left();
-    forward_slow_decay_right();
+    // forward_slow_decay_left();
+    // forward_slow_decay_right();
+    forward_fast_decay_left();
+    forward_fast_decay_right();
 
     // Third PWM Generator is not needed
     PWM1CON1bits.PEN3H = 0; // disable PWM driver
@@ -98,9 +100,13 @@ void setupPWM()
     P1TCONbits.PTEN = 1; // Switch on PWM generator
 
     // Set the PWM Duty Cycle Registers for the 3 PWM pairs of PWM module 1
+    set_DC_and_motor_state_left(0.0f, "forward_slow_decay");
+    set_DC_and_motor_state_right(0.0f, "forward_slow_decay");
+
+
     // P1DC1 = .01*MYPWM_MAX; //to get 100% DC, you need to write twice the PER Value (2*26666), PWM Duty Cycle 1 Register
-    P1DC1 = .0*MYPWM_MAX_MAZE_MOTOR; // Limit the Motor PWM max duty cycle to 66% for mazerunner to limit the motor voltage to 6V (from 9V H-Bridge Supply) 
-    P1DC2 = .0*MYPWM_MAX_MAZE_MOTOR;
+    // P1DC1 = .0*MYPWM_MAX_MAZE_MOTOR; // Limit the Motor PWM max duty cycle to 66% for mazerunner to limit the motor voltage to 6V (from 9V H-Bridge Supply) 
+    // P1DC2 = .0*MYPWM_MAX_MAZE_MOTOR;
     P1DC3 = 0;
 
 
@@ -118,11 +124,90 @@ void setupPWM()
 
 }
 
+// Set PWM Duty Cycle in Percent and set the Motor Drive Direction and Decay Mode (Fast or Slow Decay)
+// dc percentage as a float and the motor state as a string
+void set_DC_and_motor_state_left(float dc, char *motor_state)
+{
+
+    // Set Motor Direction and Decay Mode
+    if (strcmp(motor_state, "forward_slow_decay") == 0)
+    {
+        forward_slow_decay_left();
+        // In Slow Decay Mode: The H-Bridge supplies the motor with 9V during the PWM off time = 1-dc
+        // P1DC1 = (1-dc)*MYPWM_MAX_MAZE_MOTOR;
+        setPWM_DCpercentage_Motor_inverted(&P1DC1, dc);
+    }
+    else if (strcmp(motor_state, "forward_fast_decay") == 0)
+    {
+        forward_fast_decay_left();
+        // P1DC1 = dc*MYPWM_MAX_MAZE_MOTOR;
+        setPWM_DCpercentage_Motor(&P1DC1, dc);
+    }
+    else if (strcmp(motor_state, "reverse_slow_decay") == 0)
+    {
+        reverse_slow_decay_left();
+        // P1DC1 = (1-dc)*MYPWM_MAX_MAZE_MOTOR;
+        setPWM_DCpercentage_Motor_inverted(&P1DC1, dc);
+    }
+    else if (strcmp(motor_state, "reverse_fast_decay") == 0)
+    {
+        reverse_fast_decay_left();
+        // P1DC1 = dc*MYPWM_MAX_MAZE_MOTOR;
+        setPWM_DCpercentage_Motor(&P1DC1, dc);
+    }
+    else
+    {
+        // Do nothing
+    }
+    
+}
+
+void set_DC_and_motor_state_right(float dc, char *motor_state)
+{
+
+    // Set Motor Direction and Decay Mode
+    if (strcmp(motor_state, "forward_slow_decay") == 0)
+    {
+        forward_slow_decay_right();
+        // In Slow Decay Mode: The H-Bridge supplies the motor with 9V during the PWM off time = 1-dc
+        // setPWM_DCpercentage_Motor(&P1DC2, (1-dc));
+        setPWM_DCpercentage_Motor_inverted(&P1DC2, dc);
+    }
+    else if (strcmp(motor_state, "forward_fast_decay") == 0)
+    {
+        forward_fast_decay_right();
+        // P1DC1 = dc*MYPWM_MAX_MAZE_MOTOR;
+        setPWM_DCpercentage_Motor(&P1DC2, dc);
+    }
+    else if (strcmp(motor_state, "reverse_slow_decay") == 0)
+    {
+        reverse_slow_decay_right();
+        // P1DC1 = (1-dc)*MYPWM_MAX_MAZE_MOTOR;
+        setPWM_DCpercentage_Motor_inverted(&P1DC2, dc);
+    }
+    else if (strcmp(motor_state, "reverse_fast_decay") == 0)
+    {
+        reverse_fast_decay_right();
+        // P1DC1 = dc*MYPWM_MAX_MAZE_MOTOR;
+        setPWM_DCpercentage_Motor(&P1DC2, dc);
+    }
+    else
+    {
+        LED4 = LEDON;
+    }
+    
+}
+
+   
+
+
+
+
 /* Slow Decay Motor Mode
 *   - active braking
 */
 
-void forward_slow_decay_left() {
+void reverse_slow_decay_left() {
     P1OVDCONbits.POVD1H = 1; 
     P1OVDCONbits.POVD1L = 0; // Output Override Enabled
 
@@ -136,7 +221,7 @@ void forward_slow_decay_right() {
     P1OVDCONbits.POUT2L = 1; // Override Vlaue (values that is set instead of the PWM)
 }
 
-void reverse_slow_decay_left() {
+void forward_slow_decay_left() {
     P1OVDCONbits.POVD1H = 0; // Output Override Enabled
     P1OVDCONbits.POVD1L = 1; 
 
@@ -154,7 +239,7 @@ void reverse_slow_decay_right() {
 *   - coasting
 */
 
-void forward_fast_decay_left() {
+void reverse_fast_decay_left() {
     P1OVDCONbits.POVD1H = 0; // Output Override Enabled
     P1OVDCONbits.POVD1L = 1; 
 
@@ -168,7 +253,7 @@ void forward_fast_decay_right() {
     P1OVDCONbits.POUT2H = 0; // Override Vlaue (values that is set instead of the PWM)
 }
 
-void reverse_fast_decay_left() {
+void forward_fast_decay_left() {
     P1OVDCONbits.POVD1H = 1; 
     P1OVDCONbits.POVD1L = 0; // Output Override Enabled
 
@@ -197,6 +282,22 @@ void setPWM_DCpercentage_Motor(uint16_t *pwmDutyCycleRegister, float percentage)
     if (percentage <= 1.0f)
     {
         *pwmDutyCycleRegister = percentage * MYPWM_MAX_MAZE_MOTOR;
+    }
+    
+}
+
+void setPWM_DCpercentage_Motor_inverted(uint16_t *pwmDutyCycleRegister, float percentage)
+{
+    // Add error handling to prefent a duty cycle higher than 100% -> percentage > 1.0f
+    if (percentage <= 1.0f && percentage >= 0.0f)
+    {
+        // float inverted_dc = MYPWM_MAX_MAZE_MOTOR - (percentage * MYPWM_MAX_MAZE_MOTOR);
+        // float inverted_dc = MYPWM_MAX_MAZE_MOTOR * (1 - percentage);
+
+        // Inverts the PWM Signal to correct for the H-Bridge characteristic in slow decay mode
+        // And does ensure that the max time that the motor is supplied with current is limited to 66% of the PWM Period
+        float inverted_dc = MYPWM_MAX - (percentage * MYPWM_MAX_MAZE_MOTOR); // float inverted_dc = MYPWM_MAX * ( 1 - 2.0/3.0 * percentage);
+        *pwmDutyCycleRegister = inverted_dc;
     }
     
 }

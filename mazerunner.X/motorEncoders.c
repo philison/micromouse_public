@@ -175,13 +175,10 @@ float getVelocityInRadPerSecond()
     _NSTDIS=1;
     GET_ENCODER_1 (currentPosition);
     _NSTDIS=0;
-    velocity=3.141592 *2* ((currentPosition-oldPosition)*0.01) / (33*4*16);
+    velocity=3.141592 *2* ((currentPosition-oldPosition) * timer_time * 1000.0) / (33*4*16);
 
     oldPosition=currentPosition;
     return velocity;
-
-
-
 }
 
 float getVelocityInRadPerSecond_Right()
@@ -195,7 +192,7 @@ float getVelocityInRadPerSecond_Right()
     _NSTDIS=1;
     GET_ENCODER_1 (currentPosition);
     _NSTDIS=0;
-    velocity=3.141592 *2* ((currentPosition-oldPosition)*1000.0) / (33*4*16);
+    velocity=3.141592 *2* ((currentPosition-oldPosition) * timer_time * 1000.0) / (33*4*16);
 
     oldPosition=currentPosition;
     return velocity;
@@ -214,45 +211,50 @@ float getVelocityInRadPerSecond_Left()
     _NSTDIS=1;
     GET_ENCODER_2 (currentPosition);
     _NSTDIS=0;
-    velocity=3.141592 *2* ((currentPosition-oldPosition)*1000.0) / (33*4*16);
+    velocity=3.141592 *2* ((currentPosition-oldPosition) * timer_time * 1000.0) / (33*4*16);
 
     oldPosition=currentPosition;
     return velocity;
 
 }
 
+float getVelocityInRoundsPerSecond_Left() {
+    // Calc: 1/(2*3.141592) = 0.159154
+   return 0.159154 * getVelocityInRadPerSecond_Left();
+}
 
-float getVelocityInRoundsPerMinute_Left() {
-    static long oldPosition;
-    float velocity;
-    long currentPosition;
+float getVelocityInRoundsPerSecond_Right() {
+    // Calc: 1/(2*3.141592) = 0.159154
+   return 0.159154 * getVelocityInRadPerSecond_Right();
+}
 
-    //disable interrupts to make sure we have consistent data
-    _NSTDIS=1;
-    GET_ENCODER_1 (currentPosition);
-    _NSTDIS=0;
-    velocity=60.0 * ((currentPosition-oldPosition)*1000.0) / (33.0*4.0*16.0);
+float getVelocityInRoundsPerMinutes_Left() {
+   return 60 * getVelocityInRoundsPerSecond_Left();
+}
 
-    oldPosition=currentPosition;
-    return velocity;
+float getVelocityInRoundsPerMinutes_Right() {
+   return 60 * getVelocityInRoundsPerSecond_Right();
 }
 
 
-float getVelocityInRoundsPerMinute_Right() {
-    static long oldPosition;
-    float velocity;
-    long currentPosition;
 
-    //disable interrupts to make sure we have consistent data
-    _NSTDIS=1;
-    GET_ENCODER_2 (currentPosition);
-    _NSTDIS=0;
-    float nbr_of_rounds_per_second = (currentPosition-oldPosition) / (33.0*4.0*16.0) * 1000.0;
-    velocity=60.0 * nbr_of_rounds_per_second;
 
-    oldPosition=currentPosition;
-    return velocity;
-}
+
+// float getVelocityInRoundsPerMinute_Right() {
+//     static long oldPosition;
+//     float velocity;
+//     long currentPosition;
+
+//     //disable interrupts to make sure we have consistent data
+//     _NSTDIS=1;
+//     GET_ENCODER_2 (currentPosition);
+//     _NSTDIS=0;
+//     float nbr_of_rounds_per_second = (currentPosition-oldPosition) / (33.0*4.0*16.0) * 1000.0;
+//     velocity=60.0 * nbr_of_rounds_per_second;
+
+//     oldPosition=currentPosition;
+//     return velocity;
+// }
 
 float getFlanksPerSecond_Right() {
     static long oldFLankCount;
@@ -264,7 +266,7 @@ float getFlanksPerSecond_Right() {
     GET_ENCODER_1 (currentFLankCount);
     _NSTDIS=0;
 
-    flanksPerSecond = (currentFLankCount-oldFLankCount) * 1000;
+    flanksPerSecond = (currentFLankCount-oldFLankCount) * timer_time * 1000; // timer_time * 1000 = timer time in seconds
 
     oldFLankCount=currentFLankCount;
     return flanksPerSecond;
@@ -280,7 +282,7 @@ float getRPM_Right() {
     GET_ENCODER_1 (currentFLankCount);
     _NSTDIS=0;
 
-    flanksPerSecond = (currentFLankCount-oldFLankCount) * 1000;
+    flanksPerSecond = (currentFLankCount-oldFLankCount) * timer_time * 1000; // timer_time * 1000 = timer time in seconds
 
     oldFLankCount=currentFLankCount;
     return flanksPerSecond;

@@ -356,9 +356,10 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 {
     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
     static int myCount=0;
+    static int myCount2=0;
 
 
-    long motor_count = getPositionInCounts_1();
+    // long motor_count = getPositionInCounts_1();
     // int motor_vel_Right = getVelocityInCountsPerSample_1();
     // int motor_vel_Left = getVelocityInCountsPerSample_2(); 
 
@@ -366,8 +367,10 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     // float motor_vel_Left = getVelocityInRadPerSecond_Left();
     // float motor_vel_Right = getVelocityInRadPerSecond_Right(); 
 
-    float motor_vel_Left = getVelocityInRadPerSecond_Left();
-    float motor_vel_Right = getFlanksPerSecond_Right(); 
+    // float motor_vel_Left = getVelocityInRadPerSecond_Left();
+    // float motor_vel_Right = getFlanksPerSecond_Right(); 
+
+    float rps_right = getVelocityInRoundsPerSecond_Right();
 
     // char buffer[20];
     // sprintf(buffer, "%ld\r\n", motor_count);
@@ -378,16 +381,21 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     // sprintf(buffer, "a");
 
     if (myCount >= 500){
-        char buffer[20];
-        sprintf(buffer, "L%f R%f\n", motor_vel_Left, motor_vel_Right);
+        char buffer[10];
+        // sprintf(buffer, "L%f R%f\n", motor_vel_Left, motor_vel_Right);
+        sprintf(buffer, "%3.2f\n\n", rps_right);
         myCount=0;
         putsUART1(buffer);
         LED2=~LED2;
     }
 
-    LED1=~LED1;
+    if (myCount2 >= 10000){
+        myCount2=0;
+        LED3=~LED3;
+    }
 
     myCount++;
+    myCount2++;
 
 }//
 
