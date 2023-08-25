@@ -33,6 +33,9 @@ void setupPWM()
     PWM1CON1bits.PMOD2 = 1; // Right Motor PWM Pin pair
 
 
+    // TODO: Check if Needed for Output Override Mode ?  
+    // PWM1CON1bits.OSYNC = 1 // Output overrides via the PxOVDCON register are synchronized to the PWM time base
+
     // 0 = disable PWM driver, I/O pin becomes general purpose I/O, Value can be written to it via the Latch
     // 1 = enable PWM driver, PWM output appears on the I/O pin
 
@@ -57,26 +60,40 @@ void setupPWM()
         PWM       | 1         | Reverse PWM, slow decay
     */
 
-    // Left Motor:
-    // Reverse & fast decay OR Forward & slow decay
-    PWM1CON1bits.PEN1H = 1; // enable  PWM driver PWM1H1
-    PWM1CON1bits.PEN1L = 0; // disable PWM driver, I/O pin becomes general purpose I/O 
-    // Forward & fast decay OR Reverse & slow decay
-    // PWM1CON1bits.PEN1H = 0; // disable PWM driver PWM1H1
-    // PWM1CON1bits.PEN1L = 1; // enable PWM driver 
+    // // Left Motor:
+    // // Reverse & fast decay OR Forward & slow decay
+    // PWM1CON1bits.PEN1H = 1; // enable  PWM driver PWM1H1
+    // PWM1CON1bits.PEN1L = 0; // disable PWM driver, I/O pin becomes general purpose I/O 
+    // // Forward & fast decay OR Reverse & slow decay
+    // // PWM1CON1bits.PEN1H = 0; // disable PWM driver PWM1H1
+    // // PWM1CON1bits.PEN1L = 1; // enable PWM driver 
 
 
-    // Right Motor:
-    // Reverse & fast decay OR Forward & slow decay
-    PWM1CON1bits.PEN2H = 1; // enable PWM driver, 
-    PWM1CON1bits.PEN2L = 0; // disable PWM driver, I/O pin becomes general purpose I/O
-    // Forward & fast decay OR Reverse & slow decay
-    // PWM1CON1bits.PEN2H = 0; // disable PWM driver
-    // PWM1CON1bits.PEN2L = 1; // enable PWM driver
+    // // Right Motor:
+    // // Reverse & fast decay OR Forward & slow decay
+    // PWM1CON1bits.PEN2H = 1; // enable PWM driver, 
+    // PWM1CON1bits.PEN2L = 0; // disable PWM driver, I/O pin becomes general purpose I/O
+    // // Forward & fast decay OR Reverse & slow decay
+    // // PWM1CON1bits.PEN2H = 0; // disable PWM driver
+    // // PWM1CON1bits.PEN2L = 1; // enable PWM driver
 
-    // Third PWM Generator
+    // Motor Control via OVERRIDE CONTROL REGISTER
+
+    // Enable PWM drivers for all 4 Motor PWM Channels
+    PWM1CON1bits.PEN1H = 1;
+    PWM1CON1bits.PEN1L = 1;
+
+    PWM1CON1bits.PEN2H = 1;
+    PWM1CON1bits.PEN2L = 1;
+
+    // Set forward / reverse and slow / fast decay Mode
+    forward_slow_decay_left();
+    forward_slow_decay_right();
+
+    // Third PWM Generator is not needed
     PWM1CON1bits.PEN3H = 0; // disable PWM driver
     PWM1CON1bits.PEN3L = 0; // disable PWM driver
+
 
     P1TCONbits.PTEN = 1; // Switch on PWM generator
 
@@ -91,7 +108,80 @@ void setupPWM()
     // RB14 Pin25: LED5 - PWM1H1
     // RB13 Pin24: LED6 - PWM1L2
     // RB12 Pin23: LED7 - PWM1H2
+
+
+    // Motor Control via OVERRIDE CONTROL REGISTER
+    // P1OVDCONbits.POVD1H = 1 // = 1 Output on PWMx I/O pin is controlled by the PWM generator
+    // P1OVDCONbits.POVD1H = 0 // = 0 Output on PWMx I/O pin is controlled by the value in the corresponding POUTxH:POUTxL bit
+    // P1OVDCONbits.POUT1H = 1 // = 1 PWMx I/O pin is driven active when the corresponding POVDxH:POVDxL bit is cleared
+    // P1OVDCONbits.POUT1H = 0 // = 0 PWMx I/O pin is driven inactive when the corresponding POVDxH:POVDxL bit is cleared
+
 }
+
+/* Slow Decay Motor Mode
+*   - active braking
+*/
+
+void forward_slow_decay_left() {
+    P1OVDCONbits.POVD1H = 1; 
+    P1OVDCONbits.POVD1L = 0; // Output Override Enabled
+
+    P1OVDCONbits.POUT1L = 1; // Override Vlaue (values that is set instead of the PWM)
+}
+
+void forward_slow_decay_right() {
+    P1OVDCONbits.POVD2H = 1; 
+    P1OVDCONbits.POVD2L = 0; // Output Override Enabled
+
+    P1OVDCONbits.POUT2L = 1; // Override Vlaue (values that is set instead of the PWM)
+}
+
+void reverse_slow_decay_left() {
+    P1OVDCONbits.POVD1H = 0; // Output Override Enabled
+    P1OVDCONbits.POVD1L = 1; 
+
+    P1OVDCONbits.POUT1H = 1; // Override Vlaue (values that is set instead of the PWM)
+}
+
+void reverse_slow_decay_right() {
+    P1OVDCONbits.POVD2H = 0; // Output Override Enabled
+    P1OVDCONbits.POVD2L = 1; 
+
+    P1OVDCONbits.POUT2H = 1; // Override Vlaue (values that is set instead of the PWM)
+}
+
+/* Fast Decay Motor Mode
+*   - coasting
+*/
+
+void forward_fast_decay_left() {
+    P1OVDCONbits.POVD1H = 0; // Output Override Enabled
+    P1OVDCONbits.POVD1L = 1; 
+
+    P1OVDCONbits.POUT1H = 0; // Override Vlaue (values that is set instead of the PWM)
+}
+
+void forward_fast_decay_right() {
+    P1OVDCONbits.POVD2H = 0; // O;utput Override Enabled
+    P1OVDCONbits.POVD2L = 1; 
+
+    P1OVDCONbits.POUT2H = 0; // Override Vlaue (values that is set instead of the PWM)
+}
+
+void reverse_fast_decay_left() {
+    P1OVDCONbits.POVD1H = 1; 
+    P1OVDCONbits.POVD1L = 0; // Output Override Enabled
+
+    P1OVDCONbits.POUT1L = 0; // Override Vlaue (values that is set instead of the PWM)
+}
+
+void reverse_fast_decay_right() {
+    P1OVDCONbits.POVD2H = 1; 
+    P1OVDCONbits.POVD2L = 0; // Output Override Enabled
+
+    P1OVDCONbits.POUT2L = 0; // Override Vlaue (values that is set instead of the PWM)
+}
+
 
 
 void setPWM_DCpercentage(uint16_t *pwmDutyCycleRegister, float percentage)

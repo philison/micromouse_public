@@ -38,5 +38,15 @@ void setupPWM();
 void modulatePWMwithSINE(uint16_t *pwmDutyCycleRegister);
 void setPWM_DCpercentage(uint16_t *pwmDutyCycleRegister, float percentage);
 
+void forward_slow_decay_left();
+void forward_slow_decay_right();
+void reverse_slow_decay_left();
+void reverse_slow_decay_right();
+
+void forward_fast_decay_left();
+void forward_fast_decay_right();
+void reverse_fast_decay_left();
+void reverse_fast_decay_right();
+
 #endif	/* __MYPWM_H__ */
 

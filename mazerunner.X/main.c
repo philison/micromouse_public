@@ -158,7 +158,6 @@ int main()
     setPWM_DCpercentage_Motor(&P1DC2, 0.5f);
 
 
-
     // Set PWM Pin for Motors
     // Left Motor: PWM1H1 (Pin: RB14), PWM1L1 (Pin: RB15) (PWM Pin pair 1 of the PWM Module 1)
     // Right Motor: PWM1H2 (Pin: RB12), PWM1L2 (Pin: RB13) (PWM Pin pair 2 of the PWM Module 1)
@@ -205,8 +204,8 @@ int main()
     // LATBbits.LATB14 = 0; 
     // LATBbits.LATB12 = 0;
     /* Forward, slow decay */
-    LATBbits.LATB15 = 1;
-    LATBbits.LATB13 = 1;
+    // LATBbits.LATB15 = 1;
+    // LATBbits.LATB13 = 1;
     /* Reverse PWM, fast decay */
     // LATBbits.LATB15 = 0;
     // LATBbits.LATB13 = 0;
@@ -214,6 +213,8 @@ int main()
     // LATBbits.LATB14 = 1; 
     // LATBbits.LATB12 = 1;
     
+
+
     // setupButtons();
     
     // IR-Seonsor Setup
