@@ -40,5 +40,7 @@ unsigned int calcPeriod(float timeInNS, float Tcycle, float prescaler);
 
 void startTimer1(void); 
 
+extern int mazi_running;
+
 #endif	/* XC_HEADER_TEMPLATE_H */
 

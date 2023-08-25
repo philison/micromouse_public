@@ -3,7 +3,7 @@
 #include "myPWM.h"
 #include "serialComms.h"
 #include "motorEncoders.h"
-#include "motorControl.h"
+#include "controllers.h"
 #include "dma.h"
 
 
@@ -352,52 +352,52 @@ void startTimer1(void)
 
 // Mazerunner
 /* Read Motor Encoder Values and set Motor Velocity*/
-void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-{
-    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
-    static int myCount=0;
-    static int myCount2=0;
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+//     static int myCount2=0;
 
 
-    // long motor_count = getPositionInCounts_1();
-    // int motor_vel_Right = getVelocityInCountsPerSample_1();
-    // int motor_vel_Left = getVelocityInCountsPerSample_2(); 
+//     // long motor_count = getPositionInCounts_1();
+//     // int motor_vel_Right = getVelocityInCountsPerSample_1();
+//     // int motor_vel_Left = getVelocityInCountsPerSample_2(); 
 
     
-    // float motor_vel_Left = getVelocityInRadPerSecond_Left();
-    // float motor_vel_Right = getVelocityInRadPerSecond_Right(); 
+//     // float motor_vel_Left = getVelocityInRadPerSecond_Left();
+//     // float motor_vel_Right = getVelocityInRadPerSecond_Right(); 
 
-    // float motor_vel_Left = getVelocityInRadPerSecond_Left();
-    // float motor_vel_Right = getFlanksPerSecond_Right(); 
+//     // float motor_vel_Left = getVelocityInRadPerSecond_Left();
+//     // float motor_vel_Right = getFlanksPerSecond_Right(); 
 
-    float rps_right = getVelocityInRoundsPerSecond_Right();
+//     float rps_right = getVelocityInRoundsPerSecond_Right();
 
-    // char buffer[20];
-    // sprintf(buffer, "%ld\r\n", motor_count);
-    // sprintf(buffer, "Motor_v_Left: %i\r\nMotor_v_Right: %i\r\n\n", motor_vel_Left, motor_vel_Right);
-    // sprintf(buffer, "Motor_v_Left: %.2f\r\nMotor_v_Right: %.2f\r\n\n", motor_vel_Left, motor_vel_Right);
-    // sprintf(buffer, "Motor_v_Left: %f\r\nMotor_v_Right: %f\r\n\n", motor_vel_Left, motor_vel_Right);
+//     // char buffer[20];
+//     // sprintf(buffer, "%ld\r\n", motor_count);
+//     // sprintf(buffer, "Motor_v_Left: %i\r\nMotor_v_Right: %i\r\n\n", motor_vel_Left, motor_vel_Right);
+//     // sprintf(buffer, "Motor_v_Left: %.2f\r\nMotor_v_Right: %.2f\r\n\n", motor_vel_Left, motor_vel_Right);
+//     // sprintf(buffer, "Motor_v_Left: %f\r\nMotor_v_Right: %f\r\n\n", motor_vel_Left, motor_vel_Right);
     
-    // sprintf(buffer, "a");
+//     // sprintf(buffer, "a");
 
-    if (myCount >= 500){
-        char buffer[10];
-        // sprintf(buffer, "L%f R%f\n", motor_vel_Left, motor_vel_Right);
-        sprintf(buffer, "%3.2f\n\n", rps_right);
-        myCount=0;
-        putsUART1(buffer);
-        LED2=~LED2;
-    }
+//     if (myCount >= 500){
+//         char buffer[10];
+//         // sprintf(buffer, "L%f R%f\n", motor_vel_Left, motor_vel_Right);
+//         sprintf(buffer, "%3.2f\n\n", rps_right);
+//         myCount=0;
+//         putsUART1(buffer);
+//         LED2=~LED2;
+//     }
 
-    if (myCount2 >= 10000){
-        myCount2=0;
-        LED3=~LED3;
-    }
+//     if (myCount2 >= 10000){
+//         myCount2=0;
+//         LED3=~LED3;
+//     }
 
-    myCount++;
-    myCount2++;
+//     myCount++;
+//     myCount2++;
 
-}//
+// }//
 
 
 
@@ -447,16 +447,106 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 
 //     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag
 
+//     static int myCount=0;
+
 //     // Convert the value of the potentiometer to a percentage for the PWM
 //     float sensor_left_distance_in_percentage = (float)SENSOR_LEFT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
 //     float sensor_front_distance_in_percentage = (float)SENSOR_FRONT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
 //     float sensor_right_distance_in_percentage = (float)SENSOR_RIGHT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096
 
 
-//     // UART Buffer
-//     char buffer[100];
-//     // Print Sensor Values
-//     sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
-//     putsUART1(buffer);
+//     if (myCount >= 500){
+//         // UART Buffer
+//         char buffer[50];
+//         // Print Sensor Values
+//         sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
+//         putsUART1(buffer);
+//         myCount=0;
+//         LED1=~LED1;
+//     }
+
+
+//     // if (myCount >= 7000 ){
+//     //     LED1=~LED1;
+//     // }
+
+//     // if (myCount >= 10000 && myCount <= 20000){
+//     //     set_DC_and_motor_state_left(0.2, "forward_slow_decay");
+//     //     set_DC_and_motor_state_right(0.2, "forward_slow_decay");
+//     //     myCount=20000;
+//     //     LED1=~LED1;
+//     // }
+
+//     myCount++;
+// }
+
+
+
+/* Control Wall Distance and Driving Forward */
+void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+{
+    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+    static int myCount=0;
+
+    if (mazi_running == 1){
+
+        float vel_base = 0.3;
+
+        float distance_left = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+        float distance_right = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+
+        struct Velocities vel_desired = p_wall_centering_controller( distance_left, distance_right, vel_base);
+
+        // Current Motor Velocities from Encoders
+        int motor_vel_left = getVelocityInRoundsPerSecond_Left();
+        int motor_vel_right = getVelocityInRoundsPerSecond_Right();
+
+
+        float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
+        float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right);
+
+        // if (myCount >= 500){
+        //     char buffer[30];
+        //     // sprintf(buffer, "%ld\r\n", motor_count);
+        //     sprintf(buffer, "LDC: %.3f, RDC: %.3f\r\n", dc_left, dc_right);
+        //     putsUART1(buffer);
+        //     myCount=0;
+        // }
+
+        if (myCount >= 100){
+            LED1 = ~LED1;
+            myCount=0;
+        }
+
+        myCount++;
+
+    } else {
+        set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+        set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+    }
+}
+
+
+
+/* Read RPS */
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     // Current Motor Velocities from Encoders
+//     float motor_vel_left = getVelocityInRoundsPerSecond_Left();
+//     // int motor_vel_right = getVelocityInRoundsPerSecond_Right();
+
+//     if (myCount >= 500){
+//         char buffer[40];
+//         // sprintf(buffer, "%ld\r\n", motor_count);
+//         sprintf(buffer, "VL: %.4f\r\n", motor_vel_left);
+//         // sprintf(buffer, "PWM: %.2f, Vel: %i\r\n", motor_vel_left);
+//         putsUART1(buffer);
+//         myCount=0;
+//     }
+
+//     myCount++;
 
 // }

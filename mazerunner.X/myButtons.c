@@ -121,6 +121,7 @@ void __attribute__((interrupt, no_auto_psv)) _CNInterrupt(void) {
     // on the rising and falling edge of a single button press
     if (flankCouter % 2 == 0){
         LED2 = ~LED2;
+        mazi_running = !mazi_running;
     }
 
     flankCouter++;

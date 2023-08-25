@@ -279,7 +279,19 @@ void setPWM_DCpercentage(uint16_t *pwmDutyCycleRegister, float percentage)
 void setPWM_DCpercentage_Motor(uint16_t *pwmDutyCycleRegister, float percentage)
 {
     // Add error handling to prefent a duty cycle higher than 100% -> percentage > 1.0f
-    if (percentage <= 1.0f)
+    float maxDC = 0.5;
+    float minDC = 0.0;
+
+    if (percentage > maxDC)
+    {
+        percentage = maxDC;
+    }
+    else if (percentage < minDC)
+    {
+        percentage = minDC;
+    }
+
+    if (percentage <= 1.0f && percentage >= 0.0f)
     {
         *pwmDutyCycleRegister = percentage * MYPWM_MAX_MAZE_MOTOR;
     }
@@ -289,6 +301,18 @@ void setPWM_DCpercentage_Motor(uint16_t *pwmDutyCycleRegister, float percentage)
 void setPWM_DCpercentage_Motor_inverted(uint16_t *pwmDutyCycleRegister, float percentage)
 {
     // Add error handling to prefent a duty cycle higher than 100% -> percentage > 1.0f
+    float maxDC = 0.5;
+    float minDC = 0.0;
+
+    if (percentage > maxDC)
+    {
+        percentage = maxDC;
+    }
+    else if (percentage < minDC)
+    {
+        percentage = minDC;
+    }
+
     if (percentage <= 1.0f && percentage >= 0.0f)
     {
         // float inverted_dc = MYPWM_MAX_MAZE_MOTOR - (percentage * MYPWM_MAX_MAZE_MOTOR);

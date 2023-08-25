@@ -7,12 +7,12 @@
       <itemPath>IOconfig.h</itemPath>
       <itemPath>adc.h</itemPath>
       <itemPath>dma.h</itemPath>
-      <itemPath>motorControl.h</itemPath>
       <itemPath>motorEncoders.h</itemPath>
       <itemPath>myButtons.h</itemPath>
       <itemPath>myPWM.h</itemPath>
       <itemPath>myTimers.h</itemPath>
       <itemPath>serialComms.h</itemPath>
+      <itemPath>controllers.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -25,12 +25,12 @@
       <itemPath>adc.c</itemPath>
       <itemPath>dma.c</itemPath>
       <itemPath>main.c</itemPath>
-      <itemPath>motorControl.c</itemPath>
       <itemPath>motorEncoders.c</itemPath>
       <itemPath>myButtons.c</itemPath>
       <itemPath>myPWM.c</itemPath>
       <itemPath>myTimers.c</itemPath>
       <itemPath>serialComms.c</itemPath>
+      <itemPath>controllers.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

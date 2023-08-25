@@ -8,4 +8,6 @@
 
 void setupButtons(void);
 
+extern int mazi_running;
+
 #endif	/* XC_HEADER_TEMPLATE_H */

@@ -61,6 +61,7 @@
 
 /// Global Variables-------------------
 float timer_time = 1.0; // in [ms]
+int mazi_running = 0; // 0 = not running, 1 = running
 
 /*
  * 
@@ -159,16 +160,19 @@ int main()
 
     // setPWM_DCpercentage(&P1DC1, 0.1);
     // set_DC_and_motor_state_left(0.5, "forward_slow_decay");
-    set_DC_and_motor_state_right(0.5, "forward_slow_decay");
+    // set_DC_and_motor_state_right(0.5, "forward_slow_decay");
 
     // set_DC_and_motor_state_left(0.5, "forward_fast_decay");
-    // set_DC_and_motor_state_right(0.5, "forward_fast_decay");
+    // set_DC_and_motor_state_right(0.1, "forward_fast_decay");
 
     // set_DC_and_motor_state_left(0.5, "reverse_slow_decay");
     // set_DC_and_motor_state_right(0.5, "reverse_slow_decay");
 
     // set_DC_and_motor_state_left(0.5, "reverse_fast_decay");
     // set_DC_and_motor_state_right(0.5, "reverse_fast_decay");
+
+    // set_DC_and_motor_state_left(0.2, "forward_slow_decay");
+    // set_DC_and_motor_state_right(0.2, "forward_slow_decay");
 
 
 
@@ -229,13 +233,12 @@ int main()
     
 
 
-    // setupButtons();
+    setupButtons();
     
     // IR-Seonsor Setup
-    // setupADC1();
-    // startADC1();
-    // initDmaChannel4();
-    
+    setupADC1();
+    startADC1();
+    initDmaChannel4();
 
 
 
