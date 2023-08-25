@@ -182,16 +182,18 @@ void startTimer1(void)
 
 //     myCount++;
 
-//     if(myCount % 20 == 0)
-//     {
-//         LED1=~LED1;
-//     }
+//     // if(myCount % 20 == 0)
+//     // {
+//     //     LED1=~LED1;
+//     // }
 
-//     if(myCount == 1000)
-//     {
-//         LED3=~LED3;
-//         myCount=0;
-//     }
+//     LED1=~LED1;
+
+//     // if(myCount == 1000)
+//     // {
+//     //     LED2=~LED2;
+//     //     myCount=0;
+//     // }
 // }//
 
 // // Ex 5.4.5
@@ -355,8 +357,6 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
     static int myCount=0;
 
-    setPWM_DCpercentage_Motor(&P1DC1, 0.5f);
-    setPWM_DCpercentage_Motor(&P1DC2, 0.5f);
 
     long motor_count = getPositionInCounts_1();
     // int motor_vel_Right = getVelocityInCountsPerSample_1();
@@ -366,23 +366,26 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     // float motor_vel_Left = getVelocityInRadPerSecond_Left();
     // float motor_vel_Right = getVelocityInRadPerSecond_Right(); 
 
-    float motor_vel_Left = getVelocityInRoundsPerMinute_Left();
-    float motor_vel_Right = getVelocityInRoundsPerMinute_Right(); 
+    float motor_vel_Left = getVelocityInRadPerSecond_Left();
+    float motor_vel_Right = getFlanksPerSecond_Right(); 
 
-    char buffer[100];
+    // char buffer[20];
     // sprintf(buffer, "%ld\r\n", motor_count);
     // sprintf(buffer, "Motor_v_Left: %i\r\nMotor_v_Right: %i\r\n\n", motor_vel_Left, motor_vel_Right);
-    sprintf(buffer, "Motor_v_Left: %.2f\r\nMotor_v_Right: %.2f\r\n\n", motor_vel_Left, motor_vel_Right);
+    // sprintf(buffer, "Motor_v_Left: %.2f\r\nMotor_v_Right: %.2f\r\n\n", motor_vel_Left, motor_vel_Right);
     // sprintf(buffer, "Motor_v_Left: %f\r\nMotor_v_Right: %f\r\n\n", motor_vel_Left, motor_vel_Right);
+    
+    // sprintf(buffer, "a");
 
-    if (myCount >= 100){
-         //putsUART2(buffer);
-         myCount=0;
-         LED2=~LED2;
+    if (myCount >= 500){
+        char buffer[20];
+        sprintf(buffer, "L%f R%f\n", motor_vel_Left, motor_vel_Right);
+        myCount=0;
+        putsUART1(buffer);
+        LED2=~LED2;
     }
-    putsUART1(buffer);
 
-    //LED4=~LED4;
+    LED1=~LED1;
 
     myCount++;
 

@@ -147,26 +147,75 @@ int main()
 
     // Switch off all leds at once in the beginning
     // LED4 = LED5 = LED6 = LED7 = LEDOFF;
-    LED2 = LED4 = LEDOFF;
+    LED1 = LED2 = LED3= LED4 = LEDOFF;
     
     //setupUART2();
     
     setupPWM();
 
     // setPWM_DCpercentage(&P1DC1, 0.1);
+    setPWM_DCpercentage_Motor(&P1DC1, 0.5f);
+    setPWM_DCpercentage_Motor(&P1DC2, 0.5f);
+
+
 
     // Set PWM Pin for Motors
     // Left Motor: PWM1H1 (Pin: RB14), PWM1L1 (Pin: RB15) (PWM Pin pair 1 of the PWM Module 1)
     // Right Motor: PWM1H2 (Pin: RB12), PWM1L2 (Pin: RB13) (PWM Pin pair 2 of the PWM Module 1)
-    LATBbits.LATB15 = 0; // Set Motor direction to forward
-    LATBbits.LATB13 = 0; // Set Motor direction to forward
+
+    /*  For the Motors:
+    *   The two PWM outputs 1H1 and 1H2 are used to control the H-bridge inputs AIN2 and BIN2
+    *
+    *   1H1 = RB14 <--> AIN2
+    *   1H2 = RB12 <--> BIN2
+    * 
+    *   1L1 = RB15 <--> AIN1
+    *   1L2 = RB13 <--> BIN1
+    */
+
+//    Motor IDs
+
+//    Param; Left Motor; Right Motor; 
+//    Pin; RB14,RB15; RB12, RB13;
+//    PWM-Channel; PWM1H1,PWM1L1; PWM1H2,PWM1L2
+//    H-Bridge: AIN2, AIN1; BIN2, BIN1
+
+    /*
+        Param       | Left Motor  | Right Motor 
+        ---------------------------------------
+        Pin         | RB14,RB15   | RB12, RB13
+        PWM-Channel | PWM1H1,PWM1L1 | PWM1H2,PWM1L2
+        H-Bridge    | AIN2, AIN1   | BIN2, BIN1
+    */
+   
+
+    /*
+        PWM Control of Motor Speed
+
+        RB15/RB13 | RB14/RB12 | FUNCTION
+        -------------------------------
+        PWM       | 0         | Forward PWM, fast decay
+        1         | PWM       | Forward PWM, slow decay
+        0         | PWM       | Reverse PWM, fast decay
+        PWM       | 1         | Reverse PWM, slow decay
+    */
+    //  Set Motor direction to:
+
+    // Forward, fast decay
+    // LATBbits.LATB14 = 0; 
+    // LATBbits.LATB12 = 0;
+    // Forward, slow decay
+    LATBbits.LATB15 = 0;
+    LATBbits.LATB13 = 0;
+    // LATBbits.LATB14 = 0;  
+    // LATBbits.LATB12 = 0; 
     
-    setupButtons();
+    // setupButtons();
     
     // IR-Seonsor Setup
-    setupADC1();
-    startADC1();
-    initDmaChannel4();
+    // setupADC1();
+    // startADC1();
+    // initDmaChannel4();
     
 
 

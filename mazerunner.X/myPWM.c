@@ -35,11 +35,34 @@ void setupPWM()
 
     // 0 = disable PWM driver, I/O pin becomes general purpose I/O, Value can be written to it via the Latch
     // 1 = enable PWM driver, PWM output appears on the I/O pin
-    PWM1CON1bits.PEN1H = 1; // enable  PWM driver PWM1H1
-    PWM1CON1bits.PEN1L = 0; // disable PWM driver 
 
-    PWM1CON1bits.PEN2H = 1; // disable PWM driver, I/O pin becomes general purpose I/O
-    PWM1CON1bits.PEN2L = 0; // disable PWM driver
+    /*  For the Motors:
+    *   The two PWM outputs 1H1 and 1H2 are used to control the H-bridge inputs AIN2 and BIN2
+    *
+    *   1H1 <--> AIN2
+    *   1H2 <--> BIN2
+    * 
+    *   1L1 <--> AIN1
+    *   1L2 <--> BIN1
+    */
+
+    // Left Motor:
+    // Reverse & fast decay OR Forward & slow decay
+    // PWM1CON1bits.PEN1H = 1; // enable  PWM driver PWM1H1
+    // PWM1CON1bits.PEN1L = 0; // disable PWM driver, I/O pin becomes general purpose I/O 
+    // Forward & fast decay OR Reverse & slow decay
+    PWM1CON1bits.PEN1H = 0; // disable PWM driver PWM1H1
+    PWM1CON1bits.PEN1L = 1; // enable PWM driver 
+
+
+    // Right Motor:
+    // Reverse & fast decay OR Forward & slow decay
+    PWM1CON1bits.PEN2H = 1; // enable PWM driver, 
+    PWM1CON1bits.PEN2L = 0; // disable PWM driver, I/O pin becomes general purpose I/O
+    // Forward & fast decay OR Reverse & slow decay
+    // PWM1CON1bits.PEN2H = 0; // disable PWM driver
+    // PWM1CON1bits.PEN2L = 1; // enable PWM driver
+
 
     PWM1CON1bits.PEN3H = 0; // disable PWM driver
     PWM1CON1bits.PEN3L = 0; // disable PWM driver

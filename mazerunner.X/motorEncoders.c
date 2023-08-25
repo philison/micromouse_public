@@ -254,6 +254,38 @@ float getVelocityInRoundsPerMinute_Right() {
     return velocity;
 }
 
+float getFlanksPerSecond_Right() {
+    static long oldFLankCount;
+    float flanksPerSecond;
+    long currentFLankCount;
+
+    //disable interrupts to make sure we have consistent data
+    _NSTDIS=1;
+    GET_ENCODER_1 (currentFLankCount);
+    _NSTDIS=0;
+
+    flanksPerSecond = (currentFLankCount-oldFLankCount) * 1000;
+
+    oldFLankCount=currentFLankCount;
+    return flanksPerSecond;
+}
+
+float getRPM_Right() {
+    static long oldFLankCount;
+    float flanksPerSecond;
+    long currentFLankCount;
+
+    //disable interrupts to make sure we have consistent data
+    _NSTDIS=1;
+    GET_ENCODER_1 (currentFLankCount);
+    _NSTDIS=0;
+
+    flanksPerSecond = (currentFLankCount-oldFLankCount) * 1000;
+
+    oldFLankCount=currentFLankCount;
+    return flanksPerSecond;
+}
+
 
 // float getVelocityInDegreePerSecond_Left()
 // {
