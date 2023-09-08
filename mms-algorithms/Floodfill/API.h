@@ -24,3 +24,5 @@ void API_clearAllText();
 
 int API_wasReset();
 void API_ackReset();
+
+
