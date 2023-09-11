@@ -31,6 +31,14 @@ float getVelocityInRoundsPerMinute_Right();
 
 float getFlanksPerSecond_Right();
 
+float getTotalDrivenDistanceInMeters();
+float getDrivenDistanceInMeters();
+float getDrivenDistanceInMeters2();
+float getDistanceToGoalInMeters(float initial_distance_to_goal);
+
+float getAngleToGoalInDegrees(float initial_angle_to_goal);
+float getTotalDrivenAngleInDegrees();
+
 extern long rotationCount1;
 extern long rotationCount2;
 extern float timer_time;
