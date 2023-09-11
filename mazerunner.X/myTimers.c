@@ -550,3 +550,57 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 //     myCount++;
 
 // }
+
+
+
+
+/* Control Distance Driven */
+void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+{
+    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+    static int myCount=0;
+
+    if (mazi_running == 1){
+
+        float vel_cruise = 0.3;
+        float initial_distance_to_goal = 0.30;
+
+        // float distance_to_goal = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
+        float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal);
+        // float distance_driven = getDistanceDrivenInMeters();
+
+        float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
+
+        float distance_left = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+        float distance_right = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+
+        struct Velocities vel_desired = p_wall_centering_controller( distance_left, distance_right, vel_base);
+
+        // Current Motor Velocities from Encoders
+        int motor_vel_left = getVelocityInRoundsPerSecond_Left();
+        int motor_vel_right = getVelocityInRoundsPerSecond_Right();
+
+
+        float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
+        float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right);
+
+        // if (myCount >= 500){
+        //     char buffer[30];
+        //     // sprintf(buffer, "%ld\r\n", motor_count);
+        //     sprintf(buffer, "LDC: %.3f, RDC: %.3f\r\n", dc_left, dc_right);
+        //     putsUART1(buffer);
+        //     myCount=0;
+        // }
+
+        if (myCount >= 100){
+            LED1 = ~LED1;
+            myCount=0;
+        }
+
+        myCount++;
+
+    } else {
+        set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+        set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+    }
+}

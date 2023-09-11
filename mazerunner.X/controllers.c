@@ -127,3 +127,32 @@ struct Velocities p_wall_centering_controller(float distance_left, float distanc
     // return both velocities
     return result;
 }
+
+
+
+
+/* P-Distance-To-Goal Controller */
+// Ensures that the robot slows down when it approaches the goal distance
+
+float p_goal_distance_controller(float distance_to_goal, float vel_cruise)
+{
+    
+    float error = distance_to_goal;
+    float kp = 0.05;
+    
+    float vel_base = kp*error;
+
+    if (vel_base > vel_cruise)
+    {
+        vel_base = vel_cruise;
+    }
+    // else if (vel_base < 0)
+    // {
+    //     vel_base = 0;
+    // }
+
+    return vel_base;
+}
+
+
+

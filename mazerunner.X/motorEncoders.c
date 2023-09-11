@@ -304,3 +304,32 @@ float getRPM_Right() {
 //     oldPosition=currentPosition;
 //     return velocity;
 // }
+
+
+
+
+float getDistanceToGoalInMeters(float initial_distance_to_goal){
+
+    float wheel_diameter = 0.06;
+    float wheel_cirumference = wheel_diameter * 3.141592;
+
+    static float distance_driven = 0;
+    static float old_position = 0;
+    float current_position = getPositionInCounts_1();
+    float distance_driven_in_counts = current_position - old_position;
+    float distance_driven_in_meters = distance_driven_in_counts / (33.0*4.0*16.0) * ;
+    distance_driven += distance_driven_in_meters;
+    old_position = current_position;
+
+    return initial_distance_to_goal - distance_driven;
+}
+
+
+
+/*
+    // Calc: 1/(2*3.141592) = 0.159154
+    float distance_driven_left = 0.159154 * getVelocityInRadPerSecond_Left() * timer_time * 1000.0;
+    float distance_driven_right = 0.159154 * getVelocityInRadPerSecond_Right() * timer_time * 1000.0;
+
+    distance_driven += (distance_driven_left + distance_driven_right) / 2.0;
+*/
