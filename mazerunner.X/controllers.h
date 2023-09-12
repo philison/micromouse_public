@@ -38,5 +38,8 @@ float p_goal_distance_controller(float distance_to_goal, float vel_cruise);
 
 float p_goal_angle_controller(float angle_to_goal, float vel_turn_cruise);
 
+struct Velocities p_one_wall_following_right(float distance_right, float vel_base);
+struct Velocities p_one_wall_following_left(float distance_left, float vel_base);
+
 #endif	/* CONTROLLERS_H */
 

@@ -3,6 +3,7 @@
 #include "myPWM.h"
 #include <stdbool.h> // for bool type
 #include <math.h> // for fabs() function
+#include "dma.h" // for SENSOR_LEFT, SENSOR_FRONT, SENSOR_RIGHT
 
 //#include math.h
 
@@ -271,4 +272,46 @@ float p_goal_angle_controller(float angle_to_goal, float vel_turn_cruise)
     }
 
     return vel_turn_base;
+}
+
+
+/* P-Single-Wall-Following Right Controller */
+// Adds additional velocity to the left or right wheel to center the robot between two walls
+
+struct Velocities p_one_wall_following_right(float distance_right, float vel_base)
+{
+    struct Velocities result;
+    float distanceSensorRightWallThreshold = 25.0;
+
+    // When the robot is closer to the right wall the voltage output by the right sensor increases as the reflected light intensity increases
+    // --> distance_right increases --> right wheel should turn faster
+    float error = distance_right - distanceSensorRightWallThreshold;
+    float kp = 0.05;
+    
+    result.vel_left = vel_base - kp * error;
+    result.vel_right = vel_base + kp * error;
+    
+    // return both velocities
+    return result;
+}
+
+
+/* P-Single-Wall-Following Left Controller */
+// Adds additional velocity to the left or right wheel to center the robot between two walls
+
+struct Velocities p_one_wall_following_left(float distance_left, float vel_base)
+{
+    struct Velocities result;
+    float distanceSensorLeftWallThreshold = 27.0;
+
+    // When the robot is closer to the left wall the voltage output by the left sensor increases as the reflected light intensity increases
+    // --> distance_left increases --> left wheel should turn faster
+    float error = distance_left - distanceSensorLeftWallThreshold;
+    float kp = 0.05;
+    
+    result.vel_left = vel_base + kp * error;
+    result.vel_right = vel_base - kp * error;
+    
+    // return both velocities
+    return result;
 }
