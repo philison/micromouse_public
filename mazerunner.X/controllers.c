@@ -2,6 +2,7 @@
 #include "motorEncoders.h"
 #include "myPWM.h"
 #include <stdbool.h> // for bool type
+#include <math.h> // for fabs() function
 
 //#include math.h
 
@@ -15,8 +16,8 @@ float pi_vel_controller_left(float targetVelocity, float currentVelocity, bool f
     // {
     //     forward = false;
     // }
-    // targetVelocity = abs(targetVelocity);
-    // currentVelocity = abs(currentVelocity);
+    targetVelocity = fabs(targetVelocity);
+    currentVelocity = fabs(currentVelocity);
     // TODO: What happens when we switch to forward drive while driving backwards ? Weirted control behavior ?
 
     //float currentVelocity = getVelocityInCountsPerSample_1(); // The control loop does not work if the function is called within the function
@@ -79,8 +80,8 @@ float pi_vel_controller_right(float targetVelocity, float currentVelocity, bool 
     // {
     //     forward = false;
     // }
-    // targetVelocity = abs(targetVelocity);
-    // currentVelocity = abs(currentVelocity);
+    targetVelocity = fabs(targetVelocity);
+    currentVelocity = fabs(currentVelocity);
 
     //float currentVelocity = getVelocityInCountsPerSample_1(); // The control loop does not work if the function is called within the function
     float error = targetVelocity - currentVelocity; // -20
@@ -204,7 +205,7 @@ float p_goal_distance_controller(float distance_to_goal, float vel_cruise)
 float p_goal_angle_controller(float angle_to_goal, float vel_turn_cruise)
 {
     
-    float error = abs(angle_to_goal);
+    float error = fabs(angle_to_goal);
     // float error = angle_to_goal;
     float kp = 0.03;
     
@@ -220,7 +221,7 @@ float p_goal_angle_controller(float angle_to_goal, float vel_turn_cruise)
     // }
 
     // Determine the sign of the turn base velocity for the left wheel
-    float sign = angle_to_goal/abs(angle_to_goal);
+    float sign = angle_to_goal/fabs(angle_to_goal);
 
     return sign * vel_turn_base;
     // return vel_turn_base;
