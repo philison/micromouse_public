@@ -135,7 +135,8 @@ float pi_vel_controller_right(float targetVelocity, float currentVelocity, bool 
 
     // TODO: Change the driveMode var to an enum
     // TODO: Think if the shouldTurn var for the right motor should be replaced by a similar system as used whith the left wheel. 
-    //          We would have to calculcate the vel_turn_base for the right wheel seperatly from the left wheel (currently everything is based on the left wheel, therfore also the signs) than the signs of the targetVelocity should be "correct"
+    //      We would have to calculcate the vel_turn_base for the right wheel seperatly from the left wheel (currently everything is based on the left wheel, therfore also the signs) than the signs of the targetVelocity should be "correct"
+    //      Nicer:::: Remove the shouldTurn varibale and just add a negative sign to the targetVelocity for the right wheel if the robot should turn (is in turning mode)
 
     if (!shouldTurn) {
         // Driving Straight (Forward/Reverse)
