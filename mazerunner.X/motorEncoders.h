@@ -20,6 +20,9 @@ int getVelocityInCountsPerSample_1();
 long getPositionInCounts_2();
 int getVelocityInCountsPerSample_2();
 
+float getPositionInCounts_Right();
+float getPositionInCounts_Left();
+
 float getVelocityInRadPerSecond_Right();
 float getVelocityInRadPerSecond_Left();
 
@@ -30,6 +33,18 @@ float getVelocityInRoundsPerMinute_Left();
 float getVelocityInRoundsPerMinute_Right();
 
 float getFlanksPerSecond_Right();
+
+float convertCountsToDistanceInMeters(float counts);
+
+float getTotalDrivenDistanceInMeters();
+float getDrivenDistanceInMeters();
+float getDrivenDistanceInMeters2();
+float getDistanceToGoalInMeters(float initial_distance_to_goal);
+
+float getAngleToGoalInDegrees(float initial_angle_to_goal);
+float getTotalDrivenAngleInDegrees();
+
+float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length_in_meters, float turn_radius_in_meters);
 
 extern long rotationCount1;
 extern long rotationCount2;
