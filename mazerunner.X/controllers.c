@@ -179,14 +179,12 @@ float p_goal_distance_controller(float distance_to_goal, float vel_cruise)
     
     float vel_base = kp*error;
 
-    if (vel_base > vel_cruise)
+    // Limit the vel_base to the vel_cruise as a max value
+    if (fabs(vel_base) > fabs(vel_cruise))
     {
-        vel_base = vel_cruise;
+        // Conserve the sign of the velocity base gained from the sign of the distance_to_goal
+        vel_base = (vel_base/fabs(vel_base)) * vel_cruise;
     }
-    // else if (vel_base < 0)
-    // {
-    //     vel_base = 0;
-    // }
 
     return vel_base;
 }
@@ -215,10 +213,6 @@ float p_goal_angle_controller(float angle_to_goal, float vel_turn_cruise)
     {
         vel_turn_base = vel_turn_cruise;
     }
-    // else if (vel_turn_base < 0)
-    // {
-    //     vel_turn_base = 0;
-    // }
 
     // Determine the sign of the turn base velocity for the left wheel
     float sign = angle_to_goal/fabs(angle_to_goal);

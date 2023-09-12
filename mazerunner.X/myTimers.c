@@ -498,8 +498,8 @@ void startTimer1(void)
 //         struct Velocities vel_desired = p_wall_centering_controller( distance_left, distance_right, vel_base);
 
 //         // Current Motor Velocities from Encoders
-//         int motor_vel_left = getVelocityInRoundsPerSecond_Left();
-//         int motor_vel_right = getVelocityInRoundsPerSecond_Right();
+//         float motor_vel_left = getVelocityInRoundsPerSecond_Left();
+//         float motor_vel_right = getVelocityInRoundsPerSecond_Right();
 
 
 //         float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
@@ -577,8 +577,8 @@ void startTimer1(void)
 //         struct Velocities vel_desired = p_wall_centering_controller( distance_left, distance_right, vel_base);
 
 //         // Current Motor Velocities from Encoders
-//         int motor_vel_left = getVelocityInRoundsPerSecond_Left();
-//         int motor_vel_right = getVelocityInRoundsPerSecond_Right();
+//         float motor_vel_left = getVelocityInRoundsPerSecond_Left();
+//         float motor_vel_right = getVelocityInRoundsPerSecond_Right();
 
 
 //         float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left, true);
@@ -627,8 +627,8 @@ void startTimer1(void)
 //         struct Velocities vel_desired = p_wall_centering_controller( distance_left, distance_right, vel_base);
 
 //         // Current Motor Velocities from Encoders
-//         int motor_vel_left = getVelocityInRoundsPerSecond_Left();
-//         int motor_vel_right = getVelocityInRoundsPerSecond_Right();
+//         float motor_vel_left = getVelocityInRoundsPerSecond_Left();
+//         float motor_vel_right = getVelocityInRoundsPerSecond_Right();
 
 
 //         float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
@@ -687,8 +687,8 @@ void startTimer1(void)
 //         // struct Velocities vel_desired = p_wall_centering_controller( distance_left, distance_right, vel_base);
 
 //         // Current Motor Velocities from Encoders
-//         int motor_vel_left = getVelocityInRoundsPerSecond_Left();
-//         int motor_vel_right = getVelocityInRoundsPerSecond_Right();
+//         float motor_vel_left = getVelocityInRoundsPerSecond_Left();
+//         float motor_vel_right = getVelocityInRoundsPerSecond_Right();
 
 
 //         float dc_left = pi_vel_controller_left(vel_turn_base, motor_vel_left, true);
@@ -724,7 +724,7 @@ void startTimer1(void)
 // }
 
 
-/* Test angle calculation from distance traveled of right wheel while driving straight */
+/* Test angle calculation from distance traveled of left wheel while driving straight */
 void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 {
     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
@@ -732,17 +732,18 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 
     if (mazi_running == 1){
 
-        float vel_cruise = 0.3;
-        // float vel_turn_cruise = 0.3;
+        // float vel_cruise = 0.3;
+        float vel_turn_cruise = 0.3;
         // float initial_distance_to_goal = 0.094; // Equals a 90 degree turn in Bogenmaß
-        float initial_distance_to_goal = 0.3;
-        // float initial_angle_to_goal = 90.0; // in degrees, with pos values for right turn and neg values for left turn (clockwise)
+        // float initial_distance_to_goal = -0.3;
+        float initial_angle_to_goal = -90.0; // in degrees, with pos values for right turn and neg values for left turn (clockwise)
 
-        float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal);
-        // float angle_to_goal = getAngleToGoalInDegrees(initial_angle_to_goal);
+        // float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal);
+        float angle_to_goal = getAngleToGoalInDegrees(initial_angle_to_goal);
 
-        float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
-        // float vel_turn_base = p_goal_angle_controller(angle_to_goal, vel_turn_cruise);
+        // float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
+        float vel_turn_base = p_goal_angle_controller(angle_to_goal, vel_turn_cruise);
+        float vel_base = vel_turn_base;
 
         float distance_left = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
         float distance_right = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
@@ -756,8 +757,18 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 
         // float dc_left = pi_vel_controller_left(vel_desired.vel_left, motor_vel_left, true);
         // float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, false);
-        float dc_left = pi_vel_controller_left(vel_base, motor_vel_left, true);
-        float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, true);
+
+        if (vel_base >= 0) {
+            float dc_left = pi_vel_controller_left(vel_base, motor_vel_left, true);
+            float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, false);
+        } else if (vel_base < 0)
+        {
+            float dc_left = pi_vel_controller_left(vel_base, motor_vel_left, false);
+            float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, true);
+        }
+        
+
+
 
 
         // if (myCount >= 500){
@@ -775,10 +786,10 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
             LED1 = ~LED1;
             char buffer[20];
             // sprintf(buffer, "%2.3f\r\n", distance);
-            float distance = getTotalDrivenDistanceInMeters();
-            // float distance = getTotalDrivenAngleInDegrees();
+            // float distance = getTotalDrivenDistanceInMeters();
+            float distance = getTotalDrivenAngleInDegrees();
             // float inter_distance = getDrivenDistanceInMeters2();
-            sprintf(buffer, "%2.4f\r\n", distance);
+            sprintf(buffer, "%4.4f\r\n", distance);
             // sprintf(buffer, "L%2.2f R%2.2f\r\n", motor_vel_left, motor_vel_right);
             // sprintf(buffer, "%2.2f %2.2f\r\n", distance, inter_distance);
             putsUART1(buffer);

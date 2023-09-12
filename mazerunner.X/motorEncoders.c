@@ -371,7 +371,7 @@ float getTotalDrivenDistanceInMeters()
     // float wheel_diameter = 0.06;
     // float wheel_cirumference = wheel_diameter * 3.141592;
 
-    currentPosition = getPositionInCounts_Right();
+    currentPosition = getPositionInCounts_Left();
     // distance += (currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
     // WORKS: // distance += (float)(currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
     distance += convertCountsToDistanceInMeters(currentPosition-oldPosition);
