@@ -7,6 +7,8 @@
 
 #include <stdbool.h> // for bool type
 
+#include "distanceSensors.h"
+
 #ifndef CONTROLLERS_H
 #define	CONTROLLERS_H
 
@@ -31,7 +33,8 @@ struct Velocities {
 // float pi_vel_controller(float targetVelocity, float currentVelocity);
 
 float pi_vel_controller_left(float targetVelocity, float currentVelocity);
-float pi_vel_controller_right(float targetVelocity, float currentVelocity, bool shouldTurn);
+// float pi_vel_controller_right(float targetVelocity, float currentVelocity, bool shouldTurn);
+float pi_vel_controller_right(float targetVelocity, float currentVelocity);
 
 struct Velocities p_wall_centering_controller(float distance_left, float distance_right, float vel_base);
 float p_goal_distance_controller(float distance_to_goal, float vel_cruise);

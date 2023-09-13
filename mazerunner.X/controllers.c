@@ -78,10 +78,100 @@ float pi_vel_controller_left(float targetVelocity, float currentVelocity)
 }
 
 
+// /***
+//  * A simple PI-Controller to drive the motor at a targetVelocity via PWM
+// ***/
+// float pi_vel_controller_right(float targetVelocity, float currentVelocity, bool shouldTurn)
+// {
+//     float targetVelocityAbs = fabs(targetVelocity);
+//     float currentVelocityAbs = fabs(currentVelocity);
+
+//     //float currentVelocity = getVelocityInCountsPerSample_1(); // The control loop does not work if the function is called within the function
+//     float error = targetVelocityAbs - currentVelocityAbs; // -20
+//     float dc = 0;
+//     float kp = 0.5;
+//     float ki = 0.1;
+//     static float integral = 0;
+//     // float dt = 0.01;
+//     float maxDC = 0.5;
+//     float minDC = 0.0;
+//     // float minDC = -100; // Should reverse motor direction for active breaking ?
+//     float maxIntegral = 4;
+//     float minIntegral = -4;
+    
+//     // integral += error * dt;
+//     integral += error;
+    
+//     if (integral > maxIntegral)
+//     {
+//         integral = maxIntegral;
+//     }
+//     else if (integral < minIntegral)
+//     {
+//         integral = minIntegral;
+//     }
+    
+//     dc = kp * error + ki * integral; // -200
+    
+//     if (dc > maxDC)
+//     {
+//         dc = maxDC;
+//     }
+//     else if (dc < minDC)
+//     {
+//         dc = minDC;
+//     }
+    
+//     // Handle wheel turning direction:
+
+//     // if (forward)
+//     // {
+//     //     set_DC_and_motor_state_right(dc, "forward_slow_decay");
+//     // }
+//     // else
+//     // {
+//     //     set_DC_and_motor_state_right(dc, "reverse_slow_decay");
+//     // }
+
+
+//     // TODO: Change the driveMode var to an enum
+//     // TODO: Think if the shouldTurn var for the right motor should be replaced by a similar system as used whith the left wheel. 
+//     //      We would have to calculcate the vel_turn_base for the right wheel seperatly from the left wheel (currently everything is based on the left wheel, therfore also the signs) than the signs of the targetVelocity should be "correct"
+//     //      Nicer:::: Remove the shouldTurn varibale and just add a negative sign to the targetVelocity for the right wheel if the robot should turn (is in turning mode)
+
+//     if (!shouldTurn) {
+//         // Driving Straight (Forward/Reverse)
+//         if (targetVelocity >= 0)
+//         {
+//             set_DC_and_motor_state_right(dc, "forward_slow_decay");
+//         }
+//         else if (targetVelocity < 0)
+//         {
+//             set_DC_and_motor_state_right(dc, "reverse_slow_decay");
+//         }
+//     }
+//     else if (shouldTurn){
+//         // Turning
+//         if (targetVelocity >= 0)
+//         {
+//             set_DC_and_motor_state_right(dc, "reverse_slow_decay");
+//         }
+//         else if (targetVelocity < 0)
+//         {
+//             set_DC_and_motor_state_right(dc, "forward_slow_decay");
+//         }
+//     }
+    
+
+//     // set_DC_and_motor_state_right(dc, "forward_slow_decay");
+//     return dc;
+// }
+
+
 /***
  * A simple PI-Controller to drive the motor at a targetVelocity via PWM
 ***/
-float pi_vel_controller_right(float targetVelocity, float currentVelocity, bool shouldTurn)
+float pi_vel_controller_right(float targetVelocity, float currentVelocity)
 {
     float targetVelocityAbs = fabs(targetVelocity);
     float currentVelocityAbs = fabs(currentVelocity);
@@ -124,50 +214,18 @@ float pi_vel_controller_right(float targetVelocity, float currentVelocity, bool 
     
     // Handle wheel turning direction:
 
-    // if (forward)
-    // {
-    //     set_DC_and_motor_state_right(dc, "forward_slow_decay");
-    // }
-    // else
-    // {
-    //     set_DC_and_motor_state_right(dc, "reverse_slow_decay");
-    // }
-
-
-    // TODO: Change the driveMode var to an enum
-    // TODO: Think if the shouldTurn var for the right motor should be replaced by a similar system as used whith the left wheel. 
-    //      We would have to calculcate the vel_turn_base for the right wheel seperatly from the left wheel (currently everything is based on the left wheel, therfore also the signs) than the signs of the targetVelocity should be "correct"
-    //      Nicer:::: Remove the shouldTurn varibale and just add a negative sign to the targetVelocity for the right wheel if the robot should turn (is in turning mode)
-
-    if (!shouldTurn) {
-        // Driving Straight (Forward/Reverse)
-        if (targetVelocity >= 0)
-        {
-            set_DC_and_motor_state_right(dc, "forward_slow_decay");
-        }
-        else if (targetVelocity < 0)
-        {
-            set_DC_and_motor_state_right(dc, "reverse_slow_decay");
-        }
+    if (targetVelocity >= 0)
+    {
+        set_DC_and_motor_state_right(dc, "forward_slow_decay");
     }
-    else if (shouldTurn){
-        // Turning
-        if (targetVelocity >= 0)
-        {
-            set_DC_and_motor_state_right(dc, "reverse_slow_decay");
-        }
-        else if (targetVelocity < 0)
-        {
-            set_DC_and_motor_state_right(dc, "forward_slow_decay");
-        }
+    else if (targetVelocity < 0)
+    {
+        set_DC_and_motor_state_right(dc, "reverse_slow_decay");
     }
-    
 
     // set_DC_and_motor_state_right(dc, "forward_slow_decay");
     return dc;
 }
-
-
 
 
 /* P-Wall-Centering Controller */
