@@ -1025,18 +1025,32 @@ void startTimer1(void)
 /* Control Distance Driven and Wall Following Left and than turn when reaching front facing wall */
 // void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 // {
+// }
+
+
+
+
+/* Control Distance Driven and detect which Wall Following Control Mode to Use */
+// Wall Detection Threshold Left / Right / Front: 12% values over this threshold will be detected as a wall
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
 //     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
 //     static int myCount=0;
 
 //     if (mazi_running == 1){
 
 //         static int waitBeforeDriveCounter=0;
+//         static enum lateralControlMode oldLateralControlMode;
 
 //         if (waitBeforeDriveCounter == 0) {
 //             // UART Buffer
 //             char buffer[20];
-//             // Print Sensor Values
-//             sprintf(buffer, "SLP \tSFP \tSRP \tm\n\r");    
+//             // // Print Sensor Values
+//             // sprintf(buffer, "SLP \tSFP \tSRP \tm\n\r");    
+
+//             oldLateralControlMode = getLateralControlMode();
+//             const char* lateralControlModeString = getLateralControlModeName(oldLateralControlMode);
+//             sprintf(buffer, "%s\n\r", lateralControlModeString);
 //             putsUART1(buffer);
 //         }
 
@@ -1044,12 +1058,6 @@ void startTimer1(void)
 //         if (waitBeforeDriveCounter >= 1000){
 //             LED1 = ~LED1;
 //             // waitBeforeDriveCounter=0;
-
-
-//             bool turnCompleted = false;
-//             // Drive forward right wall following 2 cells
-//             // Turn 180 degrees when reaching cell center
-//             // Drive forward left wall following 2 cells
         
 //             float vel_cruise = 0.3;
 //             float initial_distance_to_goal = 5 * 0.18; // in meters
@@ -1064,12 +1072,12 @@ void startTimer1(void)
 //             // float distance_right = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
 
 //             // Convert the value of the potentiometer to a percentage for the PWM
-//             float sensor_left_distance_in_percentage = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
-//             float sensor_front_distance_in_percentage = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
-//             float sensor_right_distance_in_percentage = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
+//             // float sensor_left_distance_in_percentage = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+//             // float sensor_front_distance_in_percentage = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+//             // float sensor_right_distance_in_percentage = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
 
 //             // struct Velocities vel_desired = p_wall_centering_controller( distance_left, distance_right, vel_base);
-//             struct Velocities vel_desired = p_one_wall_following_right(sensor_right_distance_in_percentage, vel_base);
+//             // struct Velocities vel_desired = p_one_wall_following_right(sensor_right_distance_in_percentage, vel_base);
 //             // struct Velocities vel_desired = p_one_wall_following_left(sensor_left_distance_in_percentage, vel_base);
 
 //             // Current Motor Velocities from Encoders
@@ -1077,30 +1085,49 @@ void startTimer1(void)
 //             float motor_vel_right = getVelocityInRoundsPerSecond_Right();
 
 //             bool shouldTurn = false;
-//             float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
-//             float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, shouldTurn);
+//             // float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
+//             // float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, shouldTurn);
 
-//             // float dc_left = pi_vel_controller_left(vel_base, motor_vel_left);
-//             // float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, shouldTurn);
+//             float dc_left = pi_vel_controller_left(vel_base, motor_vel_left);
+//             float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, shouldTurn);
 
-//             if (myCount >= 500){
-//                 LED1 = ~LED1;
-//                 // char buffer[10];
-//                 // sprintf(buffer, "%2.3f\r\n", distance);
-//                 float distance = getTotalDrivenDistanceInMeters();
-//                 // float inter_distance = getDrivenDistanceInMeters2();
-//                 // sprintf(buffer, "%2.4f\r\n", distance);
-//                 // sprintf(buffer, "%2.2f %2.2f\r\n", distance, inter_distance);
-//                 // putsUART1(buffer);
+//             // if (myCount >= 500){
+//             //     LED1 = ~LED1;
+//             //     // char buffer[10];
+//             //     // sprintf(buffer, "%2.3f\r\n", distance);
+//             //     // float distance = getTotalDrivenDistanceInMeters();
+//             //     // float inter_distance = getDrivenDistanceInMeters2();
+//             //     // sprintf(buffer, "%2.4f\r\n", distance);
+//             //     // sprintf(buffer, "%2.2f %2.2f\r\n", distance, inter_distance);
+//             //     // putsUART1(buffer);
 
-//                 // UART Buffer
+//             //     // UART Buffer
+//             //     char buffer[50];
+//             //     // Print Sensor Values
+//             //     // sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
+//             //     // sprintf(buffer, "%3.2f \t%3.2f \t%3.2f \t%1.3f\n\r", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage), distance);
+                
+//             //     // Print the result of getLateralControlMode()
+//             //     enum lateralControlMode LCM = getLateralControlMode();
+//             //     const char* lateralControlModeString = getLateralControlModeName(LCM);
+//             //     sprintf(buffer, "%s\n\r", lateralControlModeString);
+
+//             //     putsUART1(buffer);
+//             //     myCount=0;
+//             // }
+
+//             enum lateralControlMode currenLateralControlMode = getLateralControlMode();
+
+//             if (currenLateralControlMode != oldLateralControlMode) {
 //                 char buffer[50];
-//                 // Print Sensor Values
-//                 // sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
-//                 sprintf(buffer, "%3.2f \t%3.2f \t%3.2f \t%1.3f\n\r", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage), distance);    
+//                 const char* lateralControlModeString = getLateralControlModeName(currenLateralControlMode);
+//                 sprintf(buffer, "%s\n\r", lateralControlModeString);
+
 //                 putsUART1(buffer);
-//                 myCount=0;
+//                 oldLateralControlMode = currenLateralControlMode;
 //             }
+
+
 
 //             // if (myCount >= 100){
 //             //     LED1 = ~LED1;
@@ -1124,9 +1151,7 @@ void startTimer1(void)
 
 
 
-
-/* Control Distance Driven and detect which Wall Following Control Mode to Use */
-// Wall Detection Threshold Left / Right / Front: 12% values over this threshold will be detected as a wall
+/* Control Distance Driven and detect and USE the correct Wall Following Control Mode*/
 void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 {
     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
@@ -1139,13 +1164,14 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 
         if (waitBeforeDriveCounter == 0) {
             // UART Buffer
-            char buffer[20];
-            // // Print Sensor Values
-            // sprintf(buffer, "SLP \tSFP \tSRP \tm\n\r");    
+            char buffer[30];
 
-            oldLateralControlMode = getLateralControlMode();
-            const char* lateralControlModeString = getLateralControlModeName(oldLateralControlMode);
-            sprintf(buffer, "%s\n\r", lateralControlModeString);
+            // Print Sensor Values
+            sprintf(buffer, "SLP \tSFP \tSRP \tm \tvL \tvR\n\r");    
+
+            // oldLateralControlMode = getLateralControlMode();
+            // const char* lateralControlModeString = getLateralControlModeName(oldLateralControlMode);
+            // sprintf(buffer, "%s\n\r", lateralControlModeString);
             putsUART1(buffer);
         }
 
@@ -1163,70 +1189,79 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 
             float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
 
-            // float distance_left = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
-            // float distance_right = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
-
             // Convert the value of the potentiometer to a percentage for the PWM
-            // float sensor_left_distance_in_percentage = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
-            // float sensor_front_distance_in_percentage = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
-            // float sensor_right_distance_in_percentage = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
+            float sensor_left_distance_in_percentage =distanceSensorInPercentLeft(); 
+            float sensor_front_distance_in_percentage = distanceSensorInPercentFront(); 
+            float sensor_right_distance_in_percentage = distanceSensorInPercentRight(); 
 
-            // struct Velocities vel_desired = p_wall_centering_controller( distance_left, distance_right, vel_base);
-            // struct Velocities vel_desired = p_one_wall_following_right(sensor_right_distance_in_percentage, vel_base);
-            // struct Velocities vel_desired = p_one_wall_following_left(sensor_left_distance_in_percentage, vel_base);
+            // Switch Case to execute the correct Laterall Control Mode
+            struct Velocities vel_desired;
+            switch (getLateralControlMode())
+            {
+                case ONE_WALL_FOLLOWING_RIGHT:
+                    vel_desired = p_one_wall_following_right(sensor_right_distance_in_percentage, vel_base);
+                    break;
+                case ONE_WALL_FOLLOWING_LEFT:
+                    vel_desired = p_one_wall_following_left(sensor_left_distance_in_percentage, vel_base);
+                    break;
+                case TWO_WALL_CENTERING:
+                    vel_desired = p_wall_centering_controller( sensor_left_distance_in_percentage, sensor_right_distance_in_percentage, vel_base);
+                    break;
+                case ZERO_WALL_DRIVING:
+                    vel_desired = (struct Velocities){vel_base, vel_base}; // Assign left and right velocities, (struct Velocities){vel_base, vel_base} creates a temporary struct with the specified values and assigns it to vel_desired
+                    // Alternative to the compact professional code line above
+                    // vel_desired.left_velocity = vel_base; // Assign the left wheel velocity
+                    // vel_desired.right_velocity = vel_base; // Assign the right wheel velocity
+                    break;
+                default:
+                    break;
+            }
 
             // Current Motor Velocities from Encoders
             float motor_vel_left = getVelocityInRoundsPerSecond_Left();
             float motor_vel_right = getVelocityInRoundsPerSecond_Right();
 
             bool shouldTurn = false;
-            // float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
-            // float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, shouldTurn);
+            float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
+            float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, shouldTurn);
 
-            float dc_left = pi_vel_controller_left(vel_base, motor_vel_left);
-            float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, shouldTurn);
+            // float dc_left = pi_vel_controller_left(vel_base, motor_vel_left);
+            // float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, shouldTurn);
 
-            // if (myCount >= 500){
-            //     LED1 = ~LED1;
-            //     // char buffer[10];
-            //     // sprintf(buffer, "%2.3f\r\n", distance);
-            //     // float distance = getTotalDrivenDistanceInMeters();
-            //     // float inter_distance = getDrivenDistanceInMeters2();
-            //     // sprintf(buffer, "%2.4f\r\n", distance);
-            //     // sprintf(buffer, "%2.2f %2.2f\r\n", distance, inter_distance);
-            //     // putsUART1(buffer);
+            if (myCount >= 500){
+                LED1 = ~LED1;
+                // char buffer[10];
+                // sprintf(buffer, "%2.3f\r\n", distance);
+                float distance = getTotalDrivenDistanceInMeters();
+                // float inter_distance = getDrivenDistanceInMeters2();
+                // sprintf(buffer, "%2.4f\r\n", distance);
+                // sprintf(buffer, "%2.2f %2.2f\r\n", distance, inter_distance);
+                // putsUART1(buffer);
 
-            //     // UART Buffer
-            //     char buffer[50];
-            //     // Print Sensor Values
-            //     // sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
-            //     // sprintf(buffer, "%3.2f \t%3.2f \t%3.2f \t%1.3f\n\r", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage), distance);
+                // UART Buffer
+                char buffer[50];
+                // Print Sensor Values
+                // sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
+                sprintf(buffer, "%3.2f \t%3.2f \t%3.2f \t%1.3f \t%2.2f \t%2.2f\n\r", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage), distance, vel_desired.vel_left, vel_desired.vel_right);
                 
-            //     // Print the result of getLateralControlMode()
-            //     enum lateralControlMode LCM = getLateralControlMode();
-            //     const char* lateralControlModeString = getLateralControlModeName(LCM);
-            //     sprintf(buffer, "%s\n\r", lateralControlModeString);
+                // // Print the result of getLateralControlMode()
+                // enum lateralControlMode LCM = getLateralControlMode();
+                // const char* lateralControlModeString = getLateralControlModeName(LCM);
+                // sprintf(buffer, "%s\n\r", lateralControlModeString);
 
-            //     putsUART1(buffer);
-            //     myCount=0;
-            // }
+                putsUART1(buffer);
+                myCount=0;
+            }
 
             enum lateralControlMode currenLateralControlMode = getLateralControlMode();
 
-            if (currenLateralControlMode != oldLateralControlMode) {
-                char buffer[50];
-                const char* lateralControlModeString = getLateralControlModeName(currenLateralControlMode);
-                sprintf(buffer, "%s\n\r", lateralControlModeString);
+            // if (currenLateralControlMode != oldLateralControlMode) {
+            //     char buffer[50];
+            //     const char* lateralControlModeString = getLateralControlModeName(currenLateralControlMode);
+            //     sprintf(buffer, "%s\n\r", lateralControlModeString);
 
-                putsUART1(buffer);
-                oldLateralControlMode = currenLateralControlMode;
-            }
-
-
-
-            // if (myCount >= 100){
-            //     LED1 = ~LED1;
-            //     myCount=0;
+            //     putsUART1(buffer);
+            //     oldLateralControlMode = currenLateralControlMode;
             // }
 
             myCount++;

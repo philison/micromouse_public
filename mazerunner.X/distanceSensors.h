@@ -14,6 +14,8 @@
 #ifndef __DISTANCESENSORS_H__
 #define	__DISTANCESENSORS_H__
 
+#define WALL_DETECTION_THRESHOLD 15.0 // in percent
+
 /*
 * It is the motion that occurs perpendicular to the primary direction of travel or orientation. 
 * In the case of a two-wheeled mobile robot, lateral movement would involve the robot moving to the left or right.

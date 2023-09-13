@@ -20,33 +20,33 @@
 
 float distanceSensorInPercentLeft(void)
 {
-    return (float) SENSOR_LEFT / 4096.0 * 100.0;
+    return (float) SENSOR_LEFT / 4096.0 * 100.0; // 12 bit ADC therfore 2^12 = 4096 
 }
 
 float distanceSensorInPercentFront(void)
 {
-    return (float) SENSOR_FRONT / 4096.0 * 100.0;
+    return (float) SENSOR_FRONT / 4096.0 * 100.0; // 12 bit ADC therfore 2^12 = 4096 
 }
 
 float distanceSensorInPercentRight(void)
 {
-    return (float) SENSOR_RIGHT / 4096.0 * 100.0;
+    return (float) SENSOR_RIGHT / 4096.0 * 100.0; // 12 bit ADC therfore 2^12 = 4096 
 }
 
 
 bool isWallLeft(void)
 {
-    return distanceSensorInPercentLeft() > 12.0;
+    return distanceSensorInPercentLeft() > WALL_DETECTION_THRESHOLD;
 }
 
 bool isWallFront(void)
 {
-    return distanceSensorInPercentFront() > 12.0;
+    return distanceSensorInPercentFront() > WALL_DETECTION_THRESHOLD;
 }
 
 bool isWallRight(void)
 {
-    return distanceSensorInPercentRight() > 12.0;
+    return distanceSensorInPercentRight() > WALL_DETECTION_THRESHOLD;
 }
 
 
