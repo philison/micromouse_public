@@ -1167,7 +1167,8 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
             char buffer[30];
 
             // Print Sensor Values
-            sprintf(buffer, "SLP \tSFP \tSRP \tm \tvL \tvR\n\r");    
+            // sprintf(buffer, "SLP \tSFP \tSRP \tm \tvL \tvR \tcMode\n\r");    
+            sprintf(buffer, "SLP;SFP;SRP;m;vL;vR;cMode\n\r");    
 
             // oldLateralControlMode = getLateralControlMode();
             // const char* lateralControlModeString = getLateralControlModeName(oldLateralControlMode);
@@ -1228,7 +1229,7 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
             // float dc_left = pi_vel_controller_left(vel_base, motor_vel_left);
             // float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, shouldTurn);
 
-            if (myCount >= 500){
+            if (myCount >= 100){
                 LED1 = ~LED1;
                 // char buffer[10];
                 // sprintf(buffer, "%2.3f\r\n", distance);
@@ -1238,11 +1239,14 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
                 // sprintf(buffer, "%2.2f %2.2f\r\n", distance, inter_distance);
                 // putsUART1(buffer);
 
+                enum lateralControlMode currenLateralControlMode = getLateralControlMode();
+
                 // UART Buffer
-                char buffer[50];
+                char buffer[40];
                 // Print Sensor Values
                 // sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
-                sprintf(buffer, "%3.2f \t%3.2f \t%3.2f \t%1.3f \t%2.2f \t%2.2f\n\r", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage), distance, vel_desired.vel_left, vel_desired.vel_right);
+                // sprintf(buffer, "%2.2f \t%2.2f \t%2.2f \t%2.3f \t%2.2f \t%2.2f \t%i\n\r", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage), distance, vel_desired.vel_left, vel_desired.vel_right, currenLateralControlMode);
+                sprintf(buffer, "%2.2f;%2.2f;%2.2f;%2.3f;%2.2f;%2.2f;%i;\n\r", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage), distance, vel_desired.vel_left, vel_desired.vel_right, currenLateralControlMode);
                 
                 // // Print the result of getLateralControlMode()
                 // enum lateralControlMode LCM = getLateralControlMode();
