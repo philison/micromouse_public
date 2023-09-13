@@ -34,6 +34,16 @@ float distanceSensorInPercentRight(void)
 }
 
 
+struct DistanceSensorsReadingsInPercent distanceSensorsReadingsInPercent(void)
+{
+    struct DistanceSensorsReadingsInPercent currentDistanceSensorsReadingsInPercent;
+    currentDistanceSensorsReadingsInPercent.left = distanceSensorInPercentLeft();
+    currentDistanceSensorsReadingsInPercent.front = distanceSensorInPercentFront();
+    currentDistanceSensorsReadingsInPercent.right = distanceSensorInPercentRight();
+    return currentDistanceSensorsReadingsInPercent;
+}
+
+
 bool isWallLeft(void)
 {
     return distanceSensorInPercentLeft() > WALL_DETECTION_THRESHOLD;

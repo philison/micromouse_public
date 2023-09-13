@@ -15,7 +15,7 @@
 #define	__DISTANCESENSORS_H__
 
 #define WALL_DETECTION_THRESHOLD 20.0 // in percent
-#define WALL_DETECTION_THRESHOLD_FRONT 20.0 // TODO: slect an appropriate value
+#define WALL_DETECTION_THRESHOLD_FRONT 20.0 // TODO: select an appropriate value
 
 /*
 * It is the motion that occurs perpendicular to the primary direction of travel or orientation. 
@@ -28,9 +28,18 @@ enum lateralControlMode {
     ZERO_WALL_DRIVING
 };
 
+// Struct to hold the Distance Sensor Values 
+struct DistanceSensorsReadingsInPercent {
+    float left;
+    float front;
+    float right;
+};
+
 float distanceSensorInPercentLeft(void);
 float distanceSensorInPercentFront(void);
 float distanceSensorInPercentRight(void);
+
+struct DistanceSensorsReadingsInPercent distanceSensorsReadingsInPercent(void);
 
 enum lateralControlMode getLateralControlMode(void);
 const char* getLateralControlModeName(enum lateralControlMode lateralControlMode);
