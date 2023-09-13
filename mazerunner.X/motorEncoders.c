@@ -368,17 +368,27 @@ float getFlanksPerSecond_Right() {
 // }
 
 // Works
-float getTotalDrivenDistanceInMeters()
+float getTotalDrivenDistanceInMeters(bool reset_static_variables)
 {
     static float oldPosition = 0;
     static float distance = 0;
     // float distance;
     float currentPosition;
 
+    currentPosition = getPositionInCounts_Left();
+
+    if (reset_static_variables) {
+        oldPosition = currentPosition;
+        distance = 0;
+
+        // This return will end the function here 
+        // and not execute the rest of the code
+        return 1;
+    }
+
     // float wheel_diameter = 0.06;
     // float wheel_cirumference = wheel_diameter * 3.141592;
 
-    currentPosition = getPositionInCounts_Left();
     // distance += (currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
     // WORKS: // distance += (float)(currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
     distance += convertCountsToDistanceInMeters(currentPosition-oldPosition);
@@ -499,14 +509,24 @@ float getDrivenDistanceInMeters2()
 //     return initial_distance_to_goal - distance_driven;
 // }
 
-float getDistanceToGoalInMeters(float initial_distance_to_goal){
+float getDistanceToGoalInMeters(float initial_distance_to_goal, bool reset_static_variables){
 
     static float oldPosition;
-    float currentPosition;
     static float distance_driven;
+    float currentPosition;
+
+    currentPosition = getPositionInCounts_Left();
+
+    if (reset_static_variables) {
+        oldPosition = currentPosition;
+        distance_driven = 0;
+
+        // This return will end the function here
+        // and not execute the rest of the code
+        return 1;
+    }
 
     // currentPosition = getPositionInCounts_Right();
-    currentPosition = getPositionInCounts_Left();
     distance_driven += convertCountsToDistanceInMeters(currentPosition-oldPosition);
 
     oldPosition=currentPosition;
@@ -543,7 +563,7 @@ float getDistanceToGoalInMeters(float initial_distance_to_goal){
 //     // return angle_difference * 180.0 / 3.141592;
 // }
 
-float getAngleToGoalInDegrees(float initial_angle_to_goal) {
+float getAngleToGoalInDegrees(float initial_angle_to_goal, bool reset_static_variables) {
 
     static float angle_driven = 0;
     static float old_position = 0;
@@ -554,6 +574,16 @@ float getAngleToGoalInDegrees(float initial_angle_to_goal) {
 
     // Read distance from the Left wheel to get a positive distance when turning right (clockwise)
     current_position = getPositionInCounts_Left();
+
+    if (reset_static_variables) {
+        old_position = current_position;
+        angle_driven = 0;
+
+        // This return will end the function here
+        // and not execute the rest of the code
+        return 1;
+    }
+    
     distance_driven_in_meters = convertCountsToDistanceInMeters(current_position-old_position);
     
     // Calculate angle driven from distance of right wheel
@@ -597,7 +627,7 @@ float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length
 //     return distance_driven_in_meters;
 // }
 
-float getTotalDrivenAngleInDegrees() {
+float getTotalDrivenAngleInDegrees(bool reset_static_variables) {
 
     static float angle_driven = 0;
     static float old_position = 0;
@@ -605,6 +635,16 @@ float getTotalDrivenAngleInDegrees() {
 
     float current_position;
     current_position = getPositionInCounts_Left();
+
+    if (reset_static_variables) {
+        old_position = current_position;
+        angle_driven = 0;
+
+        // This return will end the function here
+        // and not execute the rest of the code
+        return 1;
+    }
+
     distance_driven_in_meters = convertCountsToDistanceInMeters(current_position-old_position);
     
     // Calculate angle driven from distance of right wheel
@@ -623,3 +663,26 @@ float getTotalDrivenAngleInDegrees() {
 
     distance_driven += (distance_driven_left + distance_driven_right) / 2.0;
 */
+
+
+
+// bool isGoalReached() {
+//     return distance_to_goal < GOAL_REACHED_THRESHOLD_DISTANCE;
+// }
+
+// bool isGoalReached(float distance_to_goal) {
+//     return distance_to_goal < GOAL_REACHED_THRESHOLD_DISTANCE;
+// }
+
+
+// TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
+// or if the robot staies in the goal reached state for a long enough time
+bool isDistanceGoalReached(float total_driven_distance, float distance_to_goal) {
+    return fabs(total_driven_distance - distance_to_goal) <= GOAL_REACHED_THRESHOLD_DISTANCE;
+}
+
+// TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
+// or if the robot staies in the goal reached state for a long enough time
+bool isAngleGoalReached(float total_turned_angle, float distance_to_goal) {
+    return fabs(total_turned_angle - distance_to_goal) <= GOAL_REACHED_THRESHOLD_ANGLE;
+}

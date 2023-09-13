@@ -21,5 +21,15 @@
 
 struct Velocities desiredVelocitiesBasedOnCorrectLateralControlMode(float vel_base);
 
+// Driving Straight
+void driveStraightForNMeters(float nMeters, float vel_cruise);
+void driveStraightForNCells(int nCells, float vel_cruise);
+
+// Turning
+void turnForNDegrees(float nDegrees, float vel_turn_cruise);
+void turn90DegreesRight(float vel_turn_cruise);
+void turn90DegreesLeft(float vel_turn_cruise);
+void turn180DegreesRight(float vel_turn_cruise);
+void turn180DegreesLeft(float vel_turn_cruise);
 
 #endif	/* __ABSTRACTCONTROL_H__ */
