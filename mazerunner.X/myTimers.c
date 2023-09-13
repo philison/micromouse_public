@@ -1411,15 +1411,6 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     if (mazi_running == 1){
 
         static int waitBeforeDriveCounter=0;
-        // static enum lateralControlMode oldLateralControlMode;
-
-        // if (waitBeforeDriveCounter == 0) {
-        //     // UART Buffer
-        //     char buffer[30];   
-        //     sprintf(buffer, "SLP;SFP;SRP;m;vL;vR;cMode\n\r");    
-        //     putsUART1(buffer);
-        // }
-
 
         if (waitBeforeDriveCounter >= 1000){
             LED1 = ~LED1;
@@ -1428,25 +1419,9 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
             int cells_to_drive = 5;
             driveStraightForNCells(5, vel_cruise);
 
-            // if (myCount >= 100){
-            //     LED1 = ~LED1;
-            //     float distance = getTotalDrivenDistanceInMeters();
-            //     enum lateralControlMode currenLateralControlMode = getLateralControlMode();
-
-            //     // UART Buffer
-            //     char buffer[40];
-            //     sprintf(buffer, "%2.2f;%2.2f;%2.2f;%2.3f;%2.2f;%2.2f;%i;\n\r", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage), distance, vel_desired.vel_left, vel_desired.vel_right, currenLateralControlMode);
-
-            //     putsUART1(buffer);
-            //     myCount=0;
-            // }
-
-            // enum lateralControlMode currenLateralControlMode = getLateralControlMode();
-
-            // myCount++;
-
-            if (getTotalDrivenDistanceInMeters() >= cells_to_drive * MAZE_CELL_LENGTH){
+            if ( fabs(getTotalDrivenDistanceInMeters() - cells_to_drive * MAZE_CELL_LENGTH) <= GOAL_REACHED_THRESHOLD ){
                 waitBeforeDriveCounter = 0;
+                LED4 = LEDON;
             }
         }
 
