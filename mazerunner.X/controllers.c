@@ -9,6 +9,7 @@
 
 /***
  * A simple PI-Controller to drive the motor at a targetVelocity via PWM
+ * It sets the duty cycle for the PWM signal to the motor. The return value is just for debugging purposes.
 ***/
 float pi_vel_controller_left(float targetVelocity, float currentVelocity)
 {
@@ -170,6 +171,7 @@ float pi_vel_controller_left(float targetVelocity, float currentVelocity)
 
 /***
  * A simple PI-Controller to drive the motor at a targetVelocity via PWM
+ * It sets the duty cycle for the PWM signal to the motor. The return value is just for debugging purposes.
 ***/
 float pi_vel_controller_right(float targetVelocity, float currentVelocity)
 {

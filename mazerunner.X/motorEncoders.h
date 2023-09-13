@@ -20,6 +20,12 @@ int getVelocityInCountsPerSample_1();
 long getPositionInCounts_2();
 int getVelocityInCountsPerSample_2();
 
+// Define a struct to hold the Motor Velocities
+struct Velocities {
+    float vel_right;
+    float vel_left;
+};
+
 float getPositionInCounts_Right();
 float getPositionInCounts_Left();
 
@@ -31,6 +37,7 @@ float getVelocityInRoundsPerSecond_Right();
 
 float getVelocityInRoundsPerMinute_Left();
 float getVelocityInRoundsPerMinute_Right();
+struct Velocities getVelocitiesInRoundsPerSecond();
 
 float getFlanksPerSecond_Right();
 

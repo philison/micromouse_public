@@ -33,6 +33,9 @@
 
     #include <xc.h> // include processor files - each processor file is guarded.  
     #include <stdio.h>
+    #include "abstractControl.h"
+
+
 void initTimer1(unsigned int period);
 
 void initTimer1inMS(float period);

@@ -256,6 +256,13 @@ float getVelocityInRoundsPerSecond_Right() {
    return 0.159154 * getVelocityInRadPerSecond_Right();
 }
 
+struct Velocities getVelocitiesInRoundsPerSecond() {
+    struct Velocities velocitiesInRoundsPerSecond;
+    velocitiesInRoundsPerSecond.vel_left = getVelocityInRoundsPerSecond_Left();
+    velocitiesInRoundsPerSecond.vel_right = getVelocityInRoundsPerSecond_Right();
+    return velocitiesInRoundsPerSecond;
+}
+
 float getVelocityInRoundsPerMinutes_Left() {
    return 60 * getVelocityInRoundsPerSecond_Left();
 }
@@ -464,7 +471,7 @@ float getDrivenDistanceInMeters2()
 
 
 
-// TODO: currently the traveled distance is only meassured on the right wheel !!!
+// TODO: currently the traveled distance is only meassured on the right (most recently only on the left) wheel !!!
 // and not a mean between the two wheels
 // float getDistanceToGoalInMeters(float initial_distance_to_goal){
 

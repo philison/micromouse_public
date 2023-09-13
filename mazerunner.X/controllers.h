@@ -8,6 +8,7 @@
 #include <stdbool.h> // for bool type
 
 #include "distanceSensors.h"
+#include "motorEncoders.h"
 
 #ifndef CONTROLLERS_H
 #define	CONTROLLERS_H
@@ -24,11 +25,6 @@
 // #endif
 
 
-// Define a struct to hold the Motor Velocities
-struct Velocities {
-    float vel_right;
-    float vel_left;
-};
 
 // float pi_vel_controller(float targetVelocity, float currentVelocity);
 
