@@ -14,8 +14,8 @@
 #ifndef __DISTANCESENSORS_H__
 #define	__DISTANCESENSORS_H__
 
-#define WALL_DETECTION_THRESHOLD 20.0 // in percent
-#define WALL_DETECTION_THRESHOLD_FRONT 20.0 // TODO: select an appropriate value
+#define WALL_DETECTION_THRESHOLD 28.0 // in percent
+#define WALL_DETECTION_THRESHOLD_FRONT 28.0 // TODO: select an appropriate value
 
 /*
 * It is the motion that occurs perpendicular to the primary direction of travel or orientation. 

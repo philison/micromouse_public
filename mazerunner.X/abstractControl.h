@@ -32,6 +32,7 @@ bool isAngleGoalReached(float distance_to_goal);
 // Driving Straight
 float driveStraightForNMeters(float nMeters, float vel_cruise, bool start_new_motion_primitive);
 float driveStraightForNCells(int nCells, float vel_cruise, bool start_new_motion_primitive);
+void driveStraightForever(float vel_cruise);
 
 // Turning
 float turnForNDegrees(float nDegrees, float vel_turn_cruise, bool start_new_motion_primitive);

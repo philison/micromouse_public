@@ -85,6 +85,23 @@ float driveStraightForNCells(int nCells, float vel_cruise, bool start_new_motion
     return driveStraightForNMeters(nCells * MAZE_CELL_LENGTH, vel_cruise, start_new_motion_primitive);
 }
 
+void driveStraightForever(float vel_cruise) {
+    float vel_base = vel_cruise;
+
+    // Any wheel velocity needed to correct during the wall centering or following is added to this base velocity above
+    // Resulting in the desired velocities (desiredVelocities) for the left and right wheel respectively
+    struct Velocities desiredVelocities = desiredVelocitiesBasedOnCorrectLateralControlMode(vel_base);
+        
+    // Current Motor Velocities from Encoders
+    struct Velocities currentMotorVelocities = getVelocitiesInRoundsPerSecond();
+
+    // Hand the desired and current velocities to the PI velocity controller
+    // It sets the duty cycle for the PWM signal to the motors
+    // The return value is just for debugging purposes
+    float dc_left = pi_vel_controller_left(desiredVelocities.vel_left , currentMotorVelocities.vel_left);
+    float dc_right = pi_vel_controller_right(desiredVelocities.vel_right, currentMotorVelocities.vel_right);
+}
+
 float turnForNDegrees(float nDegrees, float vel_turn_cruise, bool start_new_motion_primitive) {
 
     // If it is the start of a new motion primitive, reset/init the position and angle variables

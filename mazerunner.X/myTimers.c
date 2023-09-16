@@ -1844,332 +1844,332 @@ void startTimer1(void)
 *   - 8: straight for 2 cells
 *   - 9: straight backwards for 1 cell
 */
-void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-{
-    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
-    static int myCount=0;
-    myCount++;
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+//     myCount++;
 
-    static bool done = false;
+//     static bool done = false;
 
-    if (mazi_running == 1 && !done){
+//     if (mazi_running == 1 && !done){
 
-        static int waitBeforeDriveCounter=0;
-        static bool start_driving = false;
-        // Improvised local state to keep track of which driving instruction to execute
-        static int driving_instruction_step = 0;
+//         static int waitBeforeDriveCounter=0;
+//         static bool start_driving = false;
+//         // Improvised local state to keep track of which driving instruction to execute
+//         static int driving_instruction_step = 0;
 
-        // if (myCount >= 100){
-        //     char buffer[3];
-        //     sprintf(buffer, "R\n\r");
-        //     putsUART1(buffer);
-        //     myCount=0;
-        // }
+//         // if (myCount >= 100){
+//         //     char buffer[3];
+//         //     sprintf(buffer, "R\n\r");
+//         //     putsUART1(buffer);
+//         //     myCount=0;
+//         // }
 
-        // Has to be done like this as max int value is 32.767 and the waitBeforeDriveCounter is an int
-        // Therefore after 32.767 the waitBeforeDriveCounter will overflow and start from 0 again, At least this is what I think
-        // But just setting a flag once, I don't have to worry about the overflow
-        if (waitBeforeDriveCounter >= 1000){
-            start_driving = true;
-        }
+//         // Has to be done like this as max int value is 32.767 and the waitBeforeDriveCounter is an int
+//         // Therefore after 32.767 the waitBeforeDriveCounter will overflow and start from 0 again, At least this is what I think
+//         // But just setting a flag once, I don't have to worry about the overflow
+//         if (waitBeforeDriveCounter >= 1000){
+//             start_driving = true;
+//         }
 
-        if (start_driving){
-            static bool start_new_motion_primitive = true;
-            LED1 = ~LED1;
+//         if (start_driving){
+//             static bool start_new_motion_primitive = true;
+//             LED1 = ~LED1;
 
-            // UART Buffer
-            char buffer[5];
-            sprintf(buffer, "%i\n\r", driving_instruction_step);
-            // myCount++;
+//             // UART Buffer
+//             char buffer[5];
+//             sprintf(buffer, "%i\n\r", driving_instruction_step);
+//             // myCount++;
 
-            // if (myCount >= 100){
-            //     char buffer[4];
-            //     sprintf(buffer, "RD\n\r");
-            //     putsUART1(buffer);
-            //     // myCount=0;
-            // }
+//             // if (myCount >= 100){
+//             //     char buffer[4];
+//             //     sprintf(buffer, "RD\n\r");
+//             //     putsUART1(buffer);
+//             //     // myCount=0;
+//             // }
 
-            switch (driving_instruction_step)
-            {
-            case 0: {
-                // Drive straight for 1 cell
-                float vel_cruise = 0.3;
-                int cells_to_drive = 1;
-                float distance_to_goal;
+//             switch (driving_instruction_step)
+//             {
+//             case 0: {
+//                 // Drive straight for 1 cell
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = 1;
+//                 float distance_to_goal;
                 
-                distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+//                 distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
 
-                // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
-                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
-                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-                if (start_new_motion_primitive) {
-                    putsUART1(buffer);
-                    start_new_motion_primitive = false;
-                }
+//                 // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     putsUART1(buffer);
+//                     start_new_motion_primitive = false;
+//                 }
                 
-                if (distance_to_goal == 0) {
-                    driving_instruction_step++;
-                    start_new_motion_primitive = true;
-                }
+//                 if (distance_to_goal == 0) {
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
 
-                break;
-            }
-            case 1: {
-                // Turn 90 degrees left
-                float vel_turn_cruise = 0.3;
-                // float degrees_to_turn = 90;
-                float angle_to_goal;
+//                 break;
+//             }
+//             case 1: {
+//                 // Turn 90 degrees left
+//                 float vel_turn_cruise = 0.3;
+//                 // float degrees_to_turn = 90;
+//                 float angle_to_goal;
 
-                angle_to_goal = turn90DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
+//                 angle_to_goal = turn90DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
 
-                // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
-                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
-                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-                if (start_new_motion_primitive) {
-                    putsUART1(buffer);
-                    start_new_motion_primitive = false;
-                }
+//                 // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     putsUART1(buffer);
+//                     start_new_motion_primitive = false;
+//                 }
 
-                if (angle_to_goal == 0) {
-                    driving_instruction_step++;
-                    start_new_motion_primitive = true;
-                }
+//                 if (angle_to_goal == 0) {
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
 
-                break;
-            }
-            case 2: {
-                // Drive straight for 1 cell
-                float vel_cruise = 0.3;
-                int cells_to_drive = 1;
-                float distance_to_goal;
+//                 break;
+//             }
+//             case 2: {
+//                 // Drive straight for 1 cell
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = 1;
+//                 float distance_to_goal;
 
-                distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+//                 distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
 
-                // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
-                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
-                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-                if (start_new_motion_primitive) {
-                    putsUART1(buffer);
-                    start_new_motion_primitive = false;
-                }
+//                 // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     putsUART1(buffer);
+//                     start_new_motion_primitive = false;
+//                 }
                 
-                if (distance_to_goal == 0) {
-                    driving_instruction_step++;
-                    start_new_motion_primitive = true;
-                }
+//                 if (distance_to_goal == 0) {
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
 
-                break;
-            }
-            case 3: {
-                // Turn 90 degrees right
-                float vel_turn_cruise = 0.3;
-                // float degrees_to_turn = 90;
-                float angle_to_goal;
+//                 break;
+//             }
+//             case 3: {
+//                 // Turn 90 degrees right
+//                 float vel_turn_cruise = 0.3;
+//                 // float degrees_to_turn = 90;
+//                 float angle_to_goal;
 
-                angle_to_goal = turn90DegreesRight(vel_turn_cruise, start_new_motion_primitive);
+//                 angle_to_goal = turn90DegreesRight(vel_turn_cruise, start_new_motion_primitive);
 
-                // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
-                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
-                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-                if (start_new_motion_primitive) {
-                    putsUART1(buffer);
-                    start_new_motion_primitive = false;
-                }
+//                 // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     putsUART1(buffer);
+//                     start_new_motion_primitive = false;
+//                 }
 
-                if (angle_to_goal == 0) {
-                    driving_instruction_step++;
-                    start_new_motion_primitive = true;
-                }
+//                 if (angle_to_goal == 0) {
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
 
-                break;
-            }
-            case 4: {
-                // Drive straight for 1 cell
-                float vel_cruise = 0.3;
-                int cells_to_drive = 1;
-                float distance_to_goal;
+//                 break;
+//             }
+//             case 4: {
+//                 // Drive straight for 1 cell
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = 1;
+//                 float distance_to_goal;
 
-                distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+//                 distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
 
-                // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
-                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
-                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-                if (start_new_motion_primitive) {
-                    putsUART1(buffer);
-                    start_new_motion_primitive = false;
-                }
+//                 // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     putsUART1(buffer);
+//                     start_new_motion_primitive = false;
+//                 }
                 
-                if (distance_to_goal == 0) {
-                    driving_instruction_step++;
-                    start_new_motion_primitive = true;
-                }
+//                 if (distance_to_goal == 0) {
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
 
-                break;
-            }
-            case 5: {
-                // Turn 90 degrees left
-                float vel_turn_cruise = 0.3;
-                // float degrees_to_turn = 90;
-                float angle_to_goal;
+//                 break;
+//             }
+//             case 5: {
+//                 // Turn 90 degrees left
+//                 float vel_turn_cruise = 0.3;
+//                 // float degrees_to_turn = 90;
+//                 float angle_to_goal;
 
-                angle_to_goal = turn90DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
+//                 angle_to_goal = turn90DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
 
-                // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
-                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
-                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-                if (start_new_motion_primitive) {
-                    putsUART1(buffer);
-                    start_new_motion_primitive = false;
-                }
+//                 // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     putsUART1(buffer);
+//                     start_new_motion_primitive = false;
+//                 }
 
-                if (angle_to_goal == 0) {
-                    driving_instruction_step++;
-                    start_new_motion_primitive = true;
-                }
+//                 if (angle_to_goal == 0) {
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
 
-                break;
-            }
-            case 6: {
-                // Turn 180 degrees left
-                float vel_turn_cruise = 0.3;
-                // float degrees_to_turn = 90;
-                float angle_to_goal;
+//                 break;
+//             }
+//             case 6: {
+//                 // Turn 180 degrees left
+//                 float vel_turn_cruise = 0.3;
+//                 // float degrees_to_turn = 90;
+//                 float angle_to_goal;
 
-                angle_to_goal = turn180DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
+//                 angle_to_goal = turn180DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
 
-                // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
-                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
-                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-                if (start_new_motion_primitive) {
-                    putsUART1(buffer);
-                    start_new_motion_primitive = false;
-                }
+//                 // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     putsUART1(buffer);
+//                     start_new_motion_primitive = false;
+//                 }
 
-                if (angle_to_goal == 0) {
-                    driving_instruction_step++;
-                    start_new_motion_primitive = true;
-                }
+//                 if (angle_to_goal == 0) {
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
 
-                break;
-            }
-            case 7: {
-                // Turn 360 degrees right
-                float vel_turn_cruise = 0.3;
-                float degrees_to_turn = 360;
-                float angle_to_goal;
+//                 break;
+//             }
+//             case 7: {
+//                 // Turn 360 degrees right
+//                 float vel_turn_cruise = 0.3;
+//                 float degrees_to_turn = 360;
+//                 float angle_to_goal;
 
-                angle_to_goal = turnForNDegrees(degrees_to_turn, vel_turn_cruise, start_new_motion_primitive);
+//                 angle_to_goal = turnForNDegrees(degrees_to_turn, vel_turn_cruise, start_new_motion_primitive);
 
-                // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
-                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
-                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-                if (start_new_motion_primitive) {
-                    putsUART1(buffer);
-                    start_new_motion_primitive = false;
-                }
+//                 // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     putsUART1(buffer);
+//                     start_new_motion_primitive = false;
+//                 }
 
-                if (angle_to_goal == 0) {
-                    driving_instruction_step++;
-                    start_new_motion_primitive = true;
-                }
+//                 if (angle_to_goal == 0) {
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
 
-                break;
-            }
-            case 8: {
-                // Drive straight for 2 cells
-                float vel_cruise = 0.3;
-                int cells_to_drive = 2;
-                float distance_to_goal;
+//                 break;
+//             }
+//             case 8: {
+//                 // Drive straight for 2 cells
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = 2;
+//                 float distance_to_goal;
 
-                distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+//                 distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
 
-                // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
-                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
-                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-                if (start_new_motion_primitive) {
-                    putsUART1(buffer);
-                    start_new_motion_primitive = false;
-                }
+//                 // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     putsUART1(buffer);
+//                     start_new_motion_primitive = false;
+//                 }
                 
-                if (distance_to_goal == 0) {
-                    char buffer[8];
-                    sprintf(buffer, "Goal\n\r");
-                    putsUART1(buffer);
-                    driving_instruction_step++;
-                    start_new_motion_primitive = true;
-                }
+//                 if (distance_to_goal == 0) {
+//                     char buffer[8];
+//                     sprintf(buffer, "Goal\n\r");
+//                     putsUART1(buffer);
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
 
 
-                if (myCount >= 100){
-                    char buffer[8];
-                    sprintf(buffer, "%1.2f\n\r", distance_to_goal);
-                    putsUART1(buffer);
-                    myCount=0;
-                }
+//                 if (myCount >= 100){
+//                     char buffer[8];
+//                     sprintf(buffer, "%1.2f\n\r", distance_to_goal);
+//                     putsUART1(buffer);
+//                     myCount=0;
+//                 }
 
-                break;
-            }
-            case 9: {
-                // Drive straight backwards for 1 cell
-                float vel_cruise = 0.3;
-                int cells_to_drive = -1;
-                float distance_to_goal;
+//                 break;
+//             }
+//             case 9: {
+//                 // Drive straight backwards for 1 cell
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = -1;
+//                 float distance_to_goal;
 
-                distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+//                 distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
 
-                // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
-                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
-                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-                if (start_new_motion_primitive) {
-                    putsUART1(buffer);
-                    start_new_motion_primitive = false;
-                }
+//                 // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     putsUART1(buffer);
+//                     start_new_motion_primitive = false;
+//                 }
                 
-                if (distance_to_goal == 0) {
-                    char buffer[8];
-                    sprintf(buffer, "Goal\n\r");
-                    putsUART1(buffer);
-                    driving_instruction_step++;
-                    start_new_motion_primitive = true;
-                }
+//                 if (distance_to_goal == 0) {
+//                     char buffer[8];
+//                     sprintf(buffer, "Goal\n\r");
+//                     putsUART1(buffer);
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
 
-                if (myCount >= 100){
-                    char buffer[8];
-                    sprintf(buffer, "%1.2f\n\r", distance_to_goal);
-                    putsUART1(buffer);
-                    myCount=0;
-                }
+//                 if (myCount >= 100){
+//                     char buffer[8];
+//                     sprintf(buffer, "%1.2f\n\r", distance_to_goal);
+//                     putsUART1(buffer);
+//                     myCount=0;
+//                 }
 
-                break;
-            }
+//                 break;
+//             }
 
-            case 10:
-                // All instructions executed
-                waitBeforeDriveCounter = 0;
-                LED4 = LEDON;
-                putsUART1(buffer);
-                done = true;
-                break;
+//             case 10:
+//                 // All instructions executed
+//                 waitBeforeDriveCounter = 0;
+//                 LED4 = LEDON;
+//                 putsUART1(buffer);
+//                 done = true;
+//                 break;
             
-            default:
-                break;
-            }
-        }
+//             default:
+//                 break;
+//             }
+//         }
 
-    waitBeforeDriveCounter++;
+//     waitBeforeDriveCounter++;
 
-    } else {
-        // char buffer[3];
-        // sprintf(buffer, "S\n\r");
-        // putsUART1(buffer);
-        set_DC_and_motor_state_left(0.0, "forward_slow_decay");
-        set_DC_and_motor_state_right(0.0, "forward_slow_decay");
-    }
-}
+//     } else {
+//         // char buffer[3];
+//         // sprintf(buffer, "S\n\r");
+//         // putsUART1(buffer);
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
 
 
 /**
-* Test if the tuning and driving straight functions do all work as intended when using the reset functionality
+* Test if driving straight and backwars afterwards does work as intended
 */
 // void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 // {
@@ -2266,200 +2266,6 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 
 //                 break;
 //             }
-//             // case 2: {
-//             //     // Drive straight for 1 cell
-//             //     float vel_cruise = 0.3;
-//             //     int cells_to_drive = 1;
-//             //     float distance_to_goal;
-
-//             //     distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
-
-//             //     // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
-//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
-//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-//             //     if (start_new_motion_primitive) {
-//             //         putsUART1(buffer);
-//             //         start_new_motion_primitive = false;
-//             //     }
-                
-//             //     if (distance_to_goal == 0) {
-//             //         driving_instruction_step++;
-//             //         start_new_motion_primitive = true;
-//             //     }
-
-//             //     break;
-//             // }
-//             // case 3: {
-//             //     // Turn 90 degrees right
-//             //     float vel_turn_cruise = 0.3;
-//             //     // float degrees_to_turn = 90;
-//             //     float angle_to_goal;
-
-//             //     angle_to_goal = turn90DegreesRight(vel_turn_cruise, start_new_motion_primitive);
-
-//             //     // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
-//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
-//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-//             //     if (start_new_motion_primitive) {
-//             //         putsUART1(buffer);
-//             //         start_new_motion_primitive = false;
-//             //     }
-
-//             //     if (angle_to_goal == 0) {
-//             //         driving_instruction_step++;
-//             //         start_new_motion_primitive = true;
-//             //     }
-
-//             //     break;
-//             // }
-//             // case 4: {
-//             //     // Drive straight for 1 cell
-//             //     float vel_cruise = 0.3;
-//             //     int cells_to_drive = 1;
-//             //     float distance_to_goal;
-
-//             //     distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
-
-//             //     // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
-//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
-//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-//             //     if (start_new_motion_primitive) {
-//             //         putsUART1(buffer);
-//             //         start_new_motion_primitive = false;
-//             //     }
-                
-//             //     if (distance_to_goal == 0) {
-//             //         driving_instruction_step++;
-//             //         start_new_motion_primitive = true;
-//             //     }
-
-//             //     break;
-//             // }
-//             // case 5: {
-//             //     // Turn 90 degrees left
-//             //     float vel_turn_cruise = 0.3;
-//             //     // float degrees_to_turn = 90;
-//             //     float angle_to_goal;
-
-//             //     angle_to_goal = turn90DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
-
-//             //     // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
-//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
-//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-//             //     if (start_new_motion_primitive) {
-//             //         putsUART1(buffer);
-//             //         start_new_motion_primitive = false;
-//             //     }
-
-//             //     if (angle_to_goal == 0) {
-//             //         driving_instruction_step++;
-//             //         start_new_motion_primitive = true;
-//             //     }
-
-//             //     break;
-//             // }
-//             // case 6: {
-//             //     // Turn 180 degrees left
-//             //     float vel_turn_cruise = 0.3;
-//             //     // float degrees_to_turn = 90;
-//             //     float angle_to_goal;
-
-//             //     angle_to_goal = turn180DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
-
-//             //     // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
-//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
-//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-//             //     if (start_new_motion_primitive) {
-//             //         putsUART1(buffer);
-//             //         start_new_motion_primitive = false;
-//             //     }
-
-//             //     if (angle_to_goal == 0) {
-//             //         driving_instruction_step++;
-//             //         start_new_motion_primitive = true;
-//             //     }
-
-//             //     break;
-//             // }
-//             // case 7: {
-//             //     // Turn 360 degrees right
-//             //     float vel_turn_cruise = 0.3;
-//             //     float degrees_to_turn = 360;
-//             //     float angle_to_goal;
-
-//             //     angle_to_goal = turnForNDegrees(degrees_to_turn, vel_turn_cruise, start_new_motion_primitive);
-
-//             //     // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
-//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
-//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-//             //     if (start_new_motion_primitive) {
-//             //         putsUART1(buffer);
-//             //         start_new_motion_primitive = false;
-//             //     }
-
-//             //     if (angle_to_goal == 0) {
-//             //         driving_instruction_step++;
-//             //         start_new_motion_primitive = true;
-//             //     }
-
-//             //     break;
-//             // }
-//             // case 8: {
-//             //     // Drive straight for 2 cells
-//             //     float vel_cruise = 0.3;
-//             //     int cells_to_drive = 2;
-//             //     float distance_to_goal;
-
-//             //     distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
-
-//             //     // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
-//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
-//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-//             //     if (start_new_motion_primitive) {
-//             //         putsUART1(buffer);
-//             //         start_new_motion_primitive = false;
-//             //     }
-                
-//             //     if (distance_to_goal == 0) {
-//             //         driving_instruction_step++;
-//             //         start_new_motion_primitive = true;
-//             //     }
-
-
-
-//             //     // if (myCount >= 100){
-//             //     //     char buffer[8];
-//             //     //     sprintf(buffer, "%1.2f\n\r", distance_to_goal);
-//             //     //     putsUART1(buffer);
-//             //     //     myCount=0;
-//             //     // }
-
-//             //     break;
-//             // }
-//             // case 9: {
-//             //     // Drive straight backwards for 1 cell
-//             //     float vel_cruise = 0.3;
-//             //     int cells_to_drive = -1;
-//             //     float distance_to_goal;
-
-//             //     distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
-
-//             //     // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
-//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
-//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
-//             //     if (start_new_motion_primitive) {
-//             //         putsUART1(buffer);
-//             //         start_new_motion_primitive = false;
-//             //     }
-                
-//             //     if (distance_to_goal == 0) {
-//             //         driving_instruction_step++;
-//             //         start_new_motion_primitive = true;
-//             //     }
-
-//             //     break;
-//             // }
-
 //             case 2:
 //                 // All instructions executed
 //                 waitBeforeDriveCounter = 0;
@@ -2483,25 +2289,217 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 // }
 
 
-// // Wall Following Algorithm
-// if (isWallLeft() && !isWallFront()) {
-//     // Drive Straight ahead
-//     driveStraight(0.3); // Function that just drives the robot straight without a goal 
-// } else if (!isWallLeft()) {
-//     // Drive straight for a little bit and than turn
-//     // 1.
-//     driveStraightForNMeters(0.3, 0.1);
-//     // 2.
-//     turn90DegreesLeft(0.3);
-//     // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
-//     // No, will have problems with right turns
-// } else if (isWallLeft() && isWallFront() && !isWallRight()){
-//     // Drive straight for a little bit and than turn
-//     // 1.
-//     driveStraightForNMeters(0.3, 0.1);
-//     // Turn right
-//     turn90DegreesRight(0.3);
-// } else if (isWallLeft() && isWallFront() && isWallRight()){
-//     // Turn around and drive back
-//     turn180DegreesLeft(0.3);
-// }
+
+
+/*
+* Simple Wall following Algorithm
+*/
+void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+{
+    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+    static int myCount=0;
+    myCount++;
+
+    static bool done = false;
+
+    if (mazi_running == 1 && !done){
+
+        static int waitBeforeDriveCounter=0;
+        static bool start_driving = false;
+        // Improvised local state to keep track of which driving instruction to execute
+        static int driving_instruction_step = 0;
+
+        // Has to be done like this as max int value is 32.767 and the waitBeforeDriveCounter is an int
+        // Therefore after 32.767 the waitBeforeDriveCounter will overflow and start from 0 again, At least this is what I think
+        // But just setting a flag once, I don't have to worry about the overflow
+        if (waitBeforeDriveCounter >= 1000){
+            start_driving = true;
+        }
+
+        if (start_driving){
+
+            static bool start_new_motion_primitive = true;
+            LED1 = ~LED1;
+
+            float vel_cruise = 0.3;
+
+            /*
+            * Wall Following Algorithm
+            * Modes:
+            * 0 = driveStraightForever [DONE]
+            * 1 = turn left
+            * 2 = turn right
+            * 3 = turn around [DONE]
+            */
+            static int robot_motion_state = 0;
+            static int old_robot_motion_state = 0;
+            static bool changed_motion_state = false;
+            changed_motion_state = false;
+
+            if (myCount >= 100){
+                char buffer[8];
+                sprintf(buffer, "1S: %i\n\r", robot_motion_state);
+                putsUART1(buffer);
+                myCount=0;
+            }
+
+            // Set the current motion state / primitive of the robot, can also be done in the switch case 0 below
+            // This only done while the robot is driving straight in the driveStraightForever Mode
+            if (robot_motion_state == 0) {
+                if (isWallLeft() && !isWallFront()) {
+                    robot_motion_state = 0;
+                } else if (!isWallLeft()) {
+                    robot_motion_state = 1;
+                } else if (isWallLeft() && isWallFront() && !isWallRight()){
+                    robot_motion_state = 2;
+                } else if (isWallLeft() && isWallFront() && isWallRight()){
+                    robot_motion_state = 3;
+                }
+            }
+
+            // Detect when a new motion primitive is started and reset the start_new_motion_primitive flag
+            if (robot_motion_state != old_robot_motion_state) {
+                old_robot_motion_state = robot_motion_state;
+                changed_motion_state = true;
+            }
+
+            if (changed_motion_state) {
+                start_new_motion_primitive = true;
+
+                char buffer[8];
+                sprintf(buffer, "S: %i\n\r", robot_motion_state);
+                putsUART1(buffer);
+            }
+
+            switch (robot_motion_state)
+            {
+                case 0:
+                    // Drive Straight ahead
+                    driveStraightForever(vel_cruise); // Function that just drives the robot straight without a goal 
+                    start_new_motion_primitive = true;
+                    break;
+                case 1: {
+                    // Drive straight for a little bit and than turn
+                    static bool done_driving_straight = false;
+
+                    // Reset variables for a new start of the motion primitive
+                    if (changed_motion_state) {
+                        done_driving_straight = false;
+                    }
+                    // 1. Straight
+                    if (!done_driving_straight) {
+                        float distance_to_goal = driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
+                        start_new_motion_primitive = false;
+
+                        if (distance_to_goal == 0) {
+                            done_driving_straight = true;
+                            start_new_motion_primitive = true;
+                        }
+
+                        break;
+                    }
+
+                    // 2. Turning Left
+                    if (done_driving_straight) {
+                        float angle_to_goal = turn90DegreesLeft(vel_cruise, start_new_motion_primitive);
+                        start_new_motion_primitive = false;
+
+                        if (angle_to_goal == 0) {
+                            done_driving_straight = false;
+                            start_new_motion_primitive = true;
+                            robot_motion_state = 0;
+                        }
+                    }
+                    // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
+                    // No, will have problems with right turns
+                    break;
+                }
+                case 2: {
+                    // Drive straight for a little bit and than turn
+                    static bool done_driving_straight = false;
+
+                    // Reset variables for a new start of the motion primitive
+                    if (changed_motion_state) {
+                        done_driving_straight = false;
+                    }
+                    // 1. Straight
+                    if (!done_driving_straight) {
+                        float distance_to_goal = driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
+                        start_new_motion_primitive = false;
+
+                        if (distance_to_goal == 0) {
+                            done_driving_straight = true;
+                            start_new_motion_primitive = true;
+                        }
+
+                        break;
+                    }
+
+                    // 2. Turning Right
+                    if (done_driving_straight) {
+                        float angle_to_goal = turn90DegreesRight(vel_cruise, start_new_motion_primitive);
+                        start_new_motion_primitive = false;
+
+                        if (angle_to_goal == 0) {
+                            done_driving_straight = false;
+                            start_new_motion_primitive = true;
+                            robot_motion_state = 0;
+                        }
+                    }
+                    // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
+                    // No, will have problems with right turns
+                    break;
+                } case 3: {
+                    // Turn around and drive back
+                    float angle_to_goal = turn180DegreesLeft(vel_cruise, start_new_motion_primitive);
+                    start_new_motion_primitive = false;
+                    if (angle_to_goal == 0) {
+                        robot_motion_state = 0;
+                    }
+                    break;
+                }
+            }
+        }
+
+        waitBeforeDriveCounter++;
+
+    } else {
+        // char buffer[3];
+        // sprintf(buffer, "S\n\r");
+        // putsUART1(buffer);
+        set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+        set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+    }
+
+}
+
+
+
+
+            // // Wall Following Algorithm
+            // if (isWallLeft() && !isWallFront()) {
+            //     // Drive Straight ahead
+            //     driveStraightForever(vel_cruise); // Function that just drives the robot straight without a goal 
+            // } else if (!isWallLeft()) {
+            //     // Drive straight for a little bit and than turn
+            //     // 1.
+            //     float distance_to_goal = driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
+            //     // 2.
+            //     if (distance_to_goal == 0) {
+            //         // start_new_motion_primitive only when entering this if clause fot the first time
+            //         // start_new_motion_primitive = true;
+            //         // How to close the robots eyes while turning? Proper State machine needed ?
+            //         turn90DegreesLeft(vel_cruise, start_new_motion_primitive);
+            //     }
+            //     // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
+            //     // No, will have problems with right turns
+            // } else if (isWallLeft() && isWallFront() && !isWallRight()){
+            //     // Drive straight for a little bit and than turn
+            //     // 1.
+            //     driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
+            //     // Turn right
+            //     turn90DegreesRight(vel_cruise, start_new_motion_primitive);
+            // } else if (isWallLeft() && isWallFront() && isWallRight()){
+            //     // Turn around and drive back
+            //     turn180DegreesLeft(vel_cruise, start_new_motion_primitive);
+            // }
