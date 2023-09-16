@@ -34,10 +34,34 @@ struct Velocities desiredVelocitiesBasedOnCorrectLateralControlMode(float vel_ba
     return desiredVelocities;
 }
 
-void driveStraightForNMeters(float nMeters, float vel_cruise) {
+
+// TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
+// or if the robot staies in the goal reached state for a long enough time
+bool isDistanceGoalReached(float distance_to_goal) {
+    return fabs(distance_to_goal) <= GOAL_REACHED_THRESHOLD_DISTANCE;
+}
+// bool isDistanceGoalReached(float total_driven_distance, float distance_to_goal) {
+//     return fabs(total_driven_distance - distance_to_goal) <= GOAL_REACHED_THRESHOLD_DISTANCE;
+// }
+
+// TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
+// or if the robot staies in the goal reached state for a long enough time
+bool isAngleGoalReached(float distance_to_goal) {
+    return fabs(distance_to_goal) <= GOAL_REACHED_THRESHOLD_ANGLE;
+}
+
+float driveStraightForNMeters(float nMeters, float vel_cruise, bool start_new_motion_primitive) {
     float initial_distance_to_goal = nMeters; // in meters
 
-    float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal, false);
+    // If it is the start of a new motion primitive, reset/init the position and distance variables
+    // This is done in the getDistanceToGoalInMeters function if the init_starting_position parameter is true
+    float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal, start_new_motion_primitive);
+    
+    // Check if the goal is reached
+    if (isDistanceGoalReached(distance_to_goal)) {
+        return 0;
+    }
+
     // The base velocity (vel_base) becomes zero when the goal is reached
     float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
 
@@ -53,16 +77,37 @@ void driveStraightForNMeters(float nMeters, float vel_cruise) {
     // The return value is just for debugging purposes
     float dc_left = pi_vel_controller_left(desiredVelocities.vel_left , currentMotorVelocities.vel_left);
     float dc_right = pi_vel_controller_right(desiredVelocities.vel_right, currentMotorVelocities.vel_right);
+
+    return distance_to_goal;
 }
 
-void driveStraightForNCells(int nCells, float vel_cruise) {
-    driveStraightForNMeters(nCells * MAZE_CELL_LENGTH, vel_cruise);
+float driveStraightForNCells(int nCells, float vel_cruise, bool start_new_motion_primitive) {
+    return driveStraightForNMeters(nCells * MAZE_CELL_LENGTH, vel_cruise, start_new_motion_primitive);
 }
 
-void turnForNDegrees(float nDegrees, float vel_turn_cruise) {
+float turnForNDegrees(float nDegrees, float vel_turn_cruise, bool start_new_motion_primitive) {
+
+    // If it is the start of a new motion primitive, reset/init the position and angle variables
+    // if (start_new_motion_primitive) {
+    //     getAngleToGoalInDegrees(42, start_new_motion_primitive);
+    //     start_new_motion_primitive = false;
+    // }
+
     float initial_angle_to_goal = nDegrees; // in degrees, with pos values for right turn and neg values for left turn (clockwise)
 
-    float angle_to_goal = getAngleToGoalInDegrees(initial_angle_to_goal, false);
+    // If it is the start of a new motion primitive, reset/init the position and angle variables 
+    // This is done in the getAngleToGoalInDegrees function if the init_starting_position parameter is true
+    float angle_to_goal = getAngleToGoalInDegrees(initial_angle_to_goal, start_new_motion_primitive);
+
+    // Check if the goal is reached
+    if (isAngleGoalReached(angle_to_goal)) {
+        // Reset the start_new_motion_primitive flag to trigger an initialization of the angle variables when a new motion primitive is started
+        // TODO: Carefull !!! This might be a problem if the robot does not reach the goal but the motion primitive is interrupted otherwise without resetting the flag
+        //     Maybe it is better to reset the flag in the "main loop where the function is called" when a new motion primitive is started (add this option as a parameter to the function as cuurrently implemented)
+        // start_new_motion_primitive = true;
+        return 0;
+    }
+
     // The base velocity (vel_base) becomes zero when the goal is reached
     float vel_turn_base = p_goal_angle_controller(angle_to_goal, vel_turn_cruise);
 
@@ -77,20 +122,22 @@ void turnForNDegrees(float nDegrees, float vel_turn_cruise) {
     // The return value is just for debugging purposes
     float dc_left = pi_vel_controller_left(vel_turn_base , currentMotorVelocities.vel_left);
     float dc_right = pi_vel_controller_right(-vel_turn_base, currentMotorVelocities.vel_right);
+
+    return angle_to_goal;
 }
 
-void turn90DegreesRight(float vel_turn_cruise) {
-    turnForNDegrees(90.0, vel_turn_cruise);
+float turn90DegreesRight(float vel_turn_cruise, bool start_new_motion_primitive) {
+    return turnForNDegrees(90.0, vel_turn_cruise, start_new_motion_primitive);
 }
 
-void turn90DegreesLeft(float vel_turn_cruise) {
-    turnForNDegrees(-90.0, vel_turn_cruise);
+float turn90DegreesLeft(float vel_turn_cruise, bool start_new_motion_primitive) {
+    return turnForNDegrees(-90.0, vel_turn_cruise, start_new_motion_primitive);
 }
 
-void turn180DegreesRight(float vel_turn_cruise) {
-    turnForNDegrees(180.0, vel_turn_cruise);
+float turn180DegreesRight(float vel_turn_cruise, bool start_new_motion_primitive) {
+    return turnForNDegrees(180.0, vel_turn_cruise, start_new_motion_primitive);
 }
 
-void turn180DegreesLeft(float vel_turn_cruise) {
-    turnForNDegrees(-180.0, vel_turn_cruise);
+float turn180DegreesLeft(float vel_turn_cruise, bool start_new_motion_primitive) {
+    return turnForNDegrees(-180.0, vel_turn_cruise, start_new_motion_primitive);
 }

@@ -1652,6 +1652,77 @@ void startTimer1(void)
 *   - turn 180 degrees right [DONE]
 *   - turn 180 degrees left [DONE]
 */
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     static bool done = false;
+
+//     if (mazi_running == 1 && !done){
+
+//         static int waitBeforeDriveCounter=0;
+//         // Improvised local state to keep track of which driving instruction to execute
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             LED1 = ~LED1;
+
+//             // UART Buffer
+//             // char buffer[5];
+//             // sprintf(buffer, "%i\n\r", driving_instruction_step);
+//             // putsUART1(buffer);
+//             myCount++;
+
+//             // if (myCount >= 100){
+//             //     putsUART1(buffer);
+//             //     myCount=0;
+//             // }
+
+//             // Drive straight for 1 cell [DONE]
+//             // float vel_cruise = 0.3;
+//             // int cells_to_drive = 1;
+//             // driveStraightForNCells(cells_to_drive, vel_cruise);
+            
+//             // Turn 90 degrees right [DONE]
+//             // float vel_turn_cruise = 0.3;
+//             // float degrees_to_turn = 90;
+//             // turn90DegreesRight(vel_turn_cruise);
+
+//             // Turn 90 degrees left [DONE]
+//             // float vel_turn_cruise = 0.3;
+//             // float degrees_to_turn = 90;
+//             // turn90DegreesLeft(vel_turn_cruise);
+
+//             // Turn 180 degrees right [DONE]
+//             // float vel_turn_cruise = 0.3;
+//             // float degrees_to_turn = 180;
+//             // turn180DegreesRight(vel_turn_cruise);
+
+//             // Turn 180 degrees left
+//             float vel_turn_cruise = 0.3;
+//             float degrees_to_turn = 180;
+//             turn180DegreesLeft(vel_turn_cruise);
+//         }
+
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+
+/**
+* Test if the tuning and driving straight functions do all work as intended when using the reset functionality
+* Test scenarios:
+*   - Drive straight for 1 cell -&- Drive straight for 1 cell [DONE]
+*   - Drive straight for 1 cell -&- Turn 90 degrees right [error: turns left instead of right]
+*   - turn 90 degrees right 
+*   - turn 90 degrees left 
+*   - turn 180 degrees right 
+*   - turn 180 degrees left 
+*/
 void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 {
     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
@@ -1663,14 +1734,15 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 
         static int waitBeforeDriveCounter=0;
         // Improvised local state to keep track of which driving instruction to execute
+        static int driving_instruction_step = 0;
 
         if (waitBeforeDriveCounter >= 1000){
+            static bool start_new_motion_primitive = true;
             LED1 = ~LED1;
 
             // UART Buffer
-            // char buffer[5];
-            // sprintf(buffer, "%i\n\r", driving_instruction_step);
-            // putsUART1(buffer);
+            char buffer[5];
+            sprintf(buffer, "%i\n\r", driving_instruction_step);
             myCount++;
 
             // if (myCount >= 100){
@@ -1678,30 +1750,65 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
             //     myCount=0;
             // }
 
-            // Drive straight for 1 cell [DONE]
-            // float vel_cruise = 0.3;
-            // int cells_to_drive = 1;
-            // driveStraightForNCells(cells_to_drive, vel_cruise);
+            switch (driving_instruction_step)
+            {
+            case 0: {
+                float vel_cruise = 0.3;
+                int cells_to_drive = 1;
+                float distance_to_goal;
+
+                putsUART1(buffer);
+                
+                distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+
+                // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+                if (start_new_motion_primitive) {
+                    start_new_motion_primitive = false;
+                }
+                
+                if (distance_to_goal == 0) {
+                    driving_instruction_step++;
+                    start_new_motion_primitive = true;
+                }
+
+                break;
+            }
+            case 1: {
+                float vel_turn_cruise = 0.3;
+                float degrees_to_turn = 90;
+                float angle_to_goal;
+
+                putsUART1(buffer);
+
+                angle_to_goal = turn90DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
+
+                // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+                if (start_new_motion_primitive) {
+                    start_new_motion_primitive = false;
+                }
+
+                if (angle_to_goal == 0) {
+                    driving_instruction_step++;
+                    start_new_motion_primitive = true;
+                }
+
+                break;
+            }
+            case 2:
+                // All instructions executed
+                waitBeforeDriveCounter = 0;
+                LED4 = LEDON;
+                putsUART1(buffer);
+                done = true;
+                break;
             
-            // Turn 90 degrees right [DONE]
-            // float vel_turn_cruise = 0.3;
-            // float degrees_to_turn = 90;
-            // turn90DegreesRight(vel_turn_cruise);
-
-            // Turn 90 degrees left [DONE]
-            // float vel_turn_cruise = 0.3;
-            // float degrees_to_turn = 90;
-            // turn90DegreesLeft(vel_turn_cruise);
-
-            // Turn 180 degrees right [DONE]
-            // float vel_turn_cruise = 0.3;
-            // float degrees_to_turn = 180;
-            // turn180DegreesRight(vel_turn_cruise);
-
-            // Turn 180 degrees left
-            float vel_turn_cruise = 0.3;
-            float degrees_to_turn = 180;
-            turn180DegreesLeft(vel_turn_cruise);
+            default:
+                break;
+            }
         }
 
     waitBeforeDriveCounter++;
@@ -1711,3 +1818,27 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
     }
 }
+
+
+// // Wall Following Algorithm
+// if (isWallLeft() && !isWallFront()) {
+//     // Drive Straight ahead
+//     driveStraight(0.3); // Function that just drives the robot straight without a goal 
+// } else if (!isWallLeft()) {
+//     // Drive straight for a little bit and than turn
+//     // 1.
+//     driveStraightForNMeters(0.3, 0.1);
+//     // 2.
+//     turn90DegreesLeft(0.3);
+//     // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
+//     // No, will have problems with right turns
+// } else if (isWallLeft() && isWallFront() && !isWallRight()){
+//     // Drive straight for a little bit and than turn
+//     // 1.
+//     driveStraightForNMeters(0.3, 0.1);
+//     // Turn right
+//     turn90DegreesRight(0.3);
+// } else if (isWallLeft() && isWallFront() && isWallRight()){
+//     // Turn around and drive back
+//     turn180DegreesLeft(0.3);
+// }

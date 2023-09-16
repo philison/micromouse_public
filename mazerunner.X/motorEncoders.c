@@ -367,8 +367,11 @@ float getFlanksPerSecond_Right() {
 //     return distance;
 // }
 
-// Works
-float getTotalDrivenDistanceInMeters(bool reset_static_variables)
+/*
+* This function returns the total driven distance in meters since the last reset/init of the starting position
+* The starting position is the position where the robot was when the function was called with the init_starting_position parameter set to true
+*/
+float getTotalDrivenDistanceInMeters(bool init_starting_position)
 {
     static float oldPosition = 0;
     static float distance = 0;
@@ -377,7 +380,7 @@ float getTotalDrivenDistanceInMeters(bool reset_static_variables)
 
     currentPosition = getPositionInCounts_Left();
 
-    if (reset_static_variables) {
+    if (init_starting_position) {
         oldPosition = currentPosition;
         distance = 0;
 
@@ -509,7 +512,7 @@ float getDrivenDistanceInMeters2()
 //     return initial_distance_to_goal - distance_driven;
 // }
 
-float getDistanceToGoalInMeters(float initial_distance_to_goal, bool reset_static_variables){
+float getDistanceToGoalInMeters(float initial_distance_to_goal, bool init_starting_position){
 
     static float oldPosition;
     static float distance_driven;
@@ -517,13 +520,13 @@ float getDistanceToGoalInMeters(float initial_distance_to_goal, bool reset_stati
 
     currentPosition = getPositionInCounts_Left();
 
-    if (reset_static_variables) {
+    if (init_starting_position) {
         oldPosition = currentPosition;
         distance_driven = 0;
 
         // This return will end the function here
         // and not execute the rest of the code
-        return 1;
+        return initial_distance_to_goal;
     }
 
     // currentPosition = getPositionInCounts_Right();
@@ -563,7 +566,12 @@ float getDistanceToGoalInMeters(float initial_distance_to_goal, bool reset_stati
 //     // return angle_difference * 180.0 / 3.141592;
 // }
 
-float getAngleToGoalInDegrees(float initial_angle_to_goal, bool reset_static_variables) {
+/*
+* This function returns the angle difference between the current robot angle and the goal angle.
+* The static variables are reseted when the init_starting_position parameter is set to true
+* This should be done before each motion primitive is started, like turning for 90 degrees left
+*/
+float getAngleToGoalInDegrees(float initial_angle_to_goal, bool init_starting_position) {
 
     static float angle_driven = 0;
     static float old_position = 0;
@@ -575,14 +583,23 @@ float getAngleToGoalInDegrees(float initial_angle_to_goal, bool reset_static_var
     // Read distance from the Left wheel to get a positive distance when turning right (clockwise)
     current_position = getPositionInCounts_Left();
 
-    if (reset_static_variables) {
+    if (init_starting_position) {
         old_position = current_position;
         angle_driven = 0;
 
         // This return will end the function here
         // and not execute the rest of the code
-        return 1;
+        return initial_angle_to_goal;
     }
+
+    // } else if (reset_static_variables) {
+    //     old_position = current_position;
+    //     angle_driven = 0;
+
+    //     // This return will end the function here
+    //     // and not execute the rest of the code
+    //     return 1;
+    // }
     
     distance_driven_in_meters = convertCountsToDistanceInMeters(current_position-old_position);
     
@@ -627,7 +644,11 @@ float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length
 //     return distance_driven_in_meters;
 // }
 
-float getTotalDrivenAngleInDegrees(bool reset_static_variables) {
+/*
+*  This function returns the total angle driven since the last reset/init of the static variables.
+*  The static variables are reseted when the init_starting_position parameter is set to true (similar to the init_starting_position parameter in the getAngleToGoalInDegrees function)
+*/
+float getTotalDrivenAngleInDegrees(bool init_starting_position) {
 
     static float angle_driven = 0;
     static float old_position = 0;
@@ -636,7 +657,7 @@ float getTotalDrivenAngleInDegrees(bool reset_static_variables) {
     float current_position;
     current_position = getPositionInCounts_Left();
 
-    if (reset_static_variables) {
+    if (init_starting_position) {
         old_position = current_position;
         angle_driven = 0;
 
@@ -663,26 +684,3 @@ float getTotalDrivenAngleInDegrees(bool reset_static_variables) {
 
     distance_driven += (distance_driven_left + distance_driven_right) / 2.0;
 */
-
-
-
-// bool isGoalReached() {
-//     return distance_to_goal < GOAL_REACHED_THRESHOLD_DISTANCE;
-// }
-
-// bool isGoalReached(float distance_to_goal) {
-//     return distance_to_goal < GOAL_REACHED_THRESHOLD_DISTANCE;
-// }
-
-
-// TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
-// or if the robot staies in the goal reached state for a long enough time
-bool isDistanceGoalReached(float total_driven_distance, float distance_to_goal) {
-    return fabs(total_driven_distance - distance_to_goal) <= GOAL_REACHED_THRESHOLD_DISTANCE;
-}
-
-// TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
-// or if the robot staies in the goal reached state for a long enough time
-bool isAngleGoalReached(float total_turned_angle, float distance_to_goal) {
-    return fabs(total_turned_angle - distance_to_goal) <= GOAL_REACHED_THRESHOLD_ANGLE;
-}

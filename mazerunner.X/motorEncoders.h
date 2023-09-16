@@ -47,15 +47,12 @@ float convertCountsToDistanceInMeters(float counts);
 float getTotalDrivenDistanceInMeters(bool reset_static_variables);
 float getDrivenDistanceInMeters();
 float getDrivenDistanceInMeters2();
-float getDistanceToGoalInMeters(float initial_distance_to_goal, bool reset_static_variables);
+float getDistanceToGoalInMeters(float initial_distance_to_goal, bool init_starting_position);
 
-float getAngleToGoalInDegrees(float initial_angle_to_goal, bool reset_static_variables);
+float getAngleToGoalInDegrees(float initial_angle_to_goal, bool init_starting_position);
 float getTotalDrivenAngleInDegrees(bool reset_static_variables);
 
 float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length_in_meters, float turn_radius_in_meters);
-
-bool isDistanceGoalReached(float total_driven_distance, float distance_to_goal);
-bool isAngleGoalReached(float total_turned_angle, float distance_to_goal);
 
 extern long rotationCount1;
 extern long rotationCount2;
@@ -73,9 +70,6 @@ extern float timer_time;
 #define DELTATICKS_90_DEGREES  (0.25* WHEEL_ROTATIONS_PERROBOT_ROTATION*TICKS_PER_WHEELROTATION) 
 #define DELTATICKS_180_DEGREES (0.5 * WHEEL_ROTATIONS_PERROBOT_ROTATION*TICKS_PER_WHEELROTATION)
 #define DELTATICKS_CELL_GAP (11.5*TICKS_PER_CENTIMETER)
-
-#define GOAL_REACHED_THRESHOLD_DISTANCE 0.01 // in meters
-#define GOAL_REACHED_THRESHOLD_ANGLE 1.0 // in degrees
 
 
 #endif	/* SENSOR_H */

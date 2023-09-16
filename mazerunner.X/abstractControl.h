@@ -10,8 +10,11 @@
 #include "motorEncoders.h"
 #include "distanceSensors.h"
 #include "controllers.h"
+#include <math.h> // for fabs
 
 #define MAZE_CELL_LENGTH 0.18 // in meters
+#define GOAL_REACHED_THRESHOLD_DISTANCE 0.01 // in meters
+#define GOAL_REACHED_THRESHOLD_ANGLE 1.0 // in degrees
 
 // This is a guard condition so that contents of this file are not included
 // more than once.  
@@ -21,15 +24,19 @@
 
 struct Velocities desiredVelocitiesBasedOnCorrectLateralControlMode(float vel_base);
 
+bool isDistanceGoalReached(float distance_to_goal);
+// bool isDistanceGoalReached(float total_driven_distance, float distance_to_goal);
+bool isAngleGoalReached(float distance_to_goal);
+
 // Driving Straight
-void driveStraightForNMeters(float nMeters, float vel_cruise);
-void driveStraightForNCells(int nCells, float vel_cruise);
+float driveStraightForNMeters(float nMeters, float vel_cruise, bool start_new_motion_primitive);
+float driveStraightForNCells(int nCells, float vel_cruise, bool start_new_motion_primitive);
 
 // Turning
-void turnForNDegrees(float nDegrees, float vel_turn_cruise);
-void turn90DegreesRight(float vel_turn_cruise);
-void turn90DegreesLeft(float vel_turn_cruise);
-void turn180DegreesRight(float vel_turn_cruise);
-void turn180DegreesLeft(float vel_turn_cruise);
+float turnForNDegrees(float nDegrees, float vel_turn_cruise, bool start_new_motion_primitive);
+float turn90DegreesRight(float vel_turn_cruise, bool start_new_motion_primitive);
+float turn90DegreesLeft(float vel_turn_cruise, bool start_new_motion_primitive);
+float turn180DegreesRight(float vel_turn_cruise, bool start_new_motion_primitive);
+float turn180DegreesLeft(float vel_turn_cruise, bool start_new_motion_primitive);
 
 #endif	/* __ABSTRACTCONTROL_H__ */
