@@ -256,6 +256,13 @@ float getVelocityInRoundsPerSecond_Right() {
    return 0.159154 * getVelocityInRadPerSecond_Right();
 }
 
+struct Velocities getVelocitiesInRoundsPerSecond() {
+    struct Velocities velocitiesInRoundsPerSecond;
+    velocitiesInRoundsPerSecond.vel_left = getVelocityInRoundsPerSecond_Left();
+    velocitiesInRoundsPerSecond.vel_right = getVelocityInRoundsPerSecond_Right();
+    return velocitiesInRoundsPerSecond;
+}
+
 float getVelocityInRoundsPerMinutes_Left() {
    return 60 * getVelocityInRoundsPerSecond_Left();
 }
@@ -360,18 +367,31 @@ float getFlanksPerSecond_Right() {
 //     return distance;
 // }
 
-// Works
-float getTotalDrivenDistanceInMeters()
+/*
+* This function returns the total driven distance in meters since the last reset/init of the starting position
+* The starting position is the position where the robot was when the function was called with the init_starting_position parameter set to true
+*/
+float getTotalDrivenDistanceInMeters(bool init_starting_position)
 {
     static float oldPosition = 0;
     static float distance = 0;
     // float distance;
     float currentPosition;
 
+    currentPosition = getPositionInCounts_Left();
+
+    if (init_starting_position) {
+        oldPosition = currentPosition;
+        distance = 0;
+
+        // This return will end the function here 
+        // and not execute the rest of the code
+        return 1;
+    }
+
     // float wheel_diameter = 0.06;
     // float wheel_cirumference = wheel_diameter * 3.141592;
 
-    currentPosition = getPositionInCounts_Left();
     // distance += (currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
     // WORKS: // distance += (float)(currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
     distance += convertCountsToDistanceInMeters(currentPosition-oldPosition);
@@ -464,7 +484,7 @@ float getDrivenDistanceInMeters2()
 
 
 
-// TODO: currently the traveled distance is only meassured on the right wheel !!!
+// TODO: currently the traveled distance is only meassured on the right (most recently only on the left) wheel !!!
 // and not a mean between the two wheels
 // float getDistanceToGoalInMeters(float initial_distance_to_goal){
 
@@ -492,14 +512,24 @@ float getDrivenDistanceInMeters2()
 //     return initial_distance_to_goal - distance_driven;
 // }
 
-float getDistanceToGoalInMeters(float initial_distance_to_goal){
+float getDistanceToGoalInMeters(float initial_distance_to_goal, bool init_starting_position){
 
     static float oldPosition;
-    float currentPosition;
     static float distance_driven;
+    float currentPosition;
+
+    currentPosition = getPositionInCounts_Left();
+
+    if (init_starting_position) {
+        oldPosition = currentPosition;
+        distance_driven = 0;
+
+        // This return will end the function here
+        // and not execute the rest of the code
+        return initial_distance_to_goal;
+    }
 
     // currentPosition = getPositionInCounts_Right();
-    currentPosition = getPositionInCounts_Left();
     distance_driven += convertCountsToDistanceInMeters(currentPosition-oldPosition);
 
     oldPosition=currentPosition;
@@ -536,7 +566,12 @@ float getDistanceToGoalInMeters(float initial_distance_to_goal){
 //     // return angle_difference * 180.0 / 3.141592;
 // }
 
-float getAngleToGoalInDegrees(float initial_angle_to_goal) {
+/*
+* This function returns the angle difference between the current robot angle and the goal angle.
+* The static variables are reseted when the init_starting_position parameter is set to true
+* This should be done before each motion primitive is started, like turning for 90 degrees left
+*/
+float getAngleToGoalInDegrees(float initial_angle_to_goal, bool init_starting_position) {
 
     static float angle_driven = 0;
     static float old_position = 0;
@@ -547,6 +582,25 @@ float getAngleToGoalInDegrees(float initial_angle_to_goal) {
 
     // Read distance from the Left wheel to get a positive distance when turning right (clockwise)
     current_position = getPositionInCounts_Left();
+
+    if (init_starting_position) {
+        old_position = current_position;
+        angle_driven = 0;
+
+        // This return will end the function here
+        // and not execute the rest of the code
+        return initial_angle_to_goal;
+    }
+
+    // } else if (reset_static_variables) {
+    //     old_position = current_position;
+    //     angle_driven = 0;
+
+    //     // This return will end the function here
+    //     // and not execute the rest of the code
+    //     return 1;
+    // }
+    
     distance_driven_in_meters = convertCountsToDistanceInMeters(current_position-old_position);
     
     // Calculate angle driven from distance of right wheel
@@ -590,7 +644,11 @@ float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length
 //     return distance_driven_in_meters;
 // }
 
-float getTotalDrivenAngleInDegrees() {
+/*
+*  This function returns the total angle driven since the last reset/init of the static variables.
+*  The static variables are reseted when the init_starting_position parameter is set to true (similar to the init_starting_position parameter in the getAngleToGoalInDegrees function)
+*/
+float getTotalDrivenAngleInDegrees(bool init_starting_position) {
 
     static float angle_driven = 0;
     static float old_position = 0;
@@ -598,6 +656,16 @@ float getTotalDrivenAngleInDegrees() {
 
     float current_position;
     current_position = getPositionInCounts_Left();
+
+    if (init_starting_position) {
+        old_position = current_position;
+        angle_driven = 0;
+
+        // This return will end the function here
+        // and not execute the rest of the code
+        return 1;
+    }
+
     distance_driven_in_meters = convertCountsToDistanceInMeters(current_position-old_position);
     
     // Calculate angle driven from distance of right wheel

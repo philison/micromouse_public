@@ -13,6 +13,8 @@
       <itemPath>myTimers.h</itemPath>
       <itemPath>serialComms.h</itemPath>
       <itemPath>controllers.h</itemPath>
+      <itemPath>distanceSensors.h</itemPath>
+      <itemPath>abstractControl.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -31,6 +33,8 @@
       <itemPath>myTimers.c</itemPath>
       <itemPath>serialComms.c</itemPath>
       <itemPath>controllers.c</itemPath>
+      <itemPath>distanceSensors.c</itemPath>
+      <itemPath>abstractControl.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

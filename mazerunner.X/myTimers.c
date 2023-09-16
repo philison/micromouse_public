@@ -5,6 +5,7 @@
 #include "motorEncoders.h"
 #include "controllers.h"
 #include "dma.h"
+#include "distanceSensors.h"
 
 
 #define _USE_MATH_DEFINES
@@ -555,68 +556,68 @@ void startTimer1(void)
 
 
 /* Control Distance Driven */
-void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-{
-    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
-    static int myCount=0;
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
 
-    if (mazi_running == 1){
+//     if (mazi_running == 1){
 
-        float vel_cruise = 0.3;
-        float initial_distance_to_goal = 0.50; // in meters
+//         float vel_cruise = 0.3;
+//         float initial_distance_to_goal = 0.5; // in meters
 
-        // float distance_to_goal = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
-        float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal);
-        // float distance_driven = getDistanceDrivenInMeters();
+//         // float distance_to_goal = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
+//         float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal);
+//         // float distance_driven = getDistanceDrivenInMeters();
 
-        float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
+//         float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
 
-        float distance_left = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
-        float distance_right = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+//         float distance_left = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+//         float distance_right = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
 
-        struct Velocities vel_desired = p_wall_centering_controller( distance_left, distance_right, vel_base);
+//         struct Velocities vel_desired = p_wall_centering_controller( distance_left, distance_right, vel_base);
 
-        // Current Motor Velocities from Encoders
-        float motor_vel_left = getVelocityInRoundsPerSecond_Left();
-        float motor_vel_right = getVelocityInRoundsPerSecond_Right();
+//         // Current Motor Velocities from Encoders
+//         float motor_vel_left = getVelocityInRoundsPerSecond_Left();
+//         float motor_vel_right = getVelocityInRoundsPerSecond_Right();
 
-        bool shouldTurn = false;
-        float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
-        float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, shouldTurn);
+//         bool shouldTurn = false;
+//         float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
+//         float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, shouldTurn);
 
-        // if (vel_base >= 0) {
-        //     float dc_left = pi_vel_controller_left(vel_desired.vel_left, motor_vel_left, true);
-        //     float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, true);
-        // } else if (vel_base < 0)
-        // {
-        //     float dc_left = pi_vel_controller_left(vel_desired.vel_left, motor_vel_left, false);
-        //     float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, false);
-        // }
+//         // if (vel_base >= 0) {
+//         //     float dc_left = pi_vel_controller_left(vel_desired.vel_left, motor_vel_left, true);
+//         //     float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, true);
+//         // } else if (vel_base < 0)
+//         // {
+//         //     float dc_left = pi_vel_controller_left(vel_desired.vel_left, motor_vel_left, false);
+//         //     float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, false);
+//         // }
 
-        if (myCount >= 500){
-            LED1 = ~LED1;
-            char buffer[10];
-            // sprintf(buffer, "%2.3f\r\n", distance);
-            float distance = getTotalDrivenDistanceInMeters();
-            // float inter_distance = getDrivenDistanceInMeters2();
-            sprintf(buffer, "%2.4f\r\n", distance);
-            // sprintf(buffer, "%2.2f %2.2f\r\n", distance, inter_distance);
-            putsUART1(buffer);
-            myCount=0;
-        }
+//         if (myCount >= 500){
+//             LED1 = ~LED1;
+//             char buffer[10];
+//             // sprintf(buffer, "%2.3f\r\n", distance);
+//             float distance = getTotalDrivenDistanceInMeters();
+//             // float inter_distance = getDrivenDistanceInMeters2();
+//             sprintf(buffer, "%2.4f\r\n", distance);
+//             // sprintf(buffer, "%2.2f %2.2f\r\n", distance, inter_distance);
+//             putsUART1(buffer);
+//             myCount=0;
+//         }
 
-        // if (myCount >= 100){
-        //     LED1 = ~LED1;
-        //     myCount=0;
-        // }
+//         // if (myCount >= 100){
+//         //     LED1 = ~LED1;
+//         //     myCount=0;
+//         // }
 
-        myCount++;
+//         myCount++;
 
-    } else {
-        set_DC_and_motor_state_left(0.0, "forward_slow_decay");
-        set_DC_and_motor_state_right(0.0, "forward_slow_decay");
-    }
-}
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
 
 
 /* Control Wall Distance and Driving Forward Printing the driven distance */
@@ -815,4 +816,1692 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 //         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
 //         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
 //     }
+// }
+
+
+
+
+
+
+
+/* Control Distance Driven and Record Sensor Data while driving along different Obstacles */
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     if (mazi_running == 1){
+
+//         static int waitBeforeDriveCounter=0;
+
+//         if (waitBeforeDriveCounter == 0) {
+//             // UART Buffer
+//             char buffer[20];
+//             // Print Sensor Values
+//             sprintf(buffer, "SLP \tSFP \tSRP \tm\r\n");
+//             putsUART1(buffer);
+//         }
+
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             LED1 = ~LED1;
+//             // waitBeforeDriveCounter=0;
+        
+//             float vel_cruise = 0.3;
+//             float initial_distance_to_goal = 5 * 0.18; // in meters
+
+//             // float distance_to_goal = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
+//             float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal);
+//             // float distance_driven = getDistanceDrivenInMeters();
+
+//             float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
+
+//             // float distance_left = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+//             // float distance_right = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+
+//             // Convert the value of the potentiometer to a percentage for the PWM
+//             float sensor_left_distance_in_percentage = (float)SENSOR_LEFT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
+//             float sensor_front_distance_in_percentage = (float)SENSOR_FRONT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096 
+//             float sensor_right_distance_in_percentage = (float)SENSOR_RIGHT / 4096.0f; // 12 bit ADC therfore 2^12 = 4096
+
+//             // struct Velocities vel_desired = p_wall_centering_controller( distance_left, distance_right, vel_base);
+
+//             // Current Motor Velocities from Encoders
+//             float motor_vel_left = getVelocityInRoundsPerSecond_Left();
+//             float motor_vel_right = getVelocityInRoundsPerSecond_Right();
+
+//             bool shouldTurn = false;
+//             // float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
+//             // float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, shouldTurn);
+
+//             float dc_left = pi_vel_controller_left(vel_base, motor_vel_left);
+//             float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, shouldTurn);
+
+//             if (myCount >= 500){
+//                 LED1 = ~LED1;
+//                 // char buffer[10];
+//                 // sprintf(buffer, "%2.3f\r\n", distance);
+//                 float distance = getTotalDrivenDistanceInMeters();
+//                 // float inter_distance = getDrivenDistanceInMeters2();
+//                 // sprintf(buffer, "%2.4f\r\n", distance);
+//                 // sprintf(buffer, "%2.2f %2.2f\r\n", distance, inter_distance);
+//                 // putsUART1(buffer);
+
+//                 // UART Buffer
+//                 char buffer[50];
+//                 // Print Sensor Values
+//                 // sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
+//                 sprintf(buffer, "%3.2f \t%3.2f \t%3.2f \t%1.3f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100), distance);    
+//                 putsUART1(buffer);
+//                 myCount=0;
+//             }
+
+//             // if (myCount >= 100){
+//             //     LED1 = ~LED1;
+//             //     myCount=0;
+//             // }
+
+//             myCount++;
+
+//             if (getTotalDrivenDistanceInMeters() >= initial_distance_to_goal){
+//                 waitBeforeDriveCounter = 0;
+//             }
+//         }
+    
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+
+
+
+
+/* Control Distance Driven and Wall Following Right and Left*/
+// Left: 25.5 as wall distance value when driving in the middle
+// Right: 27.0 as wall distance value when driving in the middle (left and right differ when as the wheels aren't completely pushed in to the same depth --> therefore weither the wheel center is in the middle or the PCB with the sensors)
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     if (mazi_running == 1){
+
+//         static int waitBeforeDriveCounter=0;
+
+//         if (waitBeforeDriveCounter == 0) {
+//             // UART Buffer
+//             char buffer[20];
+//             // Print Sensor Values
+//             sprintf(buffer, "SLP \tSFP \tSRP \tm\n\r");    
+//             putsUART1(buffer);
+//         }
+
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             LED1 = ~LED1;
+//             // waitBeforeDriveCounter=0;
+        
+//             float vel_cruise = 0.3;
+//             float initial_distance_to_goal = 5 * 0.18; // in meters
+
+//             // float distance_to_goal = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
+//             float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal);
+//             // float distance_driven = getDistanceDrivenInMeters();
+
+//             float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
+
+//             // float distance_left = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+//             // float distance_right = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+
+//             // Convert the value of the potentiometer to a percentage for the PWM
+//             float sensor_left_distance_in_percentage = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+//             float sensor_front_distance_in_percentage = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+//             float sensor_right_distance_in_percentage = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
+
+//             // struct Velocities vel_desired = p_wall_centering_controller( distance_left, distance_right, vel_base);
+//             struct Velocities vel_desired = p_one_wall_following_right(sensor_right_distance_in_percentage, vel_base);
+//             // struct Velocities vel_desired = p_one_wall_following_left(sensor_left_distance_in_percentage, vel_base);
+
+//             // Current Motor Velocities from Encoders
+//             float motor_vel_left = getVelocityInRoundsPerSecond_Left();
+//             float motor_vel_right = getVelocityInRoundsPerSecond_Right();
+
+//             bool shouldTurn = false;
+//             float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
+//             float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, shouldTurn);
+
+//             // float dc_left = pi_vel_controller_left(vel_base, motor_vel_left);
+//             // float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, shouldTurn);
+
+//             if (myCount >= 500){
+//                 LED1 = ~LED1;
+//                 // char buffer[10];
+//                 // sprintf(buffer, "%2.3f\r\n", distance);
+//                 float distance = getTotalDrivenDistanceInMeters();
+//                 // float inter_distance = getDrivenDistanceInMeters2();
+//                 // sprintf(buffer, "%2.4f\r\n", distance);
+//                 // sprintf(buffer, "%2.2f %2.2f\r\n", distance, inter_distance);
+//                 // putsUART1(buffer);
+
+//                 // UART Buffer
+//                 char buffer[50];
+//                 // Print Sensor Values
+//                 // sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
+//                 sprintf(buffer, "%3.2f \t%3.2f \t%3.2f \t%1.3f\n\r", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage), distance);    
+//                 putsUART1(buffer);
+//                 myCount=0;
+//             }
+
+//             // if (myCount >= 100){
+//             //     LED1 = ~LED1;
+//             //     myCount=0;
+//             // }
+
+//             myCount++;
+
+//             if (getTotalDrivenDistanceInMeters() >= initial_distance_to_goal){
+//                 waitBeforeDriveCounter = 0;
+//             }
+//         }
+
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+
+
+
+
+
+/* Control Distance Driven and Wall Following Left and than turn when reaching front facing wall */
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+// }
+
+
+
+
+/* Control Distance Driven and detect which Wall Following Control Mode to Use */
+// Wall Detection Threshold Left / Right / Front: 12% values over this threshold will be detected as a wall
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     if (mazi_running == 1){
+
+//         static int waitBeforeDriveCounter=0;
+//         static enum lateralControlMode oldLateralControlMode;
+
+//         if (waitBeforeDriveCounter == 0) {
+//             // UART Buffer
+//             char buffer[20];
+//             // // Print Sensor Values
+//             // sprintf(buffer, "SLP \tSFP \tSRP \tm\n\r");    
+
+//             oldLateralControlMode = getLateralControlMode();
+//             const char* lateralControlModeString = getLateralControlModeName(oldLateralControlMode);
+//             sprintf(buffer, "%s\n\r", lateralControlModeString);
+//             putsUART1(buffer);
+//         }
+
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             LED1 = ~LED1;
+//             // waitBeforeDriveCounter=0;
+        
+//             float vel_cruise = 0.3;
+//             float initial_distance_to_goal = 5 * 0.18; // in meters
+
+//             // float distance_to_goal = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
+//             float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal);
+//             // float distance_driven = getDistanceDrivenInMeters();
+
+//             float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
+
+//             // float distance_left = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+//             // float distance_right = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+
+//             // Convert the value of the potentiometer to a percentage for the PWM
+//             // float sensor_left_distance_in_percentage = (float)SENSOR_LEFT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+//             // float sensor_front_distance_in_percentage = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096 
+//             // float sensor_right_distance_in_percentage = (float)SENSOR_RIGHT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
+
+//             // struct Velocities vel_desired = p_wall_centering_controller( distance_left, distance_right, vel_base);
+//             // struct Velocities vel_desired = p_one_wall_following_right(sensor_right_distance_in_percentage, vel_base);
+//             // struct Velocities vel_desired = p_one_wall_following_left(sensor_left_distance_in_percentage, vel_base);
+
+//             // Current Motor Velocities from Encoders
+//             float motor_vel_left = getVelocityInRoundsPerSecond_Left();
+//             float motor_vel_right = getVelocityInRoundsPerSecond_Right();
+
+//             bool shouldTurn = false;
+//             // float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
+//             // float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, shouldTurn);
+
+//             float dc_left = pi_vel_controller_left(vel_base, motor_vel_left);
+//             float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, shouldTurn);
+
+//             // if (myCount >= 500){
+//             //     LED1 = ~LED1;
+//             //     // char buffer[10];
+//             //     // sprintf(buffer, "%2.3f\r\n", distance);
+//             //     // float distance = getTotalDrivenDistanceInMeters();
+//             //     // float inter_distance = getDrivenDistanceInMeters2();
+//             //     // sprintf(buffer, "%2.4f\r\n", distance);
+//             //     // sprintf(buffer, "%2.2f %2.2f\r\n", distance, inter_distance);
+//             //     // putsUART1(buffer);
+
+//             //     // UART Buffer
+//             //     char buffer[50];
+//             //     // Print Sensor Values
+//             //     // sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
+//             //     // sprintf(buffer, "%3.2f \t%3.2f \t%3.2f \t%1.3f\n\r", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage), distance);
+                
+//             //     // Print the result of getLateralControlMode()
+//             //     enum lateralControlMode LCM = getLateralControlMode();
+//             //     const char* lateralControlModeString = getLateralControlModeName(LCM);
+//             //     sprintf(buffer, "%s\n\r", lateralControlModeString);
+
+//             //     putsUART1(buffer);
+//             //     myCount=0;
+//             // }
+
+//             enum lateralControlMode currenLateralControlMode = getLateralControlMode();
+
+//             if (currenLateralControlMode != oldLateralControlMode) {
+//                 char buffer[50];
+//                 const char* lateralControlModeString = getLateralControlModeName(currenLateralControlMode);
+//                 sprintf(buffer, "%s\n\r", lateralControlModeString);
+
+//                 putsUART1(buffer);
+//                 oldLateralControlMode = currenLateralControlMode;
+//             }
+
+
+
+//             // if (myCount >= 100){
+//             //     LED1 = ~LED1;
+//             //     myCount=0;
+//             // }
+
+//             myCount++;
+
+//             if (getTotalDrivenDistanceInMeters() >= initial_distance_to_goal){
+//                 waitBeforeDriveCounter = 0;
+//             }
+//         }
+
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+
+
+/* Control Distance Driven and detect and USE the correct Wall Following Control Mode*/
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     if (mazi_running == 1){
+
+//         static int waitBeforeDriveCounter=0;
+//         static enum lateralControlMode oldLateralControlMode;
+
+//         if (waitBeforeDriveCounter == 0) {
+//             // UART Buffer
+//             char buffer[30];
+
+//             // Print Sensor Values
+//             // sprintf(buffer, "SLP \tSFP \tSRP \tm \tvL \tvR \tcMode\n\r");    
+//             sprintf(buffer, "SLP;SFP;SRP;m;vL;vR;cMode\n\r");    
+
+//             // oldLateralControlMode = getLateralControlMode();
+//             // const char* lateralControlModeString = getLateralControlModeName(oldLateralControlMode);
+//             // sprintf(buffer, "%s\n\r", lateralControlModeString);
+//             putsUART1(buffer);
+//         }
+
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             LED1 = ~LED1;
+//             // waitBeforeDriveCounter=0;
+        
+//             float vel_cruise = 0.3;
+//             float initial_distance_to_goal = 5 * 0.18; // in meters
+
+//             // float distance_to_goal = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
+//             float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal);
+//             // float distance_driven = getDistanceDrivenInMeters();
+
+//             float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
+
+//             // Convert the value of the potentiometer to a percentage for the PWM
+//             float sensor_left_distance_in_percentage = distanceSensorInPercentLeft(); 
+//             float sensor_front_distance_in_percentage = distanceSensorInPercentFront(); 
+//             float sensor_right_distance_in_percentage = distanceSensorInPercentRight(); 
+
+//             // Switch Case to execute the correct Laterall Control Mode
+//             struct Velocities vel_desired;
+//             switch (getLateralControlMode())
+//             {
+//                 case ONE_WALL_FOLLOWING_RIGHT:
+//                     vel_desired = p_one_wall_following_right(sensor_right_distance_in_percentage, vel_base);
+//                     break;
+//                 case ONE_WALL_FOLLOWING_LEFT:
+//                     vel_desired = p_one_wall_following_left(sensor_left_distance_in_percentage, vel_base);
+//                     break;
+//                 case TWO_WALL_CENTERING:
+//                     vel_desired = p_wall_centering_controller( sensor_left_distance_in_percentage, sensor_right_distance_in_percentage, vel_base);
+//                     break;
+//                 case ZERO_WALL_DRIVING:
+//                     vel_desired = (struct Velocities){vel_base, vel_base}; // Assign left and right velocities, (struct Velocities){vel_base, vel_base} creates a temporary struct with the specified values and assigns it to vel_desired
+//                     // Alternative to the compact professional code line above
+//                     // vel_desired.left_velocity = vel_base; // Assign the left wheel velocity
+//                     // vel_desired.right_velocity = vel_base; // Assign the right wheel velocity
+//                     break;
+//                 default:
+//                     break;
+//             }
+
+//             // Current Motor Velocities from Encoders
+//             float motor_vel_left = getVelocityInRoundsPerSecond_Left();
+//             float motor_vel_right = getVelocityInRoundsPerSecond_Right();
+
+//             bool shouldTurn = false;
+//             float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
+//             float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, shouldTurn);
+
+//             // float dc_left = pi_vel_controller_left(vel_base, motor_vel_left);
+//             // float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, shouldTurn);
+
+//             if (myCount >= 100){
+//                 LED1 = ~LED1;
+//                 // char buffer[10];
+//                 // sprintf(buffer, "%2.3f\r\n", distance);
+//                 float distance = getTotalDrivenDistanceInMeters();
+//                 // float inter_distance = getDrivenDistanceInMeters2();
+//                 // sprintf(buffer, "%2.4f\r\n", distance);
+//                 // sprintf(buffer, "%2.2f %2.2f\r\n", distance, inter_distance);
+//                 // putsUART1(buffer);
+
+//                 enum lateralControlMode currenLateralControlMode = getLateralControlMode();
+
+//                 // UART Buffer
+//                 char buffer[40];
+//                 // Print Sensor Values
+//                 // sprintf(buffer, "SLP: %3.2f,\tSFP: %3.2f,\tSRP: %3.2f\n\r", (sensor_left_distance_in_percentage*100), (sensor_front_distance_in_percentage*100), (sensor_right_distance_in_percentage*100));    
+//                 // sprintf(buffer, "%2.2f \t%2.2f \t%2.2f \t%2.3f \t%2.2f \t%2.2f \t%i\n\r", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage), distance, vel_desired.vel_left, vel_desired.vel_right, currenLateralControlMode);
+//                 sprintf(buffer, "%2.2f;%2.2f;%2.2f;%2.3f;%2.2f;%2.2f;%i;\n\r", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage), distance, vel_desired.vel_left, vel_desired.vel_right, currenLateralControlMode);
+                
+//                 // // Print the result of getLateralControlMode()
+//                 // enum lateralControlMode LCM = getLateralControlMode();
+//                 // const char* lateralControlModeString = getLateralControlModeName(LCM);
+//                 // sprintf(buffer, "%s\n\r", lateralControlModeString);
+
+//                 putsUART1(buffer);
+//                 myCount=0;
+//             }
+
+//             enum lateralControlMode currenLateralControlMode = getLateralControlMode();
+
+//             // if (currenLateralControlMode != oldLateralControlMode) {
+//             //     char buffer[50];
+//             //     const char* lateralControlModeString = getLateralControlModeName(currenLateralControlMode);
+//             //     sprintf(buffer, "%s\n\r", lateralControlModeString);
+
+//             //     putsUART1(buffer);
+//             //     oldLateralControlMode = currenLateralControlMode;
+//             // }
+
+//             myCount++;
+
+//             if (getTotalDrivenDistanceInMeters() >= initial_distance_to_goal){
+//                 waitBeforeDriveCounter = 0;
+//             }
+//         }
+
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+
+
+/* Control Distance Driven and detect and USE the correct Wall Following Control Mode
+*   But testing right wheel control while turning and driving straight without the shouldTurn variable as a controller function parameter: instead switching the vel sign for the right wheel when turning
+*/
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     if (mazi_running == 1){
+
+//         static int waitBeforeDriveCounter=0;
+//         static enum lateralControlMode oldLateralControlMode;
+
+//         if (waitBeforeDriveCounter == 0) {
+//             // UART Buffer
+//             char buffer[30];   
+//             sprintf(buffer, "SLP;SFP;SRP;m;vL;vR;cMode\n\r");    
+//             putsUART1(buffer);
+//         }
+
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             LED1 = ~LED1;
+//             // waitBeforeDriveCounter=0;
+        
+//             float vel_cruise = - 0.3;
+//             float initial_distance_to_goal = 5 * 0.18; // in meters
+
+//             // float distance_to_goal = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
+//             float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal);
+//             // float distance_driven = getDistanceDrivenInMeters();
+
+//             float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
+
+//             // // Convert the value of the potentiometer to a percentage for the PWM
+//             // float sensor_left_distance_in_percentage = distanceSensorInPercentLeft(); 
+//             // float sensor_front_distance_in_percentage = distanceSensorInPercentFront(); 
+//             // float sensor_right_distance_in_percentage = distanceSensorInPercentRight(); 
+
+//             // // Switch Case to execute the correct Laterall Control Mode
+//             // struct Velocities vel_desired;
+//             // switch (getLateralControlMode())
+//             // {
+//             //     case ONE_WALL_FOLLOWING_RIGHT:
+//             //         vel_desired = p_one_wall_following_right(sensor_right_distance_in_percentage, vel_base);
+//             //         break;
+//             //     case ONE_WALL_FOLLOWING_LEFT:
+//             //         vel_desired = p_one_wall_following_left(sensor_left_distance_in_percentage, vel_base);
+//             //         break;
+//             //     case TWO_WALL_CENTERING:
+//             //         vel_desired = p_wall_centering_controller( sensor_left_distance_in_percentage, sensor_right_distance_in_percentage, vel_base);
+//             //         break;
+//             //     case ZERO_WALL_DRIVING:
+//             //         vel_desired = (struct Velocities){vel_base, vel_base}; // Assign left and right velocities, (struct Velocities){vel_base, vel_base} creates a temporary struct with the specified values and assigns it to vel_desired
+//             //         // Alternative to the compact professional code line above
+//             //         // vel_desired.left_velocity = vel_base; // Assign the left wheel velocity
+//             //         // vel_desired.right_velocity = vel_base; // Assign the right wheel velocity
+//             //         break;
+//             //     default:
+//             //         break;
+//             // }
+
+//             // Current Motor Velocities from Encoders
+//             float motor_vel_left = getVelocityInRoundsPerSecond_Left();
+//             float motor_vel_right = getVelocityInRoundsPerSecond_Right();
+
+//             // bool shouldTurn = false;
+//             // float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
+//             // float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, shouldTurn);
+
+
+//             bool shouldTurn = true;
+//             float dc_left = pi_vel_controller_left(vel_base, motor_vel_left);
+//             // The vel_desired.vel_right for the right Motor has to be negated when the robot should turn as the vel sign is derived from the left wheel "coordinates"
+//             if (shouldTurn) {
+//                 float dc_right = pi_vel_controller_right(-vel_base, motor_vel_right);
+//             } else {
+//                 float dc_right = pi_vel_controller_right(vel_base, motor_vel_right);
+//             }
+            
+
+//             // float dc_left = pi_vel_controller_left(vel_base, motor_vel_left);
+//             // float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, shouldTurn);
+
+//             // if (myCount >= 100){
+//             //     LED1 = ~LED1;
+//             //     float distance = getTotalDrivenDistanceInMeters();
+//             //     enum lateralControlMode currenLateralControlMode = getLateralControlMode();
+
+//             //     // UART Buffer
+//             //     char buffer[40];
+//             //     sprintf(buffer, "%2.2f;%2.2f;%2.2f;%2.3f;%2.2f;%2.2f;%i;\n\r", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage), distance, vel_desired.vel_left, vel_desired.vel_right, currenLateralControlMode);
+
+//             //     putsUART1(buffer);
+//             //     myCount=0;
+//             // }
+
+//             enum lateralControlMode currenLateralControlMode = getLateralControlMode();
+
+//             myCount++;
+
+//             if (getTotalDrivenDistanceInMeters() >= initial_distance_to_goal){
+//                 waitBeforeDriveCounter = 0;
+//             }
+//         }
+
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+
+
+/* Control Distance Driven and detect and USE the correct Wall Following Control Mode 
+*  Using the new abstractControl functions
+*/
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     if (mazi_running == 1){
+
+//         static int waitBeforeDriveCounter=0;
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             LED1 = ~LED1;
+        
+//             float vel_cruise = 0.3;
+//             int cells_to_drive = 5;
+//             driveStraightForNCells(5, vel_cruise);
+
+//             if ( fabs(getTotalDrivenDistanceInMeters() - cells_to_drive * MAZE_CELL_LENGTH) <= GOAL_REACHED_THRESHOLD_DISTANCE ){
+//                 waitBeforeDriveCounter = 0;
+//                 LED4 = LEDON;
+//             }
+//         }
+
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+/* Control Distance Turned and detect and USE the correct Wall Following Control Mode 
+*  Using the new abstractControl functions
+*/
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     if (mazi_running == 1){
+
+//         static int waitBeforeDriveCounter=0;
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             LED1 = ~LED1;
+        
+//             float vel_turn_cruise = 0.3;
+//             float degrees_to_turn = 90;
+//             turn90DegreesRight(vel_turn_cruise);
+
+//             if ( fabs(getTotalDrivenAngleInDegrees() - degrees_to_turn) <= GOAL_REACHED_THRESHOLD_ANGLE ){
+//                 waitBeforeDriveCounter = 0;
+//                 LED4 = LEDON;
+//             }
+//         }
+
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+
+
+/* 
+* Test Drive: moving straight - and moving straight
+* without state machine and improvised goal reached cascade
+*/
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     static bool done = false;
+
+//     if (mazi_running == 1 && !done){
+
+//         static int waitBeforeDriveCounter=0;
+//         // Improvised local state to keep track of which driving instruction to execute
+//         static int driving_instruction_step = 0;
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             LED1 = ~LED1;
+
+//             // UART Buffer
+//             char buffer[5];
+//             sprintf(buffer, "%i\n\r", driving_instruction_step);
+//             myCount++;
+
+//             // if (myCount >= 100){
+//             //     putsUART1(buffer);
+//             //     myCount=0;
+//             // }
+
+//             switch (driving_instruction_step)
+//             {
+//             case 0: {
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = 1;
+//                 driveStraightForNCells(cells_to_drive, vel_cruise);
+//                 if (isDistanceGoalReached(getTotalDrivenDistanceInMeters(false), cells_to_drive * MAZE_CELL_LENGTH)) {
+//                     driving_instruction_step++;
+//                     bool reset_static_variables = true;
+//                     getTotalDrivenDistanceInMeters(reset_static_variables);
+//                     getDistanceToGoalInMeters(0.0, reset_static_variables);
+//                 }
+//                 // sprintf(buffer, "%i %0.2f\n\r", driving_instruction_step, getTotalDrivenDistanceInMeters(false));
+//                 putsUART1(buffer);
+//                 break;
+//             }
+//             case 1: {
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = 1;
+//                 driveStraightForNCells(cells_to_drive, vel_cruise);
+//                 if (isDistanceGoalReached(getTotalDrivenDistanceInMeters(false), cells_to_drive * MAZE_CELL_LENGTH)) {
+//                     driving_instruction_step++;
+//                     bool reset_static_variables = true;
+//                     getTotalDrivenDistanceInMeters(reset_static_variables);
+//                     getDistanceToGoalInMeters(0.0, reset_static_variables);
+//                 }
+//                 putsUART1(buffer);
+//                 break;
+//             }
+//             case 2:
+//                 // All instructions executed
+//                 waitBeforeDriveCounter = 0;
+//                 LED4 = LEDON;
+//                 putsUART1(buffer);
+//                 done = true;
+//                 break;
+            
+//             default:
+//                 break;
+//             }
+//         }
+
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+
+/* 
+* Test Drive: moving straight - turning - and moving straight
+* without state machine and improvised goal reached cascade
+*/
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     static bool done = false;
+
+//     if (mazi_running == 1 && !done){
+
+//         static int waitBeforeDriveCounter=0;
+//         // Improvised local state to keep track of which driving instruction to execute
+//         static int driving_instruction_step = 0;
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             LED1 = ~LED1;
+
+//             // UART Buffer
+//             char buffer[5];
+//             sprintf(buffer, "%i\n\r", driving_instruction_step);
+//             myCount++;
+
+//             // if (myCount >= 100){
+//             //     putsUART1(buffer);
+//             //     myCount=0;
+//             // }
+
+//             switch (driving_instruction_step)
+//             {
+//             case 0: {
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = 1;
+//                 driveStraightForNCells(cells_to_drive, vel_cruise);
+//                 if (isDistanceGoalReached(getTotalDrivenDistanceInMeters(false), cells_to_drive * MAZE_CELL_LENGTH)) {
+//                     driving_instruction_step++;
+//                     bool reset_static_variables = true;
+//                     getTotalDrivenDistanceInMeters(reset_static_variables);
+//                     getDistanceToGoalInMeters(0.0, reset_static_variables);
+//                 }
+//                 // sprintf(buffer, "%i %0.2f\n\r", driving_instruction_step, getTotalDrivenDistanceInMeters(false));
+//                 putsUART1(buffer);
+//                 break;
+//             }
+//             case 1: {
+//                 float vel_turn_cruise = 0.3;
+//                 float degrees_to_turn = 90;
+//                 turn90DegreesRight(vel_turn_cruise);
+//                 if (isAngleGoalReached(getTotalDrivenAngleInDegrees(false), degrees_to_turn)) {
+//                     driving_instruction_step++;
+//                     bool reset_static_variables = true;
+//                     getTotalDrivenAngleInDegrees(reset_static_variables);
+//                     getAngleToGoalInDegrees(0.0, reset_static_variables);
+//                 }
+//                 putsUART1(buffer);
+//                 break;
+//             }
+//             case 2: {
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = 1;
+//                 driveStraightForNCells(cells_to_drive, vel_cruise);
+//                 if (isDistanceGoalReached(getTotalDrivenDistanceInMeters(false), cells_to_drive * MAZE_CELL_LENGTH)) {
+//                     driving_instruction_step++;
+//                     bool reset_static_variables = true;
+//                     getTotalDrivenDistanceInMeters(reset_static_variables);
+//                     getDistanceToGoalInMeters(0.0, reset_static_variables);
+//                 }
+//                 putsUART1(buffer);
+//                 break;
+//             }
+//             case 3:
+//                 // All instructions executed
+//                 waitBeforeDriveCounter = 0;
+//                 LED4 = LEDON;
+//                 putsUART1(buffer);
+//                 done = true;
+//                 break;
+            
+//             default:
+//                 break;
+//             }
+//         }
+
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+
+/**
+* Test if the tuning and driving straight functions do all work as intended (here without using the reset functionality)
+* Test scenarios:
+*   - drive straight for 1 cell [DONE]
+*   - turn 90 degrees right [DONE]
+*   - turn 90 degrees left [DONE]
+*   - turn 180 degrees right [DONE]
+*   - turn 180 degrees left [DONE]
+*/
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     static bool done = false;
+
+//     if (mazi_running == 1 && !done){
+
+//         static int waitBeforeDriveCounter=0;
+//         // Improvised local state to keep track of which driving instruction to execute
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             LED1 = ~LED1;
+
+//             // UART Buffer
+//             // char buffer[5];
+//             // sprintf(buffer, "%i\n\r", driving_instruction_step);
+//             // putsUART1(buffer);
+//             myCount++;
+
+//             // if (myCount >= 100){
+//             //     putsUART1(buffer);
+//             //     myCount=0;
+//             // }
+
+//             // Drive straight for 1 cell [DONE]
+//             // float vel_cruise = 0.3;
+//             // int cells_to_drive = 1;
+//             // driveStraightForNCells(cells_to_drive, vel_cruise);
+            
+//             // Turn 90 degrees right [DONE]
+//             // float vel_turn_cruise = 0.3;
+//             // float degrees_to_turn = 90;
+//             // turn90DegreesRight(vel_turn_cruise);
+
+//             // Turn 90 degrees left [DONE]
+//             // float vel_turn_cruise = 0.3;
+//             // float degrees_to_turn = 90;
+//             // turn90DegreesLeft(vel_turn_cruise);
+
+//             // Turn 180 degrees right [DONE]
+//             // float vel_turn_cruise = 0.3;
+//             // float degrees_to_turn = 180;
+//             // turn180DegreesRight(vel_turn_cruise);
+
+//             // Turn 180 degrees left
+//             // float vel_turn_cruise = 0.3;
+//             // float degrees_to_turn = 180;
+//             // turn180DegreesLeft(vel_turn_cruise);
+
+//             // Drive straight backwards for 1 cell
+//             float vel_cruise = 0.3;
+//             int cells_to_drive = -1;
+//             float distance_to_goal;
+
+//             distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, false);
+
+//             // UART Buffer
+//             char buffer[5];
+//             sprintf(buffer, "%1.2F\n\r", distance_to_goal);
+//             putsUART1(buffer);
+
+//         }
+
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+
+/**
+* Test if the tuning and driving straight functions do all work as intended when using the reset functionality
+* Test scenarios:
+*   - Drive straight for 1 cell -&- Drive straight for 1 cell [DONE]
+*   - Drive straight for 1 cell -&- Turn 90 degrees right [DONE]
+*/
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     static bool done = false;
+
+//     if (mazi_running == 1 && !done){
+
+//         static int waitBeforeDriveCounter=0;
+//         // Improvised local state to keep track of which driving instruction to execute
+//         static int driving_instruction_step = 0;
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             static bool start_new_motion_primitive = true;
+//             LED1 = ~LED1;
+
+//             // UART Buffer
+//             char buffer[5];
+//             sprintf(buffer, "%i\n\r", driving_instruction_step);
+//             myCount++;
+
+//             // if (myCount >= 100){
+//             //     putsUART1(buffer);
+//             //     myCount=0;
+//             // }
+
+//             switch (driving_instruction_step)
+//             {
+//             case 0: {
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = 1;
+//                 float distance_to_goal;
+
+//                 putsUART1(buffer);
+                
+//                 distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+
+//                 // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     start_new_motion_primitive = false;
+//                 }
+                
+//                 if (distance_to_goal == 0) {
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
+
+//                 break;
+//             }
+//             case 1: {
+//                 float vel_turn_cruise = 0.3;
+//                 float degrees_to_turn = 90;
+//                 float angle_to_goal;
+
+//                 putsUART1(buffer);
+
+//                 angle_to_goal = turn90DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
+
+//                 // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     start_new_motion_primitive = false;
+//                 }
+
+//                 if (angle_to_goal == 0) {
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
+
+//                 break;
+//             }
+//             case 2:
+//                 // All instructions executed
+//                 waitBeforeDriveCounter = 0;
+//                 LED4 = LEDON;
+//                 putsUART1(buffer);
+//                 done = true;
+//                 break;
+            
+//             default:
+//                 break;
+//             }
+//         }
+
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+
+/**
+* Test if the tuning and driving straight functions do all work as intended when using the reset functionality
+* Mega long test scenario with all motion primitives
+* Test scenaio: [SUCCESS]
+*   - 0: straight for 1 cell
+*   - 1: turn 90 degrees left
+*   - 2: straight for 1 cell
+*   - 3: turn 90 degrees right
+*   - 4: straight for 1 cell
+*   - 5: turn 90 degrees left
+*   - 6: turn 180 degrees left
+*   - 7: turn 360 degrees right
+*   - 8: straight for 2 cells
+*   - 9: straight backwards for 1 cell
+*/
+void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+{
+    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+    static int myCount=0;
+    myCount++;
+
+    static bool done = false;
+
+    if (mazi_running == 1 && !done){
+
+        static int waitBeforeDriveCounter=0;
+        static bool start_driving = false;
+        // Improvised local state to keep track of which driving instruction to execute
+        static int driving_instruction_step = 0;
+
+        // if (myCount >= 100){
+        //     char buffer[3];
+        //     sprintf(buffer, "R\n\r");
+        //     putsUART1(buffer);
+        //     myCount=0;
+        // }
+
+        // Has to be done like this as max int value is 32.767 and the waitBeforeDriveCounter is an int
+        // Therefore after 32.767 the waitBeforeDriveCounter will overflow and start from 0 again, At least this is what I think
+        // But just setting a flag once, I don't have to worry about the overflow
+        if (waitBeforeDriveCounter >= 1000){
+            start_driving = true;
+        }
+
+        if (start_driving){
+            static bool start_new_motion_primitive = true;
+            LED1 = ~LED1;
+
+            // UART Buffer
+            char buffer[5];
+            sprintf(buffer, "%i\n\r", driving_instruction_step);
+            // myCount++;
+
+            // if (myCount >= 100){
+            //     char buffer[4];
+            //     sprintf(buffer, "RD\n\r");
+            //     putsUART1(buffer);
+            //     // myCount=0;
+            // }
+
+            switch (driving_instruction_step)
+            {
+            case 0: {
+                // Drive straight for 1 cell
+                float vel_cruise = 0.3;
+                int cells_to_drive = 1;
+                float distance_to_goal;
+                
+                distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+
+                // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+                if (start_new_motion_primitive) {
+                    putsUART1(buffer);
+                    start_new_motion_primitive = false;
+                }
+                
+                if (distance_to_goal == 0) {
+                    driving_instruction_step++;
+                    start_new_motion_primitive = true;
+                }
+
+                break;
+            }
+            case 1: {
+                // Turn 90 degrees left
+                float vel_turn_cruise = 0.3;
+                // float degrees_to_turn = 90;
+                float angle_to_goal;
+
+                angle_to_goal = turn90DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
+
+                // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+                if (start_new_motion_primitive) {
+                    putsUART1(buffer);
+                    start_new_motion_primitive = false;
+                }
+
+                if (angle_to_goal == 0) {
+                    driving_instruction_step++;
+                    start_new_motion_primitive = true;
+                }
+
+                break;
+            }
+            case 2: {
+                // Drive straight for 1 cell
+                float vel_cruise = 0.3;
+                int cells_to_drive = 1;
+                float distance_to_goal;
+
+                distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+
+                // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+                if (start_new_motion_primitive) {
+                    putsUART1(buffer);
+                    start_new_motion_primitive = false;
+                }
+                
+                if (distance_to_goal == 0) {
+                    driving_instruction_step++;
+                    start_new_motion_primitive = true;
+                }
+
+                break;
+            }
+            case 3: {
+                // Turn 90 degrees right
+                float vel_turn_cruise = 0.3;
+                // float degrees_to_turn = 90;
+                float angle_to_goal;
+
+                angle_to_goal = turn90DegreesRight(vel_turn_cruise, start_new_motion_primitive);
+
+                // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+                if (start_new_motion_primitive) {
+                    putsUART1(buffer);
+                    start_new_motion_primitive = false;
+                }
+
+                if (angle_to_goal == 0) {
+                    driving_instruction_step++;
+                    start_new_motion_primitive = true;
+                }
+
+                break;
+            }
+            case 4: {
+                // Drive straight for 1 cell
+                float vel_cruise = 0.3;
+                int cells_to_drive = 1;
+                float distance_to_goal;
+
+                distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+
+                // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+                if (start_new_motion_primitive) {
+                    putsUART1(buffer);
+                    start_new_motion_primitive = false;
+                }
+                
+                if (distance_to_goal == 0) {
+                    driving_instruction_step++;
+                    start_new_motion_primitive = true;
+                }
+
+                break;
+            }
+            case 5: {
+                // Turn 90 degrees left
+                float vel_turn_cruise = 0.3;
+                // float degrees_to_turn = 90;
+                float angle_to_goal;
+
+                angle_to_goal = turn90DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
+
+                // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+                if (start_new_motion_primitive) {
+                    putsUART1(buffer);
+                    start_new_motion_primitive = false;
+                }
+
+                if (angle_to_goal == 0) {
+                    driving_instruction_step++;
+                    start_new_motion_primitive = true;
+                }
+
+                break;
+            }
+            case 6: {
+                // Turn 180 degrees left
+                float vel_turn_cruise = 0.3;
+                // float degrees_to_turn = 90;
+                float angle_to_goal;
+
+                angle_to_goal = turn180DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
+
+                // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+                if (start_new_motion_primitive) {
+                    putsUART1(buffer);
+                    start_new_motion_primitive = false;
+                }
+
+                if (angle_to_goal == 0) {
+                    driving_instruction_step++;
+                    start_new_motion_primitive = true;
+                }
+
+                break;
+            }
+            case 7: {
+                // Turn 360 degrees right
+                float vel_turn_cruise = 0.3;
+                float degrees_to_turn = 360;
+                float angle_to_goal;
+
+                angle_to_goal = turnForNDegrees(degrees_to_turn, vel_turn_cruise, start_new_motion_primitive);
+
+                // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+                if (start_new_motion_primitive) {
+                    putsUART1(buffer);
+                    start_new_motion_primitive = false;
+                }
+
+                if (angle_to_goal == 0) {
+                    driving_instruction_step++;
+                    start_new_motion_primitive = true;
+                }
+
+                break;
+            }
+            case 8: {
+                // Drive straight for 2 cells
+                float vel_cruise = 0.3;
+                int cells_to_drive = 2;
+                float distance_to_goal;
+
+                distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+
+                // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+                if (start_new_motion_primitive) {
+                    putsUART1(buffer);
+                    start_new_motion_primitive = false;
+                }
+                
+                if (distance_to_goal == 0) {
+                    char buffer[8];
+                    sprintf(buffer, "Goal\n\r");
+                    putsUART1(buffer);
+                    driving_instruction_step++;
+                    start_new_motion_primitive = true;
+                }
+
+
+                if (myCount >= 100){
+                    char buffer[8];
+                    sprintf(buffer, "%1.2f\n\r", distance_to_goal);
+                    putsUART1(buffer);
+                    myCount=0;
+                }
+
+                break;
+            }
+            case 9: {
+                // Drive straight backwards for 1 cell
+                float vel_cruise = 0.3;
+                int cells_to_drive = -1;
+                float distance_to_goal;
+
+                distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+
+                // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+                // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+                // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+                if (start_new_motion_primitive) {
+                    putsUART1(buffer);
+                    start_new_motion_primitive = false;
+                }
+                
+                if (distance_to_goal == 0) {
+                    char buffer[8];
+                    sprintf(buffer, "Goal\n\r");
+                    putsUART1(buffer);
+                    driving_instruction_step++;
+                    start_new_motion_primitive = true;
+                }
+
+                if (myCount >= 100){
+                    char buffer[8];
+                    sprintf(buffer, "%1.2f\n\r", distance_to_goal);
+                    putsUART1(buffer);
+                    myCount=0;
+                }
+
+                break;
+            }
+
+            case 10:
+                // All instructions executed
+                waitBeforeDriveCounter = 0;
+                LED4 = LEDON;
+                putsUART1(buffer);
+                done = true;
+                break;
+            
+            default:
+                break;
+            }
+        }
+
+    waitBeforeDriveCounter++;
+
+    } else {
+        // char buffer[3];
+        // sprintf(buffer, "S\n\r");
+        // putsUART1(buffer);
+        set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+        set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+    }
+}
+
+
+/**
+* Test if the tuning and driving straight functions do all work as intended when using the reset functionality
+*/
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     static bool done = false;
+
+//     if (mazi_running == 1 && !done){
+
+//         static int waitBeforeDriveCounter=0;
+//         // Improvised local state to keep track of which driving instruction to execute
+//         static int driving_instruction_step = 0;
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             static bool start_new_motion_primitive = true;
+//             LED1 = ~LED1;
+
+//             // UART Buffer
+//             char buffer[5];
+//             sprintf(buffer, "%i\n\r", driving_instruction_step);
+//             myCount++;
+
+//             // if (myCount >= 100){
+//             //     putsUART1(buffer);
+//             //     myCount=0;
+//             // }
+
+//             switch (driving_instruction_step)
+//             {
+//             case 0: {
+//                 // Drive straight for 2 cells
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = 2;
+//                 float distance_to_goal;
+                
+//                 distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+
+//                 // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     putsUART1(buffer);
+//                     start_new_motion_primitive = false;
+//                 }
+                
+//                 if (distance_to_goal == 0) {
+//                     char buffer[8];
+//                     sprintf(buffer, "Goal\n\r");
+//                     putsUART1(buffer);
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
+
+//                 if (myCount >= 100){
+//                     char buffer[8];
+//                     sprintf(buffer, "%1.2f\n\r", distance_to_goal);
+//                     putsUART1(buffer);
+//                     myCount=0;
+//                 }
+
+//                 break;
+//             }
+//             case 1: {
+//                 // Drive straight for 1 cell
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = -2;
+//                 float distance_to_goal;
+                
+//                 distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+
+//                 // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+//                 // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+//                 // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//                 if (start_new_motion_primitive) {
+//                     putsUART1(buffer);
+//                     start_new_motion_primitive = false;
+//                 }
+                
+//                 if (distance_to_goal == 0) {
+//                     char buffer[8];
+//                     sprintf(buffer, "Goal\n\r");
+//                     putsUART1(buffer);
+//                     driving_instruction_step++;
+//                     start_new_motion_primitive = true;
+//                 }
+
+//                 if (myCount >= 100){
+//                     char buffer[8];
+//                     sprintf(buffer, "%1.2f\n\r", distance_to_goal);
+//                     putsUART1(buffer);
+//                     myCount=0;
+//                 }
+
+//                 break;
+//             }
+//             // case 2: {
+//             //     // Drive straight for 1 cell
+//             //     float vel_cruise = 0.3;
+//             //     int cells_to_drive = 1;
+//             //     float distance_to_goal;
+
+//             //     distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+
+//             //     // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//             //     if (start_new_motion_primitive) {
+//             //         putsUART1(buffer);
+//             //         start_new_motion_primitive = false;
+//             //     }
+                
+//             //     if (distance_to_goal == 0) {
+//             //         driving_instruction_step++;
+//             //         start_new_motion_primitive = true;
+//             //     }
+
+//             //     break;
+//             // }
+//             // case 3: {
+//             //     // Turn 90 degrees right
+//             //     float vel_turn_cruise = 0.3;
+//             //     // float degrees_to_turn = 90;
+//             //     float angle_to_goal;
+
+//             //     angle_to_goal = turn90DegreesRight(vel_turn_cruise, start_new_motion_primitive);
+
+//             //     // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//             //     if (start_new_motion_primitive) {
+//             //         putsUART1(buffer);
+//             //         start_new_motion_primitive = false;
+//             //     }
+
+//             //     if (angle_to_goal == 0) {
+//             //         driving_instruction_step++;
+//             //         start_new_motion_primitive = true;
+//             //     }
+
+//             //     break;
+//             // }
+//             // case 4: {
+//             //     // Drive straight for 1 cell
+//             //     float vel_cruise = 0.3;
+//             //     int cells_to_drive = 1;
+//             //     float distance_to_goal;
+
+//             //     distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+
+//             //     // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//             //     if (start_new_motion_primitive) {
+//             //         putsUART1(buffer);
+//             //         start_new_motion_primitive = false;
+//             //     }
+                
+//             //     if (distance_to_goal == 0) {
+//             //         driving_instruction_step++;
+//             //         start_new_motion_primitive = true;
+//             //     }
+
+//             //     break;
+//             // }
+//             // case 5: {
+//             //     // Turn 90 degrees left
+//             //     float vel_turn_cruise = 0.3;
+//             //     // float degrees_to_turn = 90;
+//             //     float angle_to_goal;
+
+//             //     angle_to_goal = turn90DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
+
+//             //     // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//             //     if (start_new_motion_primitive) {
+//             //         putsUART1(buffer);
+//             //         start_new_motion_primitive = false;
+//             //     }
+
+//             //     if (angle_to_goal == 0) {
+//             //         driving_instruction_step++;
+//             //         start_new_motion_primitive = true;
+//             //     }
+
+//             //     break;
+//             // }
+//             // case 6: {
+//             //     // Turn 180 degrees left
+//             //     float vel_turn_cruise = 0.3;
+//             //     // float degrees_to_turn = 90;
+//             //     float angle_to_goal;
+
+//             //     angle_to_goal = turn180DegreesLeft(vel_turn_cruise, start_new_motion_primitive);
+
+//             //     // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//             //     if (start_new_motion_primitive) {
+//             //         putsUART1(buffer);
+//             //         start_new_motion_primitive = false;
+//             //     }
+
+//             //     if (angle_to_goal == 0) {
+//             //         driving_instruction_step++;
+//             //         start_new_motion_primitive = true;
+//             //     }
+
+//             //     break;
+//             // }
+//             // case 7: {
+//             //     // Turn 360 degrees right
+//             //     float vel_turn_cruise = 0.3;
+//             //     float degrees_to_turn = 360;
+//             //     float angle_to_goal;
+
+//             //     angle_to_goal = turnForNDegrees(degrees_to_turn, vel_turn_cruise, start_new_motion_primitive);
+
+//             //     // This could also be handled in the turnForNDegrees function itself by checking if the goal is reached
+//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted),
+//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//             //     if (start_new_motion_primitive) {
+//             //         putsUART1(buffer);
+//             //         start_new_motion_primitive = false;
+//             //     }
+
+//             //     if (angle_to_goal == 0) {
+//             //         driving_instruction_step++;
+//             //         start_new_motion_primitive = true;
+//             //     }
+
+//             //     break;
+//             // }
+//             // case 8: {
+//             //     // Drive straight for 2 cells
+//             //     float vel_cruise = 0.3;
+//             //     int cells_to_drive = 2;
+//             //     float distance_to_goal;
+
+//             //     distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+
+//             //     // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//             //     if (start_new_motion_primitive) {
+//             //         putsUART1(buffer);
+//             //         start_new_motion_primitive = false;
+//             //     }
+                
+//             //     if (distance_to_goal == 0) {
+//             //         driving_instruction_step++;
+//             //         start_new_motion_primitive = true;
+//             //     }
+
+
+
+//             //     // if (myCount >= 100){
+//             //     //     char buffer[8];
+//             //     //     sprintf(buffer, "%1.2f\n\r", distance_to_goal);
+//             //     //     putsUART1(buffer);
+//             //     //     myCount=0;
+//             //     // }
+
+//             //     break;
+//             // }
+//             // case 9: {
+//             //     // Drive straight backwards for 1 cell
+//             //     float vel_cruise = 0.3;
+//             //     int cells_to_drive = -1;
+//             //     float distance_to_goal;
+
+//             //     distance_to_goal = driveStraightForNCells(cells_to_drive, vel_cruise, start_new_motion_primitive);
+
+//             //     // This could also be handled in the driveStraightForNMeters function itself by checking if the goal is reached
+//             //     // However this might be less flexible e.g. if the goal is not reached before the motion primitive is changed (interrupted), 
+//             //     // than the flag will not be reseted automatically and the next motion primitive might be executed wrongly
+//             //     if (start_new_motion_primitive) {
+//             //         putsUART1(buffer);
+//             //         start_new_motion_primitive = false;
+//             //     }
+                
+//             //     if (distance_to_goal == 0) {
+//             //         driving_instruction_step++;
+//             //         start_new_motion_primitive = true;
+//             //     }
+
+//             //     break;
+//             // }
+
+//             case 2:
+//                 // All instructions executed
+//                 waitBeforeDriveCounter = 0;
+//                 LED4 = LEDON;
+//                 sprintf(buffer, "%i\n\r", driving_instruction_step);
+//                 putsUART1(buffer);
+//                 done = true;
+//                 break;
+            
+//             default:
+//                 break;
+//             }
+//         }
+
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+
+// // Wall Following Algorithm
+// if (isWallLeft() && !isWallFront()) {
+//     // Drive Straight ahead
+//     driveStraight(0.3); // Function that just drives the robot straight without a goal 
+// } else if (!isWallLeft()) {
+//     // Drive straight for a little bit and than turn
+//     // 1.
+//     driveStraightForNMeters(0.3, 0.1);
+//     // 2.
+//     turn90DegreesLeft(0.3);
+//     // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
+//     // No, will have problems with right turns
+// } else if (isWallLeft() && isWallFront() && !isWallRight()){
+//     // Drive straight for a little bit and than turn
+//     // 1.
+//     driveStraightForNMeters(0.3, 0.1);
+//     // Turn right
+//     turn90DegreesRight(0.3);
+// } else if (isWallLeft() && isWallFront() && isWallRight()){
+//     // Turn around and drive back
+//     turn180DegreesLeft(0.3);
 // }

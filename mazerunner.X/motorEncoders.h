@@ -10,6 +10,7 @@
 
 
 #include<xc.h>
+#include <stdbool.h> // for bool type
 
 void initQEI1( unsigned int  startPos);
 void initQEI2( unsigned int  startPos);
@@ -19,6 +20,12 @@ long getPositionInCounts_1();
 int getVelocityInCountsPerSample_1();
 long getPositionInCounts_2();
 int getVelocityInCountsPerSample_2();
+
+// Define a struct to hold the Motor Velocities
+struct Velocities {
+    float vel_right;
+    float vel_left;
+};
 
 float getPositionInCounts_Right();
 float getPositionInCounts_Left();
@@ -31,18 +38,19 @@ float getVelocityInRoundsPerSecond_Right();
 
 float getVelocityInRoundsPerMinute_Left();
 float getVelocityInRoundsPerMinute_Right();
+struct Velocities getVelocitiesInRoundsPerSecond();
 
 float getFlanksPerSecond_Right();
 
 float convertCountsToDistanceInMeters(float counts);
 
-float getTotalDrivenDistanceInMeters();
+float getTotalDrivenDistanceInMeters(bool reset_static_variables);
 float getDrivenDistanceInMeters();
 float getDrivenDistanceInMeters2();
-float getDistanceToGoalInMeters(float initial_distance_to_goal);
+float getDistanceToGoalInMeters(float initial_distance_to_goal, bool init_starting_position);
 
-float getAngleToGoalInDegrees(float initial_angle_to_goal);
-float getTotalDrivenAngleInDegrees();
+float getAngleToGoalInDegrees(float initial_angle_to_goal, bool init_starting_position);
+float getTotalDrivenAngleInDegrees(bool reset_static_variables);
 
 float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length_in_meters, float turn_radius_in_meters);
 
@@ -62,8 +70,6 @@ extern float timer_time;
 #define DELTATICKS_90_DEGREES  (0.25* WHEEL_ROTATIONS_PERROBOT_ROTATION*TICKS_PER_WHEELROTATION) 
 #define DELTATICKS_180_DEGREES (0.5 * WHEEL_ROTATIONS_PERROBOT_ROTATION*TICKS_PER_WHEELROTATION)
 #define DELTATICKS_CELL_GAP (11.5*TICKS_PER_CENTIMETER)
-
-
 
 
 #endif	/* SENSOR_H */

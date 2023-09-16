@@ -3,11 +3,13 @@
 #include "myPWM.h"
 #include <stdbool.h> // for bool type
 #include <math.h> // for fabs() function
+#include "dma.h" // for SENSOR_LEFT, SENSOR_FRONT, SENSOR_RIGHT
 
 //#include math.h
 
 /***
  * A simple PI-Controller to drive the motor at a targetVelocity via PWM
+ * It sets the duty cycle for the PWM signal to the motor. The return value is just for debugging purposes.
 ***/
 float pi_vel_controller_left(float targetVelocity, float currentVelocity)
 {
@@ -77,10 +79,101 @@ float pi_vel_controller_left(float targetVelocity, float currentVelocity)
 }
 
 
+// /***
+//  * A simple PI-Controller to drive the motor at a targetVelocity via PWM
+// ***/
+// float pi_vel_controller_right(float targetVelocity, float currentVelocity, bool shouldTurn)
+// {
+//     float targetVelocityAbs = fabs(targetVelocity);
+//     float currentVelocityAbs = fabs(currentVelocity);
+
+//     //float currentVelocity = getVelocityInCountsPerSample_1(); // The control loop does not work if the function is called within the function
+//     float error = targetVelocityAbs - currentVelocityAbs; // -20
+//     float dc = 0;
+//     float kp = 0.5;
+//     float ki = 0.1;
+//     static float integral = 0;
+//     // float dt = 0.01;
+//     float maxDC = 0.5;
+//     float minDC = 0.0;
+//     // float minDC = -100; // Should reverse motor direction for active breaking ?
+//     float maxIntegral = 4;
+//     float minIntegral = -4;
+    
+//     // integral += error * dt;
+//     integral += error;
+    
+//     if (integral > maxIntegral)
+//     {
+//         integral = maxIntegral;
+//     }
+//     else if (integral < minIntegral)
+//     {
+//         integral = minIntegral;
+//     }
+    
+//     dc = kp * error + ki * integral; // -200
+    
+//     if (dc > maxDC)
+//     {
+//         dc = maxDC;
+//     }
+//     else if (dc < minDC)
+//     {
+//         dc = minDC;
+//     }
+    
+//     // Handle wheel turning direction:
+
+//     // if (forward)
+//     // {
+//     //     set_DC_and_motor_state_right(dc, "forward_slow_decay");
+//     // }
+//     // else
+//     // {
+//     //     set_DC_and_motor_state_right(dc, "reverse_slow_decay");
+//     // }
+
+
+//     // TODO: Change the driveMode var to an enum
+//     // TODO: Think if the shouldTurn var for the right motor should be replaced by a similar system as used whith the left wheel. 
+//     //      We would have to calculcate the vel_turn_base for the right wheel seperatly from the left wheel (currently everything is based on the left wheel, therfore also the signs) than the signs of the targetVelocity should be "correct"
+//     //      Nicer:::: Remove the shouldTurn varibale and just add a negative sign to the targetVelocity for the right wheel if the robot should turn (is in turning mode)
+
+//     if (!shouldTurn) {
+//         // Driving Straight (Forward/Reverse)
+//         if (targetVelocity >= 0)
+//         {
+//             set_DC_and_motor_state_right(dc, "forward_slow_decay");
+//         }
+//         else if (targetVelocity < 0)
+//         {
+//             set_DC_and_motor_state_right(dc, "reverse_slow_decay");
+//         }
+//     }
+//     else if (shouldTurn){
+//         // Turning
+//         if (targetVelocity >= 0)
+//         {
+//             set_DC_and_motor_state_right(dc, "reverse_slow_decay");
+//         }
+//         else if (targetVelocity < 0)
+//         {
+//             set_DC_and_motor_state_right(dc, "forward_slow_decay");
+//         }
+//     }
+    
+
+//     // set_DC_and_motor_state_right(dc, "forward_slow_decay");
+//     return dc;
+// }
+
+
 /***
  * A simple PI-Controller to drive the motor at a targetVelocity via PWM
+ * It sets the duty cycle for the PWM signal to the motor. The return value is just for debugging purposes.
 ***/
-float pi_vel_controller_right(float targetVelocity, float currentVelocity, bool shouldTurn)
+float pi_vel_controller_right(float targetVelocity, float currentVelocity)
 {
     float targetVelocityAbs = fabs(targetVelocity);
     float currentVelocityAbs = fabs(currentVelocity);
@@ -123,49 +216,18 @@ float pi_vel_controller_right(float targetVelocity, float currentVelocity, bool 
     
     // Handle wheel turning direction:
 
-    // if (forward)
-    // {
-    //     set_DC_and_motor_state_right(dc, "forward_slow_decay");
-    // }
-    // else
-    // {
-    //     set_DC_and_motor_state_right(dc, "reverse_slow_decay");
-    // }
-
-
-    // TODO: Change the driveMode var to an enum
-    // TODO: Think if the shouldTurn var for the right motor should be replaced by a similar system as used whith the left wheel. 
-    //          We would have to calculcate the vel_turn_base for the right wheel seperatly from the left wheel (currently everything is based on the left wheel, therfore also the signs) than the signs of the targetVelocity should be "correct"
-
-    if (!shouldTurn) {
-        // Driving Straight (Forward/Reverse)
-        if (targetVelocity >= 0)
-        {
-            set_DC_and_motor_state_right(dc, "forward_slow_decay");
-        }
-        else if (targetVelocity < 0)
-        {
-            set_DC_and_motor_state_right(dc, "reverse_slow_decay");
-        }
+    if (targetVelocity >= 0)
+    {
+        set_DC_and_motor_state_right(dc, "forward_slow_decay");
     }
-    else if (shouldTurn){
-        // Turning
-        if (targetVelocity >= 0)
-        {
-            set_DC_and_motor_state_right(dc, "reverse_slow_decay");
-        }
-        else if (targetVelocity < 0)
-        {
-            set_DC_and_motor_state_right(dc, "forward_slow_decay");
-        }
+    else if (targetVelocity < 0)
+    {
+        set_DC_and_motor_state_right(dc, "reverse_slow_decay");
     }
-    
 
     // set_DC_and_motor_state_right(dc, "forward_slow_decay");
     return dc;
 }
-
-
 
 
 /* P-Wall-Centering Controller */
@@ -270,4 +332,46 @@ float p_goal_angle_controller(float angle_to_goal, float vel_turn_cruise)
     }
 
     return vel_turn_base;
+}
+
+
+/* P-Single-Wall-Following Right Controller */
+// Adds additional velocity to the left or right wheel to center the robot between two walls
+
+struct Velocities p_one_wall_following_right(float distance_right, float vel_base)
+{
+    struct Velocities result;
+    float distanceSensorRightWallThreshold = 25.0;
+
+    // When the robot is closer to the right wall the voltage output by the right sensor increases as the reflected light intensity increases
+    // --> distance_right increases --> right wheel should turn faster
+    float error = distance_right - distanceSensorRightWallThreshold;
+    float kp = 0.05;
+    
+    result.vel_left = vel_base - kp * error;
+    result.vel_right = vel_base + kp * error;
+    
+    // return both velocities
+    return result;
+}
+
+
+/* P-Single-Wall-Following Left Controller */
+// Adds additional velocity to the left or right wheel to center the robot between two walls
+
+struct Velocities p_one_wall_following_left(float distance_left, float vel_base)
+{
+    struct Velocities result;
+    float distanceSensorLeftWallThreshold = 27.0;
+
+    // When the robot is closer to the left wall the voltage output by the left sensor increases as the reflected light intensity increases
+    // --> distance_left increases --> left wheel should turn faster
+    float error = distance_left - distanceSensorLeftWallThreshold;
+    float kp = 0.05;
+    
+    result.vel_left = vel_base + kp * error;
+    result.vel_right = vel_base - kp * error;
+    
+    // return both velocities
+    return result;
 }
