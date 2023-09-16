@@ -14,6 +14,7 @@
 
 #define MAZE_CELL_LENGTH 0.18 // in meters
 #define GOAL_REACHED_THRESHOLD_DISTANCE 0.01 // in meters
+// #define GOAL_REACHED_THRESHOLD_DISTANCE 0.02 // in meters
 #define GOAL_REACHED_THRESHOLD_ANGLE 1.0 // in degrees
 
 // This is a guard condition so that contents of this file are not included
