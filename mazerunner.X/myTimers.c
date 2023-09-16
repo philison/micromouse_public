@@ -1553,6 +1553,105 @@ void startTimer1(void)
 * Test Drive: moving straight - turning - and moving straight
 * without state machine and improvised goal reached cascade
 */
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+
+//     static bool done = false;
+
+//     if (mazi_running == 1 && !done){
+
+//         static int waitBeforeDriveCounter=0;
+//         // Improvised local state to keep track of which driving instruction to execute
+//         static int driving_instruction_step = 0;
+
+//         if (waitBeforeDriveCounter >= 1000){
+//             LED1 = ~LED1;
+
+//             // UART Buffer
+//             char buffer[5];
+//             sprintf(buffer, "%i\n\r", driving_instruction_step);
+//             myCount++;
+
+//             // if (myCount >= 100){
+//             //     putsUART1(buffer);
+//             //     myCount=0;
+//             // }
+
+//             switch (driving_instruction_step)
+//             {
+//             case 0: {
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = 1;
+//                 driveStraightForNCells(cells_to_drive, vel_cruise);
+//                 if (isDistanceGoalReached(getTotalDrivenDistanceInMeters(false), cells_to_drive * MAZE_CELL_LENGTH)) {
+//                     driving_instruction_step++;
+//                     bool reset_static_variables = true;
+//                     getTotalDrivenDistanceInMeters(reset_static_variables);
+//                     getDistanceToGoalInMeters(0.0, reset_static_variables);
+//                 }
+//                 // sprintf(buffer, "%i %0.2f\n\r", driving_instruction_step, getTotalDrivenDistanceInMeters(false));
+//                 putsUART1(buffer);
+//                 break;
+//             }
+//             case 1: {
+//                 float vel_turn_cruise = 0.3;
+//                 float degrees_to_turn = 90;
+//                 turn90DegreesRight(vel_turn_cruise);
+//                 if (isAngleGoalReached(getTotalDrivenAngleInDegrees(false), degrees_to_turn)) {
+//                     driving_instruction_step++;
+//                     bool reset_static_variables = true;
+//                     getTotalDrivenAngleInDegrees(reset_static_variables);
+//                     getAngleToGoalInDegrees(0.0, reset_static_variables);
+//                 }
+//                 putsUART1(buffer);
+//                 break;
+//             }
+//             case 2: {
+//                 float vel_cruise = 0.3;
+//                 int cells_to_drive = 1;
+//                 driveStraightForNCells(cells_to_drive, vel_cruise);
+//                 if (isDistanceGoalReached(getTotalDrivenDistanceInMeters(false), cells_to_drive * MAZE_CELL_LENGTH)) {
+//                     driving_instruction_step++;
+//                     bool reset_static_variables = true;
+//                     getTotalDrivenDistanceInMeters(reset_static_variables);
+//                     getDistanceToGoalInMeters(0.0, reset_static_variables);
+//                 }
+//                 putsUART1(buffer);
+//                 break;
+//             }
+//             case 3:
+//                 // All instructions executed
+//                 waitBeforeDriveCounter = 0;
+//                 LED4 = LEDON;
+//                 putsUART1(buffer);
+//                 done = true;
+//                 break;
+            
+//             default:
+//                 break;
+//             }
+//         }
+
+//     waitBeforeDriveCounter++;
+
+//     } else {
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+// }
+
+
+/**
+* Test if the tuning and driving straight functions do all work as intended (here without using the reset functionality)
+* Test scenarios:
+*   - drive straight for 1 cell [DONE]
+*   - turn 90 degrees right [DONE]
+*   - turn 90 degrees left [DONE]
+*   - turn 180 degrees right [DONE]
+*   - turn 180 degrees left [DONE]
+*/
 void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 {
     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
@@ -1564,14 +1663,14 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 
         static int waitBeforeDriveCounter=0;
         // Improvised local state to keep track of which driving instruction to execute
-        static int driving_instruction_step = 0;
 
         if (waitBeforeDriveCounter >= 1000){
             LED1 = ~LED1;
 
             // UART Buffer
-            char buffer[5];
-            sprintf(buffer, "%i\n\r", driving_instruction_step);
+            // char buffer[5];
+            // sprintf(buffer, "%i\n\r", driving_instruction_step);
+            // putsUART1(buffer);
             myCount++;
 
             // if (myCount >= 100){
@@ -1579,59 +1678,30 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
             //     myCount=0;
             // }
 
-            switch (driving_instruction_step)
-            {
-            case 0: {
-                float vel_cruise = 0.3;
-                int cells_to_drive = 1;
-                driveStraightForNCells(cells_to_drive, vel_cruise);
-                if (isDistanceGoalReached(getTotalDrivenDistanceInMeters(false), cells_to_drive * MAZE_CELL_LENGTH)) {
-                    driving_instruction_step++;
-                    bool reset_static_variables = true;
-                    getTotalDrivenDistanceInMeters(reset_static_variables);
-                    getDistanceToGoalInMeters(0.0, reset_static_variables);
-                }
-                // sprintf(buffer, "%i %0.2f\n\r", driving_instruction_step, getTotalDrivenDistanceInMeters(false));
-                putsUART1(buffer);
-                break;
-            }
-            case 1: {
-                float vel_turn_cruise = 0.3;
-                float degrees_to_turn = 90;
-                turn90DegreesRight(vel_turn_cruise);
-                if (isAngleGoalReached(getTotalDrivenAngleInDegrees(false), degrees_to_turn)) {
-                    driving_instruction_step++;
-                    bool reset_static_variables = true;
-                    getTotalDrivenAngleInDegrees(reset_static_variables);
-                    getAngleToGoalInDegrees(0.0, reset_static_variables);
-                }
-                putsUART1(buffer);
-                break;
-            }
-            case 2: {
-                float vel_cruise = 0.3;
-                int cells_to_drive = 1;
-                driveStraightForNCells(cells_to_drive, vel_cruise);
-                if (isDistanceGoalReached(getTotalDrivenDistanceInMeters(false), cells_to_drive * MAZE_CELL_LENGTH)) {
-                    driving_instruction_step++;
-                    bool reset_static_variables = true;
-                    getTotalDrivenDistanceInMeters(reset_static_variables);
-                    getDistanceToGoalInMeters(0.0, reset_static_variables);
-                }
-                putsUART1(buffer);
-                break;
-            }
-            case 3:
-                // All instructions executed
-                waitBeforeDriveCounter = 0;
-                LED4 = LEDON;
-                putsUART1(buffer);
-                done = true;
-                break;
+            // Drive straight for 1 cell [DONE]
+            // float vel_cruise = 0.3;
+            // int cells_to_drive = 1;
+            // driveStraightForNCells(cells_to_drive, vel_cruise);
             
-            default:
-                break;
-            }
+            // Turn 90 degrees right [DONE]
+            // float vel_turn_cruise = 0.3;
+            // float degrees_to_turn = 90;
+            // turn90DegreesRight(vel_turn_cruise);
+
+            // Turn 90 degrees left [DONE]
+            // float vel_turn_cruise = 0.3;
+            // float degrees_to_turn = 90;
+            // turn90DegreesLeft(vel_turn_cruise);
+
+            // Turn 180 degrees right [DONE]
+            // float vel_turn_cruise = 0.3;
+            // float degrees_to_turn = 180;
+            // turn180DegreesRight(vel_turn_cruise);
+
+            // Turn 180 degrees left
+            float vel_turn_cruise = 0.3;
+            float degrees_to_turn = 180;
+            turn180DegreesLeft(vel_turn_cruise);
         }
 
     waitBeforeDriveCounter++;
