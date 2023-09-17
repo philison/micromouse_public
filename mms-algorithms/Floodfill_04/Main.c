@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include "API.h"
 
+#define MAZE_SIZE 16
+
 // log functions for simulator
 
 void printtoconsole(char *text)
@@ -11,20 +13,9 @@ void printtoconsole(char *text)
     fflush(stderr);
 }
 
-void printtoconsoleEnter(char *text)
-{
-    fprintf(stderr, "%s\n", text);
-    fflush(stderr);
-}
-
 void printIntToConsole(int number)
 {
     fprintf(stderr, "%d", number);
-    fflush(stderr);
-}
-void printIntToConsolewithSpace(int number)
-{
-    fprintf(stderr, "%2d   ", number);
     fflush(stderr);
 }
 
@@ -104,7 +95,7 @@ struct CellData
     enum CellValue center;
 };
 // Function that sets walls for the x / y position and the connecting walls for the neighbouring cells
-void updateWalls(int x, int y, int orientation, struct CellData walls[16][16])
+void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE][MAZE_SIZE])
 {
     walls[x][y].center = EXPLORED;
 
@@ -342,193 +333,191 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[16][16])
     return;
 }
 
-int MAZE_SIZE = 16;
+// // prints the maze with each cell.
+// // | or - represents a wall
+// // x is set for an unknown wall
+// // * is set for a way
+// // Center is represented by Unexplored / Explored
+// void printMaze(struct CellData maze[MAZE_SIZE][MAZE_SIZE])
+// {
+//     //     printtoconsoleEnter("______________________________________");
+//     //     printtoconsoleEnter("______________ NEW MAZE ______________");
+//     //     printtoconsoleEnter("______________________________________");
 
-// prints the maze with each cell.
-// | or - represents a wall
-// x is set for an unknown wall
-// * is set for a way
-// Center is represented by Unexplored / Explored
-void printMaze(struct CellData maze[MAZE_SIZE][MAZE_SIZE])
-{
-    //     printtoconsoleEnter("______________________________________");
-    //     printtoconsoleEnter("______________ NEW MAZE ______________");
-    //     printtoconsoleEnter("______________________________________");
+//     // Print the top border
+//     printtoconsole(" ");
+//     printtoconsole("+");
+//     for (int col = 0; col < MAZE_SIZE; col++)
+//     {
+//         printtoconsole("-");
+//         printIntToConsole(col);
+//         printtoconsole("-+");
+//     }
+//     printtoconsole("\n");
+//     // printtoconsole("+" );
+//     // for (int col = 0; col < MAZE_SIZE; col++) {
+//     //     printtoconsole("---+");
+//     // }
 
-    // Print the top border
-    printtoconsole(" ");
-    printtoconsole("+");
-    for (int col = 0; col < MAZE_SIZE; col++)
-    {
-        printtoconsole("-");
-        printIntToConsole(col);
-        printtoconsole("-+");
-    }
-    printtoconsole("\n");
-    // printtoconsole("+" );
-    // for (int col = 0; col < MAZE_SIZE; col++) {
-    //     printtoconsole("---+");
-    // }
+//     for (int row = MAZE_SIZE - 1; row >= 0; row--)
+//     {
+//         // Print the contents of the current row
+//         // print separation row
+//         printtoconsole(" ");
+//         printtoconsole("+");
+//         for (int col = 0; col < MAZE_SIZE; col++)
+//         {
+//             printtoconsole("---+");
+//         }
+//         printtoconsole("\n");
 
-    for (int row = MAZE_SIZE - 1; row >= 0; row--)
-    {
-        // Print the contents of the current row
-        // print separation row
-        printtoconsole(" ");
-        printtoconsole("+");
-        for (int col = 0; col < MAZE_SIZE; col++)
-        {
-            printtoconsole("---+");
-        }
-        printtoconsole("\n");
+//         // print north wall
+//         printtoconsole(" ");
+//         printtoconsole(" ");
+//         for (int col = 0; col < MAZE_SIZE; col++)
+//         {
+//             printtoconsole("o");
+//             switch (maze[col][row].north)
+//             {
+//             case UNKNOWN:
+//                 printtoconsole("x");
+//                 break;
+//             case WALL:
+//                 printtoconsole("–");
+//                 break;
+//             case WAY:
+//                 printtoconsole("*");
+//                 break;
+//             case EXPLORED:
+//                 printtoconsole("#");
+//                 break;
+//             }
+//             printtoconsole("o ");
+//         }
+//         printtoconsole("\n");
 
-        // print north wall
-        printtoconsole(" ");
-        printtoconsole(" ");
-        for (int col = 0; col < MAZE_SIZE; col++)
-        {
-            printtoconsole("o");
-            switch (maze[col][row].north)
-            {
-            case UNKNOWN:
-                printtoconsole("x");
-                break;
-            case WALL:
-                printtoconsole("–");
-                break;
-            case WAY:
-                printtoconsole("*");
-                break;
-            case EXPLORED:
-                printtoconsole("#");
-                break;
-            }
-            printtoconsole("o ");
-        }
-        printtoconsole("\n");
+//         // add the row number in the beginning; two digits number move the cells
+//         printIntToConsole(1);
+//         // printtoconsole("|");
+//         for (int col = 0; col < MAZE_SIZE; col++)
+//         {
+//             printtoconsole(" ");
 
-        // add the row number in the beginning; two digits number move the cells
-        printIntToConsole(1);
-        // printtoconsole("|");
-        for (int col = 0; col < MAZE_SIZE; col++)
-        {
-            printtoconsole(" ");
+//             // print the west wall of the current cell
+//             switch (maze[col][row].west)
+//             {
+//             case UNKNOWN:
+//                 printtoconsole("x");
+//                 break;
+//             case WALL:
+//                 printtoconsole("|");
+//                 break;
+//             case WAY:
+//                 printtoconsole("*");
+//                 break;
+//             case EXPLORED:
+//                 printtoconsole("#");
+//                 break;
+//             }
+//             // Print the center cell value
+//             switch (maze[col][row].center)
+//             {
+//             case UNKNOWN:
+//                 printtoconsole("U");
+//                 break;
+//             case WALL:
+//                 printtoconsole("F");
+//                 break;
+//             case WAY:
+//                 printtoconsole("F");
+//                 break;
+//             case EXPLORED:
+//                 printtoconsole("E");
+//                 break;
+//             }
 
-            // print the west wall of the current cell
-            switch (maze[col][row].west)
-            {
-            case UNKNOWN:
-                printtoconsole("x");
-                break;
-            case WALL:
-                printtoconsole("|");
-                break;
-            case WAY:
-                printtoconsole("*");
-                break;
-            case EXPLORED:
-                printtoconsole("#");
-                break;
-            }
-            // Print the center cell value
-            switch (maze[col][row].center)
-            {
-            case UNKNOWN:
-                printtoconsole("U");
-                break;
-            case WALL:
-                printtoconsole("F");
-                break;
-            case WAY:
-                printtoconsole("F");
-                break;
-            case EXPLORED:
-                printtoconsole("E");
-                break;
-            }
+//             // Print the east wall of the current cell
+//             switch (maze[col][row].east)
+//             {
+//             case UNKNOWN:
+//                 printtoconsole("x");
+//                 break;
+//             case WALL:
+//                 printtoconsole("|");
+//                 break;
+//             case WAY:
+//                 printtoconsole("*");
+//                 break;
+//             case EXPLORED:
+//                 printtoconsole("#");
+//                 break;
+//             }
+//         }
+//         printtoconsole("\n");
 
-            // Print the east wall of the current cell
-            switch (maze[col][row].east)
-            {
-            case UNKNOWN:
-                printtoconsole("x");
-                break;
-            case WALL:
-                printtoconsole("|");
-                break;
-            case WAY:
-                printtoconsole("*");
-                break;
-            case EXPLORED:
-                printtoconsole("#");
-                break;
-            }
-        }
-        printtoconsole("\n");
+//         // print the south wall
+//         printtoconsole(" ");
+//         printtoconsole(" ");
+//         for (int col = 0; col < MAZE_SIZE; col++)
+//         {
+//             printtoconsole("o");
+//             switch (maze[col][row].south)
+//             {
+//             case UNKNOWN:
+//                 printtoconsole("x");
+//                 break;
+//             case WALL:
+//                 printtoconsole("–");
+//                 break;
+//             case WAY:
+//                 printtoconsole("*");
+//                 break;
+//             case EXPLORED:
+//                 printtoconsole("#");
+//                 break;
+//             }
+//             printtoconsole("o ");
+//         }
+//         printtoconsole("\n");
+//     }
 
-        // print the south wall
-        printtoconsole(" ");
-        printtoconsole(" ");
-        for (int col = 0; col < MAZE_SIZE; col++)
-        {
-            printtoconsole("o");
-            switch (maze[col][row].south)
-            {
-            case UNKNOWN:
-                printtoconsole("x");
-                break;
-            case WALL:
-                printtoconsole("–");
-                break;
-            case WAY:
-                printtoconsole("*");
-                break;
-            case EXPLORED:
-                printtoconsole("#");
-                break;
-            }
-            printtoconsole("o ");
-        }
-        printtoconsole("\n");
-    }
+//     // Print the row's bottom border
+//     printtoconsole("+");
+//     for (int col = 0; col < MAZE_SIZE; col++)
+//     {
+//         printtoconsole("-");
+//         printIntToConsole(col);
+//         printtoconsole("-+");
+//     }
+//     printtoconsole("\n");
+// }
 
-    // Print the row's bottom border
-    printtoconsole("+");
-    for (int col = 0; col < MAZE_SIZE; col++)
-    {
-        printtoconsole("-");
-        printIntToConsole(col);
-        printtoconsole("-+");
-    }
-    printtoconsole("\n");
-}
-
-// function that prints relevant info for the current point
-void printUpdate(int x, int y, int distance[16][16], struct CellData walls[16][16], int distanceOfNeighbouringCells[4])
-{
-    printtoconsole("/////////////////UPDATE////////////////////");
-    printtoconsole("Current Position x and y: ");
-    printIntToConsolewithSpace(x);
-    printIntToConsolewithSpace(y);
-    printtoconsole("\n");
-    printtoconsole("Distance of current position:");
-    printIntToConsolewithSpace(distance[x][y]);
-    printtoconsole("\n");
-    printtoconsole("Walls of Current Position n, e, s, w (0 = unknown, 1 = wall, 2 = way):");
-    printIntToConsolewithSpace(walls[x][y].north);
-    printIntToConsolewithSpace(walls[x][y].east);
-    printIntToConsolewithSpace(walls[x][y].south);
-    printIntToConsolewithSpace(walls[x][y].west);
-    printtoconsole("\n");
-    printtoconsole("Distance of Neighbouring cells n, e, s, w:");
-    for (int i = 0; i < 4; i++)
-    {
-        printIntToConsolewithSpace(distanceOfNeighbouringCells[i]);
-    }
-    printtoconsole("\n");
-    printtoconsole("/////////////////END////////////////////");
-    return;
-}
+// // function that prints relevant info for the current point
+// void printUpdate(int x, int y, int distance[16][16], struct CellData walls[16][16], int distanceOfNeighbouringCells[4])
+// {
+//     printtoconsole("/////////////////UPDATE////////////////////");
+//     printtoconsole("Current Position x and y: ");
+//     printIntToConsolewithSpace(x);
+//     printIntToConsolewithSpace(y);
+//     printtoconsole("\n");
+//     printtoconsole("Distance of current position:");
+//     printIntToConsolewithSpace(distance[x][y]);
+//     printtoconsole("\n");
+//     printtoconsole("Walls of Current Position n, e, s, w (0 = unknown, 1 = wall, 2 = way):");
+//     printIntToConsolewithSpace(walls[x][y].north);
+//     printIntToConsolewithSpace(walls[x][y].east);
+//     printIntToConsolewithSpace(walls[x][y].south);
+//     printIntToConsolewithSpace(walls[x][y].west);
+//     printtoconsole("\n");
+//     printtoconsole("Distance of Neighbouring cells n, e, s, w:");
+//     for (int i = 0; i < 4; i++)
+//     {
+//         printIntToConsolewithSpace(distanceOfNeighbouringCells[i]);
+//     }
+//     printtoconsole("\n");
+//     printtoconsole("/////////////////END////////////////////");
+//     return;
+// }
 
 int findlowestDistance(int arr[])
 {
@@ -596,41 +585,47 @@ void printDistance_array(int distance[MAZE_SIZE][MAZE_SIZE])
     {
         for (int j = 0; j < MAZE_SIZE; j++)
         {
-            printIntToConsolewithSpace(distance[i][j]);
+            fprintf(stderr, "%2d ", distance[i][j]);
+            fflush(stderr);
         }
         printtoconsole("\n");
     }
 }
 
-// void relative_direction_next_cell(int lowestNeighbour, int direction_mouse){
-//         int orientation = direction_mouse % 4;
+void relative_direction_next_cell(int lowestNeighbour, int direction_mouse)
+{
+    int orientation = direction_mouse % 4;
 
-//         if(lowestNeighbour == orientation){
-//             printtoconsole("mouse does not need to turn");
-//         }
-//         else if(lowestNeighbour - orientation == abs(2)){
-//             printtoconsole("Lowest neighbour behind. mouse needs to turn 180 degrees");
-//             API_turnRight();
-//             orientation = orientation + 1;
-//             API_turnRight();
-//             orientation = orientation + 1;
-//         }
-//         else if(lowestNeighbour - orientation == 1 || lowestNeighbour - orientation == -3){
-//             printtoconsole("Lowest neighbour to the right. One right turn");
-//             API_turnRight();
-//             orientation = orientation + 1;
-//         }
-
-//         else if(lowestNeighbour - orientation == -1 || lowestNeighbour - orientation == 3){
-//             printtoconsole("lowest neighbour is to the left. One left turn");
-//             API_turnLeft();
-//             orientation = orientation - 1;
-//         }
-//         else{
-//             printtoconsole("!!!!!!!!!!!!!ERROR!!!!!!!!!!!");
-//             printtoconsole("Could not turn towards neighbour with lowest distance");
-//         }
-// }
+    switch (lowestNeighbour - (orientation % 4))
+    {
+    case 0:
+        printtoconsole("mouse does not need to turn");
+        break;
+    case 2:
+    case -2:
+        printtoconsole("Lowest neighbour behind. mouse needs to turn 180 degrees");
+        // API_turnRight();
+        // orientation = orientation + 1;
+        // API_turnRight();
+        // orientation = orientation + 1;
+        break;
+    case 1:
+    case -3:
+        printtoconsole("Lowest neighbour to the right. One right turn");
+        // API_turnRight();
+        // orientation = orientation + 1;
+        break;
+    case -1:
+    case 3:
+        printtoconsole("lowest neighbour is to the left. One left turn");
+        //  API_turnLeft();
+        //  orientation = orientation - 1;
+        break;
+    default:
+        printtoconsole("!!!!!!!!!!!!!ERROR!!!!!!!!!!!");
+        printtoconsole("Could not turn towards neighbour with lowest distance");
+    }
+}
 
 /*///////////////////////
 *
@@ -640,7 +635,7 @@ void printDistance_array(int distance[MAZE_SIZE][MAZE_SIZE])
 
 int main(int argc, char *argv[])
 {
-    struct CellData walls[16][16];
+    struct CellData walls[MAZE_SIZE][MAZE_SIZE];
     int orientation = 16;
     int x = 0;
     int y = 0;
@@ -683,7 +678,7 @@ int main(int argc, char *argv[])
 
         // setWallsforMMS(x, y, orientation);
         updateWalls(x, y, orientation, walls);
-        printMaze(walls);
+        // printMaze(walls);
 
         /////////////////////////////////
         // find open neighbour with lowest distance
@@ -748,10 +743,10 @@ int main(int argc, char *argv[])
         // printtoconsole("\n");
 
         lowestNeighbour = findlowestDistance(distance_Open_Neighbours);
-        printtoconsoleEnter("lowestNeighbour is:");
+        printtoconsole("lowestNeighbour is: ");
         printIntToConsole(lowestNeighbour);
         printtoconsole("\n");
-        printtoconsoleEnter("Current Orientation is:");
+        printtoconsole("Current Orientation is: ");
         printIntToConsole(orientation % 4);
         printtoconsole("\n");
 
@@ -766,59 +761,52 @@ int main(int argc, char *argv[])
         // printIntToConsole(orientation % 4);
         // printtoconsole("\n");
 
-        if (!API_wallLeft())
+        // if (!API_wallLeft())
+        // {
+        //     API_turnLeft();
+        //     orientation--;
+        // }
+        // while (API_wallFront())
+        // {
+        //     API_turnRight();
+        //     orientation++;
+        // }
+        // API_moveForward(1);
+
+// turning the mouse to the direction of the lowest neighbour
+        switch (lowestNeighbour - (orientation % 4))
         {
-            API_turnLeft();
-            orientation--;
-        }
-        while (API_wallFront())
-        {
+        case 0:
+            printtoconsole("mouse does not need to turn\n");
+            break;
+        case 2:
+        case -2:
+            printtoconsole("Lowest neighbour behind. mouse needs to turn 180 degrees\n");
             API_turnRight();
-            orientation++;
+            orientation = orientation + 1;
+            API_turnRight();
+            orientation = orientation + 1;
+            break;
+        case 1:
+        case -3:
+            printtoconsole("Lowest neighbour to the right. One right turn\n");
+            API_turnRight();
+            orientation = orientation + 1;
+            break;
+        case -1:
+        case 3:
+            printtoconsole("lowest neighbour is to the left. One left turn\n");
+             API_turnLeft();
+             orientation = orientation - 1;
+            break;
+        default:
+            printtoconsole("!!!!!!!!!!!!!ERROR!!!!!!!!!!!\n");
+            printtoconsole("Could not turn towards neighbour with lowest distance\n");
         }
+        // move forward to the next cell with the lowest distance
         API_moveForward(1);
 
-        // orientation = temp_orientation;
-
-        // switch (orientation % 4)
-        // {
-        // case 0:
-        //     printtoconsoleEnter("Orientation is north");
-        //     break;
-        // case 1:
-        //     printtoconsoleEnter("Orientation is east");
-        //     break;
-        // case 2:
-        //     printtoconsoleEnter("Orientation is south");
-        //     break;
-        // case 3:
-        //     printtoconsoleEnter("Orientation is west");
-        //     break;
-        // default:
-        //     printtoconsoleEnter("orientation is invalid");
-        // }
-
-        // switch (lowestNeighbour - (orientation % 4))
-        // {
-        // case 0:
-        //     printf("mouse does not need to turn");
-        //     break;
-        // case 2:
-        // case -2:
-        //     printf("Lowest neighbour behind. mouse needs to turn 180 degrees");
-        //     break;
-        // case 1:
-        // case -3:
-        //     printf("Lowest neighbour to the right. One right turn");
-        //     break;
-        // case -1:
-        // case 3:
-        //     printf("lowest neighbour is to the left. One left turn");
-        //     break;
-        // default:
-        //     printf("!!!!!!!!!!!!!ERROR!!!!!!!!!!!");
-        //     printf("Could not turn towards neighbour with lowest distance");
-        // }
+    
 
         switch (orientation % 4)
         {
@@ -839,7 +827,7 @@ int main(int argc, char *argv[])
             // printtoconsoleEnter("Orientation is west");
             break;
         default:
-            printtoconsoleEnter("orientation is invalid");
+            printtoconsole("orientation is invalid\n");
         }
     }
 }
