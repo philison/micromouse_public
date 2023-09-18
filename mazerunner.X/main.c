@@ -251,13 +251,23 @@ int main()
             // In the future the currMovementControlParameters values will be set in the state machine or by the explore alg
 
             if (only_once_flag) {
-                // struct MovementControlParameters currMovementControlParameters = {PARKING, 0.0, 0.0, {0.0, 0.0}, false};
-                currMovementControlParameters.movementPrimitive = DRIVING_STRAIGHT;
+                /* STRAIGHT */
+                // // currMovementControlParameters = {PARKING, 0.0, 0.0, {0.0, 0.0}, false};
+                // currMovementControlParameters.movementPrimitive = DRIVING_STRAIGHT;
+                // currMovementControlParameters.vel_cruise = 0.3;
+                // currMovementControlParameters.vel_turn_cruise = 0.3;
+
+                // float distance_to_goal_in_meters = 5*MAZE_CELL_LENGTH;
+                // initDrivingStraightForNMeters(distance_to_goal_in_meters); // Sets the goal encoder value in the currMovementControlParameters struct
+
+                /* TURNING */
+                currMovementControlParameters.movementPrimitive = TURNING;
                 currMovementControlParameters.vel_cruise = 0.3;
                 currMovementControlParameters.vel_turn_cruise = 0.3;
 
-                float distance_to_goal_in_meters = 5*MAZE_CELL_LENGTH;
-                initDrivingStraightForNMeters(distance_to_goal_in_meters); // Sets the goal encoder value in the currMovementControlParameters struct
+                float angle_to_goal_in_degrees = -90.0;
+                initTurningForNDegrees(angle_to_goal_in_degrees); // Sets the goal encoder value in the currMovementControlParameters struct
+
                 only_once_flag = false;
             }
             // ## End of temporary code section

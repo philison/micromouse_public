@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "motorencoders.h": "c",
+        "controllers.h": "c"
+    }
+}

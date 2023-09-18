@@ -58,6 +58,8 @@ float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length
 
 //new
 #define ENCODER_COUNTS_PER_REVOLUTION (33.0 * 4.0 * 16.0)
+#define WHEEL_CIRCUMFERENCE (0.06 * 3.141592) // in meters, wheel diameter is 6 cm
+#define TURN_RADIUS 0.06 // in meters, is the distance between the wheels divided by 2
 
 #define GOAL_REACHED_THRESHOLD_DISTANCE 0.01 // in meters
 #define GOAL_REACHED_THRESHOLD_ANGLE 1.0 // in degrees
@@ -76,6 +78,8 @@ bool isAngleGoalReached(float distance_to_goal);
 float getDistanceToGoalInMeters();
 
 bool isMovementGoalReached();
+
+float calculateArcLengthInMeters(float angle_to_turn_in_degrees);
 //newend
 
 

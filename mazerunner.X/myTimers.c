@@ -2632,6 +2632,14 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     
     case TURNING:
         /* code */
+        turningForNDegrees();
+        // Write to Uart that the state was reached
+        // if (myCount >= 100){
+        //     char buffer[3];
+        //     sprintf(buffer, "T\n\r");
+        //     putsUART1(buffer);
+        //     myCount=0;
+        // }
         break;
 
     case PARKING:

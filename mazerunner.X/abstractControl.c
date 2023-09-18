@@ -187,6 +187,48 @@ float turnForNDegrees(float nDegrees, float vel_turn_cruise, bool start_new_moti
     return angle_to_goal;
 }
 
+void initTurningForNDegrees(float nDegrees) {
+    // Set the movement primitive to TURNING
+    currMovementControlParameters.movementPrimitive = TURNING;
+
+    // Calculate the goal encoder counts based on the number of degrees to turn
+    // Set the calculated goal encoder counts in the global variable
+    // initial_distance_to_goal_in_meters = calculateArcLengthInMetersFromAngleInDegreesAndTurnRadius();
+    float initial_distance_to_goal_in_meters = calculateArcLengthInMeters(nDegrees);
+    currMovementControlParameters.goalPositionInEncoderCounts = getGoalPositionInEncoderCounts(initial_distance_to_goal_in_meters);
+
+    // Reset the is_movement_goal_reached flag
+    currMovementControlParameters.is_movement_goal_reached = false;
+};
+
+void turningForNDegrees() {
+    // Check if the goal is reached
+    if (isMovementGoalReached()) {
+        // Set the is_movement_goal_reached flag
+        currMovementControlParameters.is_movement_goal_reached = true;
+        // Set the movement primitive to PARKING
+        currMovementControlParameters.movementPrimitive = PARKING;
+        return;
+    }
+
+    // The base velocity (vel_base) becomes zero when the goal is reached
+    // TODO: Replace by new getAngleToGoalInDegrees function
+    float angle_to_goal = calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(getDistanceToGoalInMeters(), TURN_RADIUS);
+    float vel_turn_base = p_goal_angle_controller(angle_to_goal, currMovementControlParameters.vel_turn_cruise);
+
+    // No wall centering or following is needed during turning, some corection mechanism might be added later if necessary
+
+    // Current Motor Velocities from Encoders
+    struct Velocities currentMotorVelocities = getVelocitiesInRoundsPerSecond();
+
+    // Hand the desired and current velocities to the PI velocity controller
+    // CAUTION: In case of turning: The vel_desired.vel_right for the right Motor has to be negated when the robot should turn, since the vel sign is derived from the left wheel "coordinates"
+    // It sets the duty cycle for the PWM signal to the motors
+    // The return value is just for debugging purposes
+    float dc_left = pi_vel_controller_left(vel_turn_base , currentMotorVelocities.vel_left);
+    float dc_right = pi_vel_controller_right(-vel_turn_base, currentMotorVelocities.vel_right);
+};
+
 float turn90DegreesRight(float vel_turn_cruise, bool start_new_motion_primitive) {
     return turnForNDegrees(90.0, vel_turn_cruise, start_new_motion_primitive);
 }

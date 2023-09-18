@@ -14,6 +14,7 @@
 #include "newTypes.h"
 
 #define MAZE_CELL_LENGTH 0.18 // in meters
+
 // #define GOAL_REACHED_THRESHOLD_DISTANCE 0.01 // in meters
 // // #define GOAL_REACHED_THRESHOLD_DISTANCE 0.02 // in meters
 // #define GOAL_REACHED_THRESHOLD_ANGLE 1.0 // in degrees
@@ -42,6 +43,9 @@ void driveStraightForever(float vel_cruise);
 // NEW
 void initDrivingStraightForNMeters(float nMeters);
 void drivingStraightForNMeters();
+
+void initTurningForNDegrees(float nDegrees);
+void turningForNDegrees();
 // NEWEND
 
 // Turning
