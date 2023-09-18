@@ -78,6 +78,15 @@ int checkGoal(int x, int y)
     return 1;
 }
 
+int checkStart(int x, int y)
+{
+    if (x == 0 && y == 0)
+    {
+        return 0;
+    }
+    return 1;
+}
+
 enum CellValue
 {
     UNKNOWN,
@@ -493,12 +502,11 @@ void printMaze(struct CellData maze[MAZE_SIZE][MAZE_SIZE])
     printtoconsole("\n");
 }
 
-
 /************************************
  *
  *   Non_recursive Implementation
  *      Floodfill distance update
- * 
+ *
  *************************************/
 typedef struct
 {
@@ -555,7 +563,7 @@ void swapStacks(Stack **stack1, Stack **stack2)
 }
 
 // Function to perform flood-fill without recursion
-void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MAZE_SIZE], struct CellData walls[MAZE_SIZE][MAZE_SIZE])
+void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MAZE_SIZE], struct CellData walls[MAZE_SIZE][MAZE_SIZE], int goal)
 {
     int visited[MAZE_SIZE][MAZE_SIZE];
     for (int row = 0; row < MAZE_SIZE; row++)
@@ -566,11 +574,21 @@ void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MA
             visited[row][col] = 0;
         }
     }
-    // set the center cells always in first
-    push(currentLevel, (Point){7, 7});
-    push(currentLevel, (Point){7, 8});
-    push(currentLevel, (Point){8, 8});
-    push(currentLevel, (Point){8, 7});
+
+    // set the center cells as goal for walking towards the center
+    if (goal == 0 || goal == 2)
+    {
+        push(currentLevel, (Point){7, 7});
+        push(currentLevel, (Point){7, 8});
+        push(currentLevel, (Point){8, 8});
+        push(currentLevel, (Point){8, 7});
+    }
+
+    // set the start cell as goal to walk back out again
+    if (goal == 1)
+    {
+        push(currentLevel, (Point){0, 0});
+    }
 
     int newValue = 0;
 
@@ -618,6 +636,21 @@ void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MA
         }
         swapStacks(&nextLevel, &currentLevel);
         newValue++;
+
+        // initialize all unknown cells to maximum distance, so the mouse does not run there during final run.
+        if (goal == 2)
+        {
+            for (int row = 0; row < MAZE_SIZE; row++)
+            {
+                for (int col = 0; col < MAZE_SIZE; col++)
+                {
+                    if (walls[row][col].center == UNKNOWN)
+                    {
+                        distance[row][col] = 255;
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -688,7 +721,7 @@ void printDistance_array(int distance[MAZE_SIZE][MAZE_SIZE])
     {
         for (int col = 0; col < MAZE_SIZE; col++)
         {
-            fprintf(stderr, "%2d ", distance[col][row]);
+            fprintf(stderr, "%3d ", distance[col][row]);
             fflush(stderr);
         }
         printtoconsole("\n");
@@ -715,13 +748,13 @@ void relative_direction_next_cell(int lowestNeighbour, int direction_mouse)
         break;
     case 1:
     case -3:
-        printtoconsole("Lowest neighbour to the right. One right turn");
+        // printtoconsole("Lowest neighbour to the right. One right turn");
         // API_turnRight();
         // orientation = orientation + 1;
         break;
     case -1:
     case 3:
-        printtoconsole("lowest neighbour is to the left. One left turn");
+        // printtoconsole("lowest neighbour is to the left. One left turn");
         //  API_turnLeft();
         //  orientation = orientation - 1;
         break;
@@ -773,7 +806,7 @@ int main(int argc, char *argv[])
     }
 
     // initDistance(distance);
-    floodFill(currentLevel, nextLevel, distance, walls);
+    floodFill(currentLevel, nextLevel, distance, walls, 0);
     printDistance_array(distance);
 
     /////////////////////////////////
@@ -785,8 +818,9 @@ int main(int argc, char *argv[])
 
         setWallsforMMS(x, y, orientation);
         updateWalls(x, y, orientation, walls);
+        floodFill(currentLevel, nextLevel, distance, walls, 0);
         printDistance_array(distance);
-        printMaze(walls);
+        // printMaze(walls);
 
         /////////////////////////////////
         // find open neighbour with lowest distance
@@ -881,7 +915,117 @@ int main(int argc, char *argv[])
         // }
         // API_moveForward(1);
 
-// turning the mouse to the direction of the lowest neighbour
+        // turning the mouse to the direction of the lowest neighbour
+        switch (lowestNeighbour - (orientation % 4))
+        {
+        case 0:
+            // printtoconsole("mouse does not need to turn\n");
+            break;
+        case 2:
+        case -2:
+            // printtoconsole("Lowest neighbour behind. mouse needs to turn 180 degrees\n");
+            API_turnRight();
+            orientation = orientation + 1;
+            API_turnRight();
+            orientation = orientation + 1;
+            break;
+        case 1:
+        case -3:
+            // printtoconsole("Lowest neighbour to the right. One right turn\n");
+            API_turnRight();
+            orientation = orientation + 1;
+            break;
+        case -1:
+        case 3:
+            // printtoconsole("lowest neighbour is to the left. One left turn\n");
+            API_turnLeft();
+            orientation = orientation - 1;
+            break;
+        default:
+            printtoconsole("!!!!!!!!!!!!!ERROR!!!!!!!!!!!\n");
+            printtoconsole("Could not turn towards neighbour with lowest distance\n");
+        }
+        // move forward to the next cell with the lowest distance
+        API_moveForward(1);
+
+        switch (orientation % 4)
+        {
+        case 0:
+            y++;
+            printtoconsole("Orientation is north\n");
+            break;
+        case 1:
+            x++;
+            printtoconsole("Orientation is east\n");
+            break;
+        case 2:
+            y--;
+            printtoconsole("Orientation is south\n");
+            break;
+        case 3:
+            x--;
+            printtoconsole("Orientation is west\n");
+            break;
+        default:
+            printtoconsole("orientation is invalid\n");
+        }
+    }
+
+    // exploration phase finished
+    // Walk back to start, follow path of increasing distance
+
+    printtoconsole("GOAL is reached\n");
+    printtoconsole("-----------------------\n");
+    printtoconsole("Walking back to start\n");
+    printtoconsole("\n\r\n");
+
+    // floodFill(currentLevel, nextLevel, distance, walls, 1);
+
+    while (checkStart(x, y))
+    {
+
+        setWallsforMMS(x, y, orientation);
+        updateWalls(x, y, orientation, walls);
+        floodFill(currentLevel, nextLevel, distance, walls, 1);
+        printDistance_array(distance);
+        // printMaze(walls);
+
+        distance_Open_Neighbours[0] = 255;
+        distance_Open_Neighbours[1] = 255;
+        distance_Open_Neighbours[2] = 255;
+        distance_Open_Neighbours[3] = 255;
+
+        if (walls[x][y].north == WAY)
+        {
+            distance_Open_Neighbours[0] = distance[x][y + 1];
+        }
+        if (walls[x][y].east == WAY)
+        {
+            distance_Open_Neighbours[1] = distance[x + 1][y];
+            // printtoconsoleEnter("East = way; Push distance!");
+            // printtoconsoleEnter("the distance of the point east is:");
+            // printIntToConsolewithSpace(distance_Open_Neighbours[1]);
+            // printtoconsoleEnter("\n");
+        }
+        if (walls[x][y].south == WAY)
+        {
+            distance_Open_Neighbours[2] = distance[x][y - 1];
+            // printtoconsoleEnter("South = way; Push distance!");
+            // printtoconsoleEnter("the distance of the point south is:");
+            // printIntToConsolewithSpace(distance_Open_Neighbours[2]);
+            // printtoconsoleEnter("\n");
+        }
+        if (walls[x][y].west == WAY)
+        {
+            distance_Open_Neighbours[3] = distance[x - 1][y];
+            // printtoconsoleEnter("West = way; Push distance!");
+            // printtoconsoleEnter("the distance of the point west is:");
+            // printIntToConsolewithSpace(distance_Open_Neighbours[3]);
+            // printtoconsoleEnter("\n");
+        }
+
+        lowestNeighbour = findlowestDistance(distance_Open_Neighbours);
+
         switch (lowestNeighbour - (orientation % 4))
         {
         case 0:
@@ -904,8 +1048,8 @@ int main(int argc, char *argv[])
         case -1:
         case 3:
             printtoconsole("lowest neighbour is to the left. One left turn\n");
-             API_turnLeft();
-             orientation = orientation - 1;
+            API_turnLeft();
+            orientation = orientation - 1;
             break;
         default:
             printtoconsole("!!!!!!!!!!!!!ERROR!!!!!!!!!!!\n");
@@ -914,29 +1058,128 @@ int main(int argc, char *argv[])
         // move forward to the next cell with the lowest distance
         API_moveForward(1);
 
-    
+        switch (orientation % 4)
+        {
+        case 0:
+            y++;
+            printtoconsole("Orientation is north\n");
+            break;
+        case 1:
+            x++;
+            printtoconsole("Orientation is east\n");
+            break;
+        case 2:
+            y--;
+            printtoconsole("Orientation is south\n");
+            break;
+        case 3:
+            x--;
+            printtoconsole("Orientation is west\n");
+            break;
+        default:
+            printtoconsole("orientation is invalid\n");
+        }
+    }
+
+    printtoconsole("START is reached\n");
+    printtoconsole("-----------------------\n");
+    printtoconsole("Now Walking on the fastes path to the goal\n");
+    printtoconsole("\n\r\n");
+
+    while (checkGoal(x, y))
+    {
+
+        floodFill(currentLevel, nextLevel, distance, walls, 2);
+        printDistance_array(distance);
+
+        distance_Open_Neighbours[0] = 255;
+        distance_Open_Neighbours[1] = 255;
+        distance_Open_Neighbours[2] = 255;
+        distance_Open_Neighbours[3] = 255;
+
+        if (walls[x][y].north == WAY)
+        {
+            distance_Open_Neighbours[0] = distance[x][y + 1];
+        }
+        if (walls[x][y].east == WAY)
+        {
+            distance_Open_Neighbours[1] = distance[x + 1][y];
+            // printtoconsoleEnter("East = way; Push distance!");
+            // printtoconsoleEnter("the distance of the point east is:");
+            // printIntToConsolewithSpace(distance_Open_Neighbours[1]);
+            // printtoconsoleEnter("\n");
+        }
+        if (walls[x][y].south == WAY)
+        {
+            distance_Open_Neighbours[2] = distance[x][y - 1];
+            // printtoconsoleEnter("South = way; Push distance!");
+            // printtoconsoleEnter("the distance of the point south is:");
+            // printIntToConsolewithSpace(distance_Open_Neighbours[2]);
+            // printtoconsoleEnter("\n");
+        }
+        if (walls[x][y].west == WAY)
+        {
+            distance_Open_Neighbours[3] = distance[x - 1][y];
+            // printtoconsoleEnter("West = way; Push distance!");
+            // printtoconsoleEnter("the distance of the point west is:");
+            // printIntToConsolewithSpace(distance_Open_Neighbours[3]);
+            // printtoconsoleEnter("\n");
+        }
+
+        lowestNeighbour = findlowestDistance(distance_Open_Neighbours);
+
+        switch (lowestNeighbour - (orientation % 4))
+        {
+        case 0:
+            printtoconsole("mouse does not need to turn\n");
+            break;
+        case 2:
+        case -2:
+            printtoconsole("Lowest neighbour behind. mouse needs to turn 180 degrees\n");
+            API_turnRight();
+            orientation = orientation + 1;
+            API_turnRight();
+            orientation = orientation + 1;
+            break;
+        case 1:
+        case -3:
+            printtoconsole("Lowest neighbour to the right. One right turn\n");
+            API_turnRight();
+            orientation = orientation + 1;
+            break;
+        case -1:
+        case 3:
+            printtoconsole("lowest neighbour is to the left. One left turn\n");
+            API_turnLeft();
+            orientation = orientation - 1;
+            break;
+        default:
+            printtoconsole("!!!!!!!!!!!!!ERROR!!!!!!!!!!!\n");
+            printtoconsole("Could not turn towards neighbour with lowest distance\n");
+        }
+        // move forward to the next cell with the lowest distance
+        API_moveForward(1);
 
         switch (orientation % 4)
         {
         case 0:
             y++;
-            // printtoconsoleEnter("Orientation is north");
+            printtoconsole("Orientation is north\n");
             break;
         case 1:
             x++;
-            // printtoconsoleEnter("Orientation is east");
+            printtoconsole("Orientation is east\n");
             break;
         case 2:
             y--;
-            // printtoconsoleEnter("Orientation is south");
+            printtoconsole("Orientation is south\n");
             break;
         case 3:
             x--;
-            // printtoconsoleEnter("Orientation is west");
+            printtoconsole("Orientation is west\n");
             break;
         default:
             printtoconsole("orientation is invalid\n");
         }
-        floodFill(currentLevel, nextLevel, distance, walls);
     }
 }
