@@ -35,35 +35,80 @@ struct Velocities desiredVelocitiesBasedOnCorrectLateralControlMode(float vel_ba
 }
 
 
-// TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
-// or if the robot staies in the goal reached state for a long enough time
-bool isDistanceGoalReached(float distance_to_goal) {
-    return fabs(distance_to_goal) <= GOAL_REACHED_THRESHOLD_DISTANCE;
-}
-// bool isDistanceGoalReached(float total_driven_distance, float distance_to_goal) {
-//     return fabs(total_driven_distance - distance_to_goal) <= GOAL_REACHED_THRESHOLD_DISTANCE;
+// // TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
+// // or if the robot staies in the goal reached state for a long enough time
+// bool isDistanceGoalReached(float distance_to_goal) {
+//     return fabs(distance_to_goal) <= GOAL_REACHED_THRESHOLD_DISTANCE;
+// }
+// // bool isDistanceGoalReached(float total_driven_distance, float distance_to_goal) {
+// //     return fabs(total_driven_distance - distance_to_goal) <= GOAL_REACHED_THRESHOLD_DISTANCE;
+// // }
+
+// // TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
+// // or if the robot staies in the goal reached state for a long enough time
+// bool isAngleGoalReached(float distance_to_goal) {
+//     return fabs(distance_to_goal) <= GOAL_REACHED_THRESHOLD_ANGLE;
 // }
 
-// TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
-// or if the robot staies in the goal reached state for a long enough time
-bool isAngleGoalReached(float distance_to_goal) {
-    return fabs(distance_to_goal) <= GOAL_REACHED_THRESHOLD_ANGLE;
+// float driveStraightForNMeters(float nMeters, float vel_cruise, bool start_new_motion_primitive) {
+//     float initial_distance_to_goal = nMeters; // in meters
+
+//     // If it is the start of a new motion primitive, reset/init the position and distance variables
+//     // This is done in the getDistanceToGoalInMeters function if the init_starting_position parameter is true
+//     float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal, start_new_motion_primitive);
+    
+//     // Check if the goal is reached
+//     if (isDistanceGoalReached(distance_to_goal)) {
+//         return 0;
+//     }
+
+//     // The base velocity (vel_base) becomes zero when the goal is reached
+//     float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
+
+//     // Any wheel velocity needed to correct during the wall centering or following is added to this base velocity above
+//     // Resulting in the desired velocities (desiredVelocities) for the left and right wheel respectively
+//     struct Velocities desiredVelocities = desiredVelocitiesBasedOnCorrectLateralControlMode(vel_base);
+        
+//     // Current Motor Velocities from Encoders
+//     struct Velocities currentMotorVelocities = getVelocitiesInRoundsPerSecond();
+
+//     // Hand the desired and current velocities to the PI velocity controller
+//     // It sets the duty cycle for the PWM signal to the motors
+//     // The return value is just for debugging purposes
+//     float dc_left = pi_vel_controller_left(desiredVelocities.vel_left , currentMotorVelocities.vel_left);
+//     float dc_right = pi_vel_controller_right(desiredVelocities.vel_right, currentMotorVelocities.vel_right);
+
+//     return distance_to_goal;
+// }
+
+// This function is used to drive straight for a certain number of meters
+// It will be called only once at the beginning of a new motion primitive
+void initDrivingStraightForNMeters(float nMeters) {
+
+    // Set the movement primitive to DRIVING_STRAIGHT
+    currMovementControlParameters.movementPrimitive = DRIVING_STRAIGHT;
+
+    // Calculate the goal encoder counts based on the number of meters to drive
+    // Set the calculated goal encoder counts in the global variable
+    currMovementControlParameters.goalPositionInEncoderCounts = getGoalPositionInEncoderCounts(nMeters);
+
+    // Reset the is_movement_goal_reached flag
+    currMovementControlParameters.is_movement_goal_reached = false;
 }
 
-float driveStraightForNMeters(float nMeters, float vel_cruise, bool start_new_motion_primitive) {
-    float initial_distance_to_goal = nMeters; // in meters
+void drivingStraightForNMeters() {
 
-    // If it is the start of a new motion primitive, reset/init the position and distance variables
-    // This is done in the getDistanceToGoalInMeters function if the init_starting_position parameter is true
-    float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal, start_new_motion_primitive);
-    
     // Check if the goal is reached
-    if (isDistanceGoalReached(distance_to_goal)) {
-        return 0;
+    if (isMovementGoalReached()) {
+        // Set the is_movement_goal_reached flag
+        currMovementControlParameters.is_movement_goal_reached = true;
+        // Set the movement primitive to PARKING
+        currMovementControlParameters.movementPrimitive = PARKING;
+        return;
     }
 
     // The base velocity (vel_base) becomes zero when the goal is reached
-    float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
+    float vel_base = p_goal_distance_controller(getDistanceToGoalInMeters(), currMovementControlParameters.vel_cruise);
 
     // Any wheel velocity needed to correct during the wall centering or following is added to this base velocity above
     // Resulting in the desired velocities (desiredVelocities) for the left and right wheel respectively
@@ -77,13 +122,12 @@ float driveStraightForNMeters(float nMeters, float vel_cruise, bool start_new_mo
     // The return value is just for debugging purposes
     float dc_left = pi_vel_controller_left(desiredVelocities.vel_left , currentMotorVelocities.vel_left);
     float dc_right = pi_vel_controller_right(desiredVelocities.vel_right, currentMotorVelocities.vel_right);
-
-    return distance_to_goal;
 }
 
-float driveStraightForNCells(int nCells, float vel_cruise, bool start_new_motion_primitive) {
-    return driveStraightForNMeters(nCells * MAZE_CELL_LENGTH, vel_cruise, start_new_motion_primitive);
-}
+
+// float driveStraightForNCells(int nCells, float vel_cruise, bool start_new_motion_primitive) {
+//     return driveStraightForNMeters(nCells * MAZE_CELL_LENGTH, vel_cruise, start_new_motion_primitive);
+// }
 
 void driveStraightForever(float vel_cruise) {
     float vel_base = vel_cruise;

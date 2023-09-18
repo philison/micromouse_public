@@ -15,6 +15,7 @@
       <itemPath>controllers.h</itemPath>
       <itemPath>distanceSensors.h</itemPath>
       <itemPath>abstractControl.h</itemPath>
+      <itemPath>newTypes.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -35,6 +36,7 @@
       <itemPath>controllers.c</itemPath>
       <itemPath>distanceSensors.c</itemPath>
       <itemPath>abstractControl.c</itemPath>
+      <itemPath>newTypes.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"

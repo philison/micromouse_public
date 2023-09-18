@@ -2295,209 +2295,209 @@ void startTimer1(void)
 * Simple Wall following Algorithm
 * Does not work yet, will restructure the code first
 */
-void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-{
-    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
-    static int myCount=0;
-    myCount++;
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+//     myCount++;
 
-    static bool done = false;
+//     static bool done = false;
 
-    if (mazi_running == 1 && !done){
+//     if (mazi_running == 1 && !done){
 
-        static int waitBeforeDriveCounter=0;
-        static bool start_driving = false;
-        // Improvised local state to keep track of which driving instruction to execute
-        static int driving_instruction_step = 0;
+//         static int waitBeforeDriveCounter=0;
+//         static bool start_driving = false;
+//         // Improvised local state to keep track of which driving instruction to execute
+//         static int driving_instruction_step = 0;
 
-        // Has to be done like this as max int value is 32.767 and the waitBeforeDriveCounter is an int
-        // Therefore after 32.767 the waitBeforeDriveCounter will overflow and start from 0 again, At least this is what I think
-        // But just setting a flag once, I don't have to worry about the overflow
-        if (waitBeforeDriveCounter >= 1000){
-            start_driving = true;
-        }
+//         // Has to be done like this as max int value is 32.767 and the waitBeforeDriveCounter is an int
+//         // Therefore after 32.767 the waitBeforeDriveCounter will overflow and start from 0 again, At least this is what I think
+//         // But just setting a flag once, I don't have to worry about the overflow
+//         if (waitBeforeDriveCounter >= 1000){
+//             start_driving = true;
+//         }
 
-        if (start_driving){
+//         if (start_driving){
 
-            static bool start_new_motion_primitive = true;
-            LED1 = ~LED1;
+//             static bool start_new_motion_primitive = true;
+//             LED1 = ~LED1;
 
-            float vel_cruise = 0.3;
+//             float vel_cruise = 0.3;
 
-            /*
-            * Wall Following Algorithm
-            * Modes:
-            * 0 = driveStraightForever [DONE]
-            * 1 = turn left
-            * 2 = turn right
-            * 3 = turn around [DONE]
-            */
-            static int robot_motion_state = 0;
-            static int old_robot_motion_state = 0;
-            static bool changed_motion_state = false;
-            changed_motion_state = false;
+//             /*
+//             * Wall Following Algorithm
+//             * Modes:
+//             * 0 = driveStraightForever [DONE]
+//             * 1 = turn left
+//             * 2 = turn right
+//             * 3 = turn around [DONE]
+//             */
+//             static int robot_motion_state = 0;
+//             static int old_robot_motion_state = 0;
+//             static bool changed_motion_state = false;
+//             changed_motion_state = false;
 
-            if (robot_motion_state != old_robot_motion_state) {
-                old_robot_motion_state = robot_motion_state;
-                changed_motion_state = true;
-            }
+//             if (robot_motion_state != old_robot_motion_state) {
+//                 old_robot_motion_state = robot_motion_state;
+//                 changed_motion_state = true;
+//             }
 
-            // Set the current motion state / primitive of the robot, can also be done in the switch case 0 below
-            // This is only done while the robot is driving straight in the driveStraightForever Mode
-            if (robot_motion_state == 0) {
-                if (isWallLeft() && !isWallFront()) {
-                    robot_motion_state = 0;
-                } else if (!isWallLeft()) {
-                    robot_motion_state = 1;
-                } else if (isWallLeft() && isWallFront() && !isWallRight()){
-                    robot_motion_state = 2;
-                } else if (isWallLeft() && isWallFront() && isWallRight()){
-                    robot_motion_state = 3;
-                    char buffer[4];
-                    // sprintf(buffer, "S%i L%2f F%2f R%2f\n\r", robot_motion_state, distanceSensorInPercentLeft(), distanceSensorInPercentFront(), distanceSensorInPercentRight());
-                    sprintf(buffer, "T\n\r");
-                    putsUART1(buffer);
-                }
-            }
+//             // Set the current motion state / primitive of the robot, can also be done in the switch case 0 below
+//             // This is only done while the robot is driving straight in the driveStraightForever Mode
+//             if (robot_motion_state == 0) {
+//                 if (isWallLeft() && !isWallFront()) {
+//                     robot_motion_state = 0;
+//                 } else if (!isWallLeft()) {
+//                     robot_motion_state = 1;
+//                 } else if (isWallLeft() && isWallFront() && !isWallRight()){
+//                     robot_motion_state = 2;
+//                 } else if (isWallLeft() && isWallFront() && isWallRight()){
+//                     robot_motion_state = 3;
+//                     char buffer[4];
+//                     // sprintf(buffer, "S%i L%2f F%2f R%2f\n\r", robot_motion_state, distanceSensorInPercentLeft(), distanceSensorInPercentFront(), distanceSensorInPercentRight());
+//                     sprintf(buffer, "T\n\r");
+//                     putsUART1(buffer);
+//                 }
+//             }
 
-            if (myCount >= 500){
-                char buffer[30];
-                // sprintf(buffer, "S%i L%2f F%2f R%2f\n\r", robot_motion_state, distanceSensorInPercentLeft(), distanceSensorInPercentFront(), distanceSensorInPercentRight());
-                // sprintf(buffer, "L%d F%f R%d\n\r", isWallLeft(), isWallFront(), isWallRight());
-                sprintf(buffer, "L%d F%d R%d\n\r", false, false, false);
-                putsUART1(buffer);
-                myCount=0;
-            }
+//             if (myCount >= 500){
+//                 char buffer[30];
+//                 // sprintf(buffer, "S%i L%2f F%2f R%2f\n\r", robot_motion_state, distanceSensorInPercentLeft(), distanceSensorInPercentFront(), distanceSensorInPercentRight());
+//                 // sprintf(buffer, "L%d F%f R%d\n\r", isWallLeft(), isWallFront(), isWallRight());
+//                 sprintf(buffer, "L%d F%d R%d\n\r", false, false, false);
+//                 putsUART1(buffer);
+//                 myCount=0;
+//             }
 
-            // Detect when a new motion primitive is started and reset the start_new_motion_primitive flag
-            // CAUTION! This does not detect all changes, e.g. if the state changes to 0 in the switch case but changes right back in the if else above to the respecitve switch case case, the old_robot_motion_state was never updated and therefore the change goes unnoticed
-            // --> This function has to be used before the robot_motion_state is updated in the if else above
-            if (robot_motion_state != old_robot_motion_state) {
-                old_robot_motion_state = robot_motion_state;
-                changed_motion_state = true;
-            }
+//             // Detect when a new motion primitive is started and reset the start_new_motion_primitive flag
+//             // CAUTION! This does not detect all changes, e.g. if the state changes to 0 in the switch case but changes right back in the if else above to the respecitve switch case case, the old_robot_motion_state was never updated and therefore the change goes unnoticed
+//             // --> This function has to be used before the robot_motion_state is updated in the if else above
+//             if (robot_motion_state != old_robot_motion_state) {
+//                 old_robot_motion_state = robot_motion_state;
+//                 changed_motion_state = true;
+//             }
 
-            if (changed_motion_state) {
-                start_new_motion_primitive = true;
+//             if (changed_motion_state) {
+//                 start_new_motion_primitive = true;
 
-                char buffer[8];
-                sprintf(buffer, "S: %i\n\r", robot_motion_state);
-                putsUART1(buffer);
-            }
+//                 char buffer[8];
+//                 sprintf(buffer, "S: %i\n\r", robot_motion_state);
+//                 putsUART1(buffer);
+//             }
 
-            switch (robot_motion_state)
-            {
-                case 0:
-                    // Drive Straight ahead
-                    driveStraightForever(vel_cruise); // Function that just drives the robot straight without a goal 
-                    start_new_motion_primitive = true;
+//             switch (robot_motion_state)
+//             {
+//                 case 0:
+//                     // Drive Straight ahead
+//                     driveStraightForever(vel_cruise); // Function that just drives the robot straight without a goal 
+//                     start_new_motion_primitive = true;
 
-                    char buffer[3];
-                    sprintf(buffer, "%i\n\r", robot_motion_state);
-                    putsUART1(buffer);
-                    break;
-                case 1: {
-                    // Drive straight for a little bit and than turn
-                    static bool done_driving_straight = false;
+//                     char buffer[3];
+//                     sprintf(buffer, "%i\n\r", robot_motion_state);
+//                     putsUART1(buffer);
+//                     break;
+//                 case 1: {
+//                     // Drive straight for a little bit and than turn
+//                     static bool done_driving_straight = false;
 
-                    // Reset variables for a new start of the motion primitive
-                    if (changed_motion_state) {
-                        done_driving_straight = false;
-                    }
-                    // 1. Straight
-                    if (!done_driving_straight) {
-                        float distance_to_goal = driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
-                        start_new_motion_primitive = false;
+//                     // Reset variables for a new start of the motion primitive
+//                     if (changed_motion_state) {
+//                         done_driving_straight = false;
+//                     }
+//                     // 1. Straight
+//                     if (!done_driving_straight) {
+//                         float distance_to_goal = driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
+//                         start_new_motion_primitive = false;
 
-                        if (distance_to_goal == 0) {
-                            done_driving_straight = true;
-                            start_new_motion_primitive = true;
-                        }
+//                         if (distance_to_goal == 0) {
+//                             done_driving_straight = true;
+//                             start_new_motion_primitive = true;
+//                         }
 
-                        break;
-                    }
+//                         break;
+//                     }
 
-                    // 2. Turning Left
-                    if (done_driving_straight) {
-                        float angle_to_goal = turn90DegreesLeft(vel_cruise, start_new_motion_primitive);
-                        start_new_motion_primitive = false;
+//                     // 2. Turning Left
+//                     if (done_driving_straight) {
+//                         float angle_to_goal = turn90DegreesLeft(vel_cruise, start_new_motion_primitive);
+//                         start_new_motion_primitive = false;
 
-                        if (angle_to_goal == 0) {
-                            done_driving_straight = false;
-                            start_new_motion_primitive = true;
-                            robot_motion_state = 0;
-                        }
-                    }
-                    // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
-                    // No, will have problems with right turns
-                    break;
-                }
-                case 2: {
-                    // Drive straight for a little bit and than turn
-                    static bool done_driving_straight = false;
+//                         if (angle_to_goal == 0) {
+//                             done_driving_straight = false;
+//                             start_new_motion_primitive = true;
+//                             robot_motion_state = 0;
+//                         }
+//                     }
+//                     // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
+//                     // No, will have problems with right turns
+//                     break;
+//                 }
+//                 case 2: {
+//                     // Drive straight for a little bit and than turn
+//                     static bool done_driving_straight = false;
 
-                    // Reset variables for a new start of the motion primitive
-                    if (changed_motion_state) {
-                        done_driving_straight = false;
-                    }
-                    // 1. Straight
-                    if (!done_driving_straight) {
-                        float distance_to_goal = driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
-                        start_new_motion_primitive = false;
+//                     // Reset variables for a new start of the motion primitive
+//                     if (changed_motion_state) {
+//                         done_driving_straight = false;
+//                     }
+//                     // 1. Straight
+//                     if (!done_driving_straight) {
+//                         float distance_to_goal = driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
+//                         start_new_motion_primitive = false;
 
-                        if (distance_to_goal == 0) {
-                            done_driving_straight = true;
-                            start_new_motion_primitive = true;
-                        }
+//                         if (distance_to_goal == 0) {
+//                             done_driving_straight = true;
+//                             start_new_motion_primitive = true;
+//                         }
 
-                        break;
-                    }
+//                         break;
+//                     }
 
-                    // 2. Turning Right
-                    if (done_driving_straight) {
-                        float angle_to_goal = turn90DegreesRight(vel_cruise, start_new_motion_primitive);
-                        start_new_motion_primitive = false;
+//                     // 2. Turning Right
+//                     if (done_driving_straight) {
+//                         float angle_to_goal = turn90DegreesRight(vel_cruise, start_new_motion_primitive);
+//                         start_new_motion_primitive = false;
 
-                        if (angle_to_goal == 0) {
-                            done_driving_straight = false;
-                            start_new_motion_primitive = true;
-                            robot_motion_state = 0;
-                        }
-                    }
-                    // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
-                    // No, will have problems with right turns
-                    break;
-                } case 3: {
-                    // Turn around and drive back
-                    float angle_to_goal = turn180DegreesLeft(vel_cruise, start_new_motion_primitive);
-                    start_new_motion_primitive = false;
-                    if (angle_to_goal == 0) {
-                        robot_motion_state = 0;
-                        // char buffer[10];
-                        // sprintf(buffer, "%f\n\r", angle_to_goal);
-                        // putsUART1(buffer);
-                    }
+//                         if (angle_to_goal == 0) {
+//                             done_driving_straight = false;
+//                             start_new_motion_primitive = true;
+//                             robot_motion_state = 0;
+//                         }
+//                     }
+//                     // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
+//                     // No, will have problems with right turns
+//                     break;
+//                 } case 3: {
+//                     // Turn around and drive back
+//                     float angle_to_goal = turn180DegreesLeft(vel_cruise, start_new_motion_primitive);
+//                     start_new_motion_primitive = false;
+//                     if (angle_to_goal == 0) {
+//                         robot_motion_state = 0;
+//                         // char buffer[10];
+//                         // sprintf(buffer, "%f\n\r", angle_to_goal);
+//                         // putsUART1(buffer);
+//                     }
 
-                    // char buffer[8];
-                    // sprintf(buffer, "%1.2f\n\r", angle_to_goal);
-                    // putsUART1(buffer);
-                    break;
-                } default:
-                    break;
-            }
-        }
+//                     // char buffer[8];
+//                     // sprintf(buffer, "%1.2f\n\r", angle_to_goal);
+//                     // putsUART1(buffer);
+//                     break;
+//                 } default:
+//                     break;
+//             }
+//         }
 
-        waitBeforeDriveCounter++;
+//         waitBeforeDriveCounter++;
 
-    } else {
-        // char buffer[3];
-        // sprintf(buffer, "S\n\r");
-        // putsUART1(buffer);
-        set_DC_and_motor_state_left(0.0, "forward_slow_decay");
-        set_DC_and_motor_state_right(0.0, "forward_slow_decay");
-    }
+//     } else {
+//         // char buffer[3];
+//         // sprintf(buffer, "S\n\r");
+//         // putsUART1(buffer);
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
 
-}
+// }
 
 
 
@@ -2601,3 +2601,62 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 //     }
 
 // }
+
+
+
+
+
+/* MAJOR ARCHITECTURE CHANGE */
+
+
+/* Motor Control Loop */
+void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+{
+    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag
+
+    static int myCount=0;
+    myCount++;
+    static bool only_once_flag = true;
+
+    // ## The code section below is only temporary
+    // In the future the currMovementControlParameters values will be set in the state machine or by the explore alg
+    if (only_once_flag) {
+        // struct MovementControlParameters currMovementControlParameters = {PARKING, 0.0, 0.0, {0.0, 0.0}, false};
+        currMovementControlParameters.movementPrimitive = DRIVING_STRAIGHT;
+        currMovementControlParameters.vel_cruise = 0.3;
+        currMovementControlParameters.vel_turn_cruise = 0.3;
+
+        float distance_to_goal_in_meters = -5*MAZE_CELL_LENGTH;
+        initDrivingStraightForNMeters(distance_to_goal_in_meters); // Sets the goal encoder value in the currMovementControlParameters struct
+        only_once_flag = false;
+    }
+    // ## End of temporary code section
+
+    // Motor Control Loop
+    // Based on the the current movement primitive the correct motor control loop is executed
+    // The current encoder value will be compared with the global goal encoder value
+    // If the goal is reached a global goal reached flag will be set to true
+
+    switch (currMovementControlParameters.movementPrimitive)
+    {
+    case DRIVING_STRAIGHT:
+        /* code */
+        // Make sure to check if the goal is reached and update the global flag accordingly
+        drivingStraightForNMeters();
+        break;
+    
+    case TURNING:
+        /* code */
+        break;
+
+    case PARKING:
+        /* code */
+        set_DC_and_motor_state_left(0.0, "forward_fast_decay");
+        set_DC_and_motor_state_right(0.0, "forward_fast_decay");
+        break;
+
+    default:
+        break;
+    }
+
+}

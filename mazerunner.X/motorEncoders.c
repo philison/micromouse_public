@@ -512,30 +512,31 @@ float getDrivenDistanceInMeters2()
 //     return initial_distance_to_goal - distance_driven;
 // }
 
-float getDistanceToGoalInMeters(float initial_distance_to_goal, bool init_starting_position){
+// Working
+// float getDistanceToGoalInMeters(float initial_distance_to_goal, bool init_starting_position){
 
-    static float oldPosition;
-    static float distance_driven;
-    float currentPosition;
+//     static float oldPosition;
+//     static float distance_driven;
+//     float currentPosition;
 
-    currentPosition = getPositionInCounts_Left();
+//     currentPosition = getPositionInCounts_Left();
 
-    if (init_starting_position) {
-        oldPosition = currentPosition;
-        distance_driven = 0;
+//     if (init_starting_position) {
+//         oldPosition = currentPosition;
+//         distance_driven = 0;
 
-        // This return will end the function here
-        // and not execute the rest of the code
-        return initial_distance_to_goal;
-    }
+//         // This return will end the function here
+//         // and not execute the rest of the code
+//         return initial_distance_to_goal;
+//     }
 
-    // currentPosition = getPositionInCounts_Right();
-    distance_driven += convertCountsToDistanceInMeters(currentPosition-oldPosition);
+//     // currentPosition = getPositionInCounts_Right();
+//     distance_driven += convertCountsToDistanceInMeters(currentPosition-oldPosition);
 
-    oldPosition=currentPosition;
+//     oldPosition=currentPosition;
 
-    return initial_distance_to_goal - distance_driven;
-}
+//     return initial_distance_to_goal - distance_driven;
+// }
 
 // Get the angle difference between the current robot angle and the goal angle
 // TODO: Only the left wheel is used to calculate the angle driven !!!!
@@ -684,3 +685,81 @@ float getTotalDrivenAngleInDegrees(bool init_starting_position) {
 
     distance_driven += (distance_driven_left + distance_driven_right) / 2.0;
 */
+
+
+
+
+// NEW
+
+long getPositionInCountsLong_Left() {
+    return getPositionInCounts_2();
+}
+long getPositionInCountsLong_Right() {
+    return getPositionInCounts_1();
+}
+
+long convertDistanceInMetersToCounts(float distance_to_goal_in_meters) {
+    long counts;
+
+    float wheel_diameter = 0.06;
+    float wheel_cirumference = wheel_diameter * 3.141592;
+
+    // TODO: check if the sign is correct after converting to long
+    counts = (long) ( distance_to_goal_in_meters / wheel_cirumference * ENCODER_COUNTS_PER_REVOLUTION );
+
+    return counts;
+}
+
+struct EncoderCounts getGoalPositionInEncoderCounts(float initial_distance_to_goal_in_meters) {
+    struct EncoderCounts goal_position_in_encoder_counts;
+
+    long initial_distance_to_goal_in_counts = convertDistanceInMetersToCounts(initial_distance_to_goal_in_meters);
+    long current_position_in_counts = getPositionInCountsLong_Left();
+    long goal_position_in_counts = current_position_in_counts + initial_distance_to_goal_in_counts;
+    
+    goal_position_in_encoder_counts.left = goal_position_in_counts;
+    goal_position_in_encoder_counts.right = goal_position_in_counts;
+
+    return goal_position_in_encoder_counts;
+}
+
+// TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
+// or if the robot staies in the goal reached state for a long enough time
+bool isDistanceGoalReached(float distance_to_goal) {
+    return fabs(distance_to_goal) <= GOAL_REACHED_THRESHOLD_DISTANCE;
+}
+
+// TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
+// or if the robot staies in the goal reached state for a long enough time
+bool isAngleGoalReached(float distance_to_goal) {
+    return fabs(distance_to_goal) <= GOAL_REACHED_THRESHOLD_ANGLE;
+}
+
+float getDistanceToGoalInMeters(){
+
+    long current_position = getPositionInCountsLong_Left();
+    // TODO: Check if the sign is correct
+    long distance_to_goal_in_counts = currMovementControlParameters.goalPositionInEncoderCounts.left - current_position;
+
+    return convertCountsToDistanceInMeters(distance_to_goal_in_counts);
+}
+
+bool isMovementGoalReached() {
+    switch (currMovementControlParameters.movementPrimitive)
+    {
+    case DRIVING_STRAIGHT: {
+        // Currently check only the left encoder for completion as currently everything is based on the left wheel
+        float distance_to_goal_in_meters = getDistanceToGoalInMeters(); 
+        return isDistanceGoalReached(distance_to_goal_in_meters);
+        break;
+    }
+    case TURNING: {
+        /* code */
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+// ENDNEW

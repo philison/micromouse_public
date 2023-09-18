@@ -34,6 +34,7 @@
     #include <xc.h> // include processor files - each processor file is guarded.  
     #include <stdio.h>
     #include "abstractControl.h"
+    #include "newTypes.h"
 
 
 void initTimer1(unsigned int period);
@@ -44,6 +45,8 @@ unsigned int calcPeriod(float timeInNS, float Tcycle, float prescaler);
 void startTimer1(void); 
 
 extern int mazi_running;
+
+// extern struct MovementControlParameters currMovementControlParameters;
 
 #endif	/* XC_HEADER_TEMPLATE_H */
 
