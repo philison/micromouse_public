@@ -14,8 +14,15 @@
 #ifndef __DISTANCESENSORS_H__
 #define	__DISTANCESENSORS_H__
 
-#define WALL_DETECTION_THRESHOLD 28.0 // in percent
+// Threshold values to decide whether a wall is present or not
+#define WALL_DETECTION_THRESHOLD_SIDES 28.0 // in percent
 #define WALL_DETECTION_THRESHOLD_FRONT 28.0 // TODO: select an appropriate value
+
+// Sensor Value when the robot (Rotation Center between the two wheels) is positioned in the cell center and there are walls on all sides
+#define SENSOR_VALUE_LEFT_WHEN_IN_CELL_CENTER 30.0 // TODO: select an appropriate value
+#define SENSOR_VALUE_FRONT_WHEN_IN_CELL_CENTER 47.5 // TODO: select an appropriate value
+#define SENSOR_VALUE_RIGHT_WHEN_IN_CELL_CENTER 26.0 // TODO: select an appropriate value
+
 
 /*
 * It is the motion that occurs perpendicular to the primary direction of travel or orientation. 

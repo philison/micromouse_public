@@ -46,17 +46,17 @@ struct DistanceSensorsReadingsInPercent distanceSensorsReadingsInPercent(void)
 
 bool isWallLeft(void)
 {
-    return distanceSensorInPercentLeft() > WALL_DETECTION_THRESHOLD;
+    return distanceSensorInPercentLeft() > WALL_DETECTION_THRESHOLD_SIDES;
 }
 
 bool isWallFront(void)
 {
-    return distanceSensorInPercentFront() > WALL_DETECTION_THRESHOLD;
+    return distanceSensorInPercentFront() > WALL_DETECTION_THRESHOLD_FRONT;
 }
 
 bool isWallRight(void)
 {
-    return distanceSensorInPercentRight() > WALL_DETECTION_THRESHOLD;
+    return distanceSensorInPercentRight() > WALL_DETECTION_THRESHOLD_SIDES;
 }
 
 

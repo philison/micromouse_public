@@ -1062,7 +1062,7 @@ void startTimer1(void)
 //             float initial_distance_to_goal = 5 * 0.18; // in meters
 
 //             // float distance_to_goal = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
-//             float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal);
+//             float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal, false);
 //             // float distance_driven = getDistanceDrivenInMeters();
 
 //             float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
@@ -1083,12 +1083,12 @@ void startTimer1(void)
 //             float motor_vel_left = getVelocityInRoundsPerSecond_Left();
 //             float motor_vel_right = getVelocityInRoundsPerSecond_Right();
 
-//             bool shouldTurn = false;
+//             // bool shouldTurn = false;
 //             // float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
 //             // float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, shouldTurn);
 
 //             float dc_left = pi_vel_controller_left(vel_base, motor_vel_left);
-//             float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, shouldTurn);
+//             float dc_right = pi_vel_controller_right(vel_base, motor_vel_right);
 
 //             // if (myCount >= 500){
 //             //     LED1 = ~LED1;
@@ -1135,7 +1135,7 @@ void startTimer1(void)
 
 //             myCount++;
 
-//             if (getTotalDrivenDistanceInMeters() >= initial_distance_to_goal){
+//             if (getTotalDrivenDistanceInMeters(false) >= initial_distance_to_goal){
 //                 waitBeforeDriveCounter = 0;
 //             }
 //         }
@@ -1184,7 +1184,7 @@ void startTimer1(void)
 //             float initial_distance_to_goal = 5 * 0.18; // in meters
 
 //             // float distance_to_goal = (float)SENSOR_FRONT / 4096.0f * 100.0; // 12 bit ADC therfore 2^12 = 4096
-//             float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal);
+//             float distance_to_goal = getDistanceToGoalInMeters(initial_distance_to_goal, false);
 //             // float distance_driven = getDistanceDrivenInMeters();
 
 //             float vel_base = p_goal_distance_controller(distance_to_goal, vel_cruise);
@@ -1223,7 +1223,7 @@ void startTimer1(void)
 
 //             bool shouldTurn = false;
 //             float dc_left = pi_vel_controller_left(vel_desired.vel_left , motor_vel_left);
-//             float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right, shouldTurn);
+//             float dc_right = pi_vel_controller_right(vel_desired.vel_right, motor_vel_right);
 
 //             // float dc_left = pi_vel_controller_left(vel_base, motor_vel_left);
 //             // float dc_right = pi_vel_controller_right(vel_base, motor_vel_right, shouldTurn);
@@ -1232,7 +1232,7 @@ void startTimer1(void)
 //                 LED1 = ~LED1;
 //                 // char buffer[10];
 //                 // sprintf(buffer, "%2.3f\r\n", distance);
-//                 float distance = getTotalDrivenDistanceInMeters();
+//                 float distance = getTotalDrivenDistanceInMeters(false);
 //                 // float inter_distance = getDrivenDistanceInMeters2();
 //                 // sprintf(buffer, "%2.4f\r\n", distance);
 //                 // sprintf(buffer, "%2.2f %2.2f\r\n", distance, inter_distance);
@@ -1269,7 +1269,7 @@ void startTimer1(void)
 
 //             myCount++;
 
-//             if (getTotalDrivenDistanceInMeters() >= initial_distance_to_goal){
+//             if (getTotalDrivenDistanceInMeters(false) >= initial_distance_to_goal){
 //                 waitBeforeDriveCounter = 0;
 //             }
 //         }
@@ -2294,6 +2294,221 @@ void startTimer1(void)
 /*
 * Simple Wall following Algorithm
 */
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     static int myCount=0;
+//     myCount++;
+
+//     static bool done = false;
+
+//     if (mazi_running == 1 && !done){
+
+//         static int waitBeforeDriveCounter=0;
+//         static bool start_driving = false;
+//         // Improvised local state to keep track of which driving instruction to execute
+//         static int driving_instruction_step = 0;
+
+//         // Has to be done like this as max int value is 32.767 and the waitBeforeDriveCounter is an int
+//         // Therefore after 32.767 the waitBeforeDriveCounter will overflow and start from 0 again, At least this is what I think
+//         // But just setting a flag once, I don't have to worry about the overflow
+//         if (waitBeforeDriveCounter >= 1000){
+//             start_driving = true;
+//         }
+
+//         if (start_driving){
+
+//             static bool start_new_motion_primitive = true;
+//             LED1 = ~LED1;
+
+//             float vel_cruise = 0.3;
+
+//             /*
+//             * Wall Following Algorithm
+//             * Modes:
+//             * 0 = driveStraightForever [DONE]
+//             * 1 = turn left
+//             * 2 = turn right
+//             * 3 = turn around [DONE]
+//             */
+//             static int robot_motion_state = 0;
+//             static int old_robot_motion_state = 0;
+//             static bool changed_motion_state = false;
+//             changed_motion_state = false;
+
+//             if (myCount >= 100){
+//                 char buffer[8];
+//                 sprintf(buffer, "1S: %i\n\r", robot_motion_state);
+//                 putsUART1(buffer);
+//                 myCount=0;
+//             }
+
+//             // Set the current motion state / primitive of the robot, can also be done in the switch case 0 below
+//             // This only done while the robot is driving straight in the driveStraightForever Mode
+//             if (robot_motion_state == 0) {
+//                 if (isWallLeft() && !isWallFront()) {
+//                     robot_motion_state = 0;
+//                 } else if (!isWallLeft()) {
+//                     robot_motion_state = 1;
+//                 } else if (isWallLeft() && isWallFront() && !isWallRight()){
+//                     robot_motion_state = 2;
+//                 } else if (isWallLeft() && isWallFront() && isWallRight()){
+//                     robot_motion_state = 3;
+//                 }
+//             }
+
+//             // Detect when a new motion primitive is started and reset the start_new_motion_primitive flag
+//             if (robot_motion_state != old_robot_motion_state) {
+//                 old_robot_motion_state = robot_motion_state;
+//                 changed_motion_state = true;
+//             }
+
+//             if (changed_motion_state) {
+//                 start_new_motion_primitive = true;
+
+//                 char buffer[8];
+//                 sprintf(buffer, "S: %i\n\r", robot_motion_state);
+//                 putsUART1(buffer);
+//             }
+
+//             switch (robot_motion_state)
+//             {
+//                 case 0:
+//                     // Drive Straight ahead
+//                     driveStraightForever(vel_cruise); // Function that just drives the robot straight without a goal 
+//                     start_new_motion_primitive = true;
+//                     break;
+//                 case 1: {
+//                     // Drive straight for a little bit and than turn
+//                     static bool done_driving_straight = false;
+
+//                     // Reset variables for a new start of the motion primitive
+//                     if (changed_motion_state) {
+//                         done_driving_straight = false;
+//                     }
+//                     // 1. Straight
+//                     if (!done_driving_straight) {
+//                         float distance_to_goal = driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
+//                         start_new_motion_primitive = false;
+
+//                         if (distance_to_goal == 0) {
+//                             done_driving_straight = true;
+//                             start_new_motion_primitive = true;
+//                         }
+
+//                         break;
+//                     }
+
+//                     // 2. Turning Left
+//                     if (done_driving_straight) {
+//                         float angle_to_goal = turn90DegreesLeft(vel_cruise, start_new_motion_primitive);
+//                         start_new_motion_primitive = false;
+
+//                         if (angle_to_goal == 0) {
+//                             done_driving_straight = false;
+//                             start_new_motion_primitive = true;
+//                             robot_motion_state = 0;
+//                         }
+//                     }
+//                     // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
+//                     // No, will have problems with right turns
+//                     break;
+//                 }
+//                 case 2: {
+//                     // Drive straight for a little bit and than turn
+//                     static bool done_driving_straight = false;
+
+//                     // Reset variables for a new start of the motion primitive
+//                     if (changed_motion_state) {
+//                         done_driving_straight = false;
+//                     }
+//                     // 1. Straight
+//                     if (!done_driving_straight) {
+//                         float distance_to_goal = driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
+//                         start_new_motion_primitive = false;
+
+//                         if (distance_to_goal == 0) {
+//                             done_driving_straight = true;
+//                             start_new_motion_primitive = true;
+//                         }
+
+//                         break;
+//                     }
+
+//                     // 2. Turning Right
+//                     if (done_driving_straight) {
+//                         float angle_to_goal = turn90DegreesRight(vel_cruise, start_new_motion_primitive);
+//                         start_new_motion_primitive = false;
+
+//                         if (angle_to_goal == 0) {
+//                             done_driving_straight = false;
+//                             start_new_motion_primitive = true;
+//                             robot_motion_state = 0;
+//                         }
+//                     }
+//                     // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
+//                     // No, will have problems with right turns
+//                     break;
+//                 } case 3: {
+//                     // Turn around and drive back
+//                     float angle_to_goal = turn180DegreesLeft(vel_cruise, start_new_motion_primitive);
+//                     start_new_motion_primitive = false;
+//                     if (angle_to_goal == 0) {
+//                         robot_motion_state = 0;
+//                     }
+//                     break;
+//                 }
+//             }
+//         }
+
+//         waitBeforeDriveCounter++;
+
+//     } else {
+//         // char buffer[3];
+//         // sprintf(buffer, "S\n\r");
+//         // putsUART1(buffer);
+//         set_DC_and_motor_state_left(0.0, "forward_slow_decay");
+//         set_DC_and_motor_state_right(0.0, "forward_slow_decay");
+//     }
+
+// }
+
+
+
+
+            // // Wall Following Algorithm
+            // if (isWallLeft() && !isWallFront()) {
+            //     // Drive Straight ahead
+            //     driveStraightForever(vel_cruise); // Function that just drives the robot straight without a goal 
+            // } else if (!isWallLeft()) {
+            //     // Drive straight for a little bit and than turn
+            //     // 1.
+            //     float distance_to_goal = driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
+            //     // 2.
+            //     if (distance_to_goal == 0) {
+            //         // start_new_motion_primitive only when entering this if clause fot the first time
+            //         // start_new_motion_primitive = true;
+            //         // How to close the robots eyes while turning? Proper State machine needed ?
+            //         turn90DegreesLeft(vel_cruise, start_new_motion_primitive);
+            //     }
+            //     // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
+            //     // No, will have problems with right turns
+            // } else if (isWallLeft() && isWallFront() && !isWallRight()){
+            //     // Drive straight for a little bit and than turn
+            //     // 1.
+            //     driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
+            //     // Turn right
+            //     turn90DegreesRight(vel_cruise, start_new_motion_primitive);
+            // } else if (isWallLeft() && isWallFront() && isWallRight()){
+            //     // Turn around and drive back
+            //     turn180DegreesLeft(vel_cruise, start_new_motion_primitive);
+            // }
+
+
+
+/*
+* Simple Wall following Algorithm
+*/
 void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 {
     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
@@ -2343,122 +2558,10 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
                 myCount=0;
             }
 
-            // Set the current motion state / primitive of the robot, can also be done in the switch case 0 below
-            // This only done while the robot is driving straight in the driveStraightForever Mode
-            if (robot_motion_state == 0) {
-                if (isWallLeft() && !isWallFront()) {
-                    robot_motion_state = 0;
-                } else if (!isWallLeft()) {
-                    robot_motion_state = 1;
-                } else if (isWallLeft() && isWallFront() && !isWallRight()){
-                    robot_motion_state = 2;
-                } else if (isWallLeft() && isWallFront() && isWallRight()){
-                    robot_motion_state = 3;
-                }
-            }
-
-            // Detect when a new motion primitive is started and reset the start_new_motion_primitive flag
-            if (robot_motion_state != old_robot_motion_state) {
-                old_robot_motion_state = robot_motion_state;
-                changed_motion_state = true;
-            }
-
-            if (changed_motion_state) {
-                start_new_motion_primitive = true;
-
-                char buffer[8];
-                sprintf(buffer, "S: %i\n\r", robot_motion_state);
-                putsUART1(buffer);
-            }
-
-            switch (robot_motion_state)
-            {
-                case 0:
-                    // Drive Straight ahead
-                    driveStraightForever(vel_cruise); // Function that just drives the robot straight without a goal 
-                    start_new_motion_primitive = true;
-                    break;
-                case 1: {
-                    // Drive straight for a little bit and than turn
-                    static bool done_driving_straight = false;
-
-                    // Reset variables for a new start of the motion primitive
-                    if (changed_motion_state) {
-                        done_driving_straight = false;
-                    }
-                    // 1. Straight
-                    if (!done_driving_straight) {
-                        float distance_to_goal = driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
-                        start_new_motion_primitive = false;
-
-                        if (distance_to_goal == 0) {
-                            done_driving_straight = true;
-                            start_new_motion_primitive = true;
-                        }
-
-                        break;
-                    }
-
-                    // 2. Turning Left
-                    if (done_driving_straight) {
-                        float angle_to_goal = turn90DegreesLeft(vel_cruise, start_new_motion_primitive);
-                        start_new_motion_primitive = false;
-
-                        if (angle_to_goal == 0) {
-                            done_driving_straight = false;
-                            start_new_motion_primitive = true;
-                            robot_motion_state = 0;
-                        }
-                    }
-                    // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
-                    // No, will have problems with right turns
-                    break;
-                }
-                case 2: {
-                    // Drive straight for a little bit and than turn
-                    static bool done_driving_straight = false;
-
-                    // Reset variables for a new start of the motion primitive
-                    if (changed_motion_state) {
-                        done_driving_straight = false;
-                    }
-                    // 1. Straight
-                    if (!done_driving_straight) {
-                        float distance_to_goal = driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
-                        start_new_motion_primitive = false;
-
-                        if (distance_to_goal == 0) {
-                            done_driving_straight = true;
-                            start_new_motion_primitive = true;
-                        }
-
-                        break;
-                    }
-
-                    // 2. Turning Right
-                    if (done_driving_straight) {
-                        float angle_to_goal = turn90DegreesRight(vel_cruise, start_new_motion_primitive);
-                        start_new_motion_primitive = false;
-
-                        if (angle_to_goal == 0) {
-                            done_driving_straight = false;
-                            start_new_motion_primitive = true;
-                            robot_motion_state = 0;
-                        }
-                    }
-                    // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
-                    // No, will have problems with right turns
-                    break;
-                } case 3: {
-                    // Turn around and drive back
-                    float angle_to_goal = turn180DegreesLeft(vel_cruise, start_new_motion_primitive);
-                    start_new_motion_primitive = false;
-                    if (angle_to_goal == 0) {
-                        robot_motion_state = 0;
-                    }
-                    break;
-                }
-            }
+            // Drive Straight ahead
+            driveStraightForever(vel_cruise); // Function that just drives the robot straight without a goal 
+                    
+            
         }
 
         waitBeforeDriveCounter++;
@@ -2472,34 +2575,3 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     }
 
 }
-
-
-
-
-            // // Wall Following Algorithm
-            // if (isWallLeft() && !isWallFront()) {
-            //     // Drive Straight ahead
-            //     driveStraightForever(vel_cruise); // Function that just drives the robot straight without a goal 
-            // } else if (!isWallLeft()) {
-            //     // Drive straight for a little bit and than turn
-            //     // 1.
-            //     float distance_to_goal = driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
-            //     // 2.
-            //     if (distance_to_goal == 0) {
-            //         // start_new_motion_primitive only when entering this if clause fot the first time
-            //         // start_new_motion_primitive = true;
-            //         // How to close the robots eyes while turning? Proper State machine needed ?
-            //         turn90DegreesLeft(vel_cruise, start_new_motion_primitive);
-            //     }
-            //     // Alternative: see if the robot just turns on its own when lateral control mode is set soly to ONE_WALL_FOLLOWING_LEFT
-            //     // No, will have problems with right turns
-            // } else if (isWallLeft() && isWallFront() && !isWallRight()){
-            //     // Drive straight for a little bit and than turn
-            //     // 1.
-            //     driveStraightForNMeters(0.12, vel_cruise, start_new_motion_primitive);
-            //     // Turn right
-            //     turn90DegreesRight(vel_cruise, start_new_motion_primitive);
-            // } else if (isWallLeft() && isWallFront() && isWallRight()){
-            //     // Turn around and drive back
-            //     turn180DegreesLeft(vel_cruise, start_new_motion_primitive);
-            // }

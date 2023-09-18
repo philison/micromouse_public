@@ -68,10 +68,12 @@ float pi_vel_controller_left(float targetVelocity, float currentVelocity)
     if (targetVelocity >= 0)
     {
         set_DC_and_motor_state_left(dc, "forward_slow_decay");
+        // set_DC_and_motor_state_left(dc, "forward_fast_decay");
     }
     else if (targetVelocity < 0)
     {
         set_DC_and_motor_state_left(dc, "reverse_slow_decay");
+        // set_DC_and_motor_state_left(dc, "reverse_fast_decay");
     }
 
     // set_DC_and_motor_state_left(dc, "forward_slow_decay");
@@ -219,10 +221,12 @@ float pi_vel_controller_right(float targetVelocity, float currentVelocity)
     if (targetVelocity >= 0)
     {
         set_DC_and_motor_state_right(dc, "forward_slow_decay");
+        // set_DC_and_motor_state_right(dc, "forward_fast_decay");
     }
     else if (targetVelocity < 0)
     {
         set_DC_and_motor_state_right(dc, "reverse_slow_decay");
+        // set_DC_and_motor_state_right(dc, "reverse_fast_decay");
     }
 
     // set_DC_and_motor_state_right(dc, "forward_slow_decay");
@@ -341,11 +345,12 @@ float p_goal_angle_controller(float angle_to_goal, float vel_turn_cruise)
 struct Velocities p_one_wall_following_right(float distance_right, float vel_base)
 {
     struct Velocities result;
-    float distanceSensorRightWallThreshold = 25.0;
+    // float distanceSensorRightWallThreshold = 25.0;
 
     // When the robot is closer to the right wall the voltage output by the right sensor increases as the reflected light intensity increases
     // --> distance_right increases --> right wheel should turn faster
-    float error = distance_right - distanceSensorRightWallThreshold;
+    // float error = distance_right - distanceSensorRightWallThreshold;
+    float error = distance_right - SENSOR_VALUE_RIGHT_WHEN_IN_CELL_CENTER;
     float kp = 0.05;
     
     result.vel_left = vel_base - kp * error;
@@ -362,11 +367,12 @@ struct Velocities p_one_wall_following_right(float distance_right, float vel_bas
 struct Velocities p_one_wall_following_left(float distance_left, float vel_base)
 {
     struct Velocities result;
-    float distanceSensorLeftWallThreshold = 27.0;
+    // float distanceSensorLeftWallThreshold = 27.0; // Value for the left sensor when the robot is in the middle of the cell and there is a wall on the left side
 
     // When the robot is closer to the left wall the voltage output by the left sensor increases as the reflected light intensity increases
     // --> distance_left increases --> left wheel should turn faster
-    float error = distance_left - distanceSensorLeftWallThreshold;
+    // float error = distance_left - distanceSensorLeftWallThreshold;
+    float error = distance_left - SENSOR_VALUE_LEFT_WHEN_IN_CELL_CENTER;
     float kp = 0.05;
     
     result.vel_left = vel_base + kp * error;
