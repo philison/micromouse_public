@@ -67,13 +67,13 @@ float pi_vel_controller_left(float targetVelocity, float currentVelocity)
 
     if (targetVelocity >= 0)
     {
-        set_DC_and_motor_state_left(dc, "forward_slow_decay");
-        // set_DC_and_motor_state_left(dc, "forward_fast_decay");
+        // set_DC_and_motor_state_left(dc, "forward_slow_decay");
+        set_DC_and_motor_state_left(dc, "forward_fast_decay");
     }
     else if (targetVelocity < 0)
     {
-        set_DC_and_motor_state_left(dc, "reverse_slow_decay");
-        // set_DC_and_motor_state_left(dc, "reverse_fast_decay");
+        // set_DC_and_motor_state_left(dc, "reverse_slow_decay");
+        set_DC_and_motor_state_left(dc, "reverse_fast_decay");
     }
 
     // set_DC_and_motor_state_left(dc, "forward_slow_decay");
@@ -220,13 +220,13 @@ float pi_vel_controller_right(float targetVelocity, float currentVelocity)
 
     if (targetVelocity >= 0)
     {
-        set_DC_and_motor_state_right(dc, "forward_slow_decay");
-        // set_DC_and_motor_state_right(dc, "forward_fast_decay");
+        // set_DC_and_motor_state_right(dc, "forward_slow_decay");
+        set_DC_and_motor_state_right(dc, "forward_fast_decay");
     }
     else if (targetVelocity < 0)
     {
-        set_DC_and_motor_state_right(dc, "reverse_slow_decay");
-        // set_DC_and_motor_state_right(dc, "reverse_fast_decay");
+        // set_DC_and_motor_state_right(dc, "reverse_slow_decay");
+        set_DC_and_motor_state_right(dc, "reverse_fast_decay");
     }
 
     // set_DC_and_motor_state_right(dc, "forward_slow_decay");
