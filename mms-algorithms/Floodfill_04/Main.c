@@ -4,6 +4,7 @@
 #include "API.h"
 
 #define MAZE_SIZE 16
+#define STACK_SIZE 256
 
 // log functions for simulator
 
@@ -335,189 +336,290 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
 
 // // prints the maze with each cell.
 // // | or - represents a wall
-// // x is set for an unknown wall
+// // x is set for an unknown side /(wall)
 // // * is set for a way
 // // Center is represented by Unexplored / Explored
-// void printMaze(struct CellData maze[MAZE_SIZE][MAZE_SIZE])
-// {
-//     //     printtoconsoleEnter("______________________________________");
-//     //     printtoconsoleEnter("______________ NEW MAZE ______________");
-//     //     printtoconsoleEnter("______________________________________");
+void printMaze(struct CellData maze[MAZE_SIZE][MAZE_SIZE])
+{
+    //     printtoconsoleEnter("______________________________________");
+    //     printtoconsoleEnter("______________ NEW MAZE ______________");
+    //     printtoconsoleEnter("______________________________________");
 
-//     // Print the top border
-//     printtoconsole(" ");
-//     printtoconsole("+");
-//     for (int col = 0; col < MAZE_SIZE; col++)
-//     {
-//         printtoconsole("-");
-//         printIntToConsole(col);
-//         printtoconsole("-+");
-//     }
-//     printtoconsole("\n");
-//     // printtoconsole("+" );
-//     // for (int col = 0; col < MAZE_SIZE; col++) {
-//     //     printtoconsole("---+");
-//     // }
+    // Print the top border
+    printtoconsole(" ");
+    printtoconsole("+");
+    for (int col = 0; col < MAZE_SIZE; col++)
+    {
+        printtoconsole("-");
+        printIntToConsole(col);
+        printtoconsole("-+");
+    }
+    printtoconsole("\n");
+    // printtoconsole("+" );
+    // for (int col = 0; col < MAZE_SIZE; col++) {
+    //     printtoconsole("---+");
+    // }
 
-//     for (int row = MAZE_SIZE - 1; row >= 0; row--)
-//     {
-//         // Print the contents of the current row
-//         // print separation row
-//         printtoconsole(" ");
-//         printtoconsole("+");
-//         for (int col = 0; col < MAZE_SIZE; col++)
-//         {
-//             printtoconsole("---+");
-//         }
-//         printtoconsole("\n");
+    for (int row = MAZE_SIZE - 1; row >= 0; row--)
+    {
+        // Print the contents of the current row
+        // print separation row
+        printtoconsole(" ");
+        printtoconsole("+");
+        for (int col = 0; col < MAZE_SIZE; col++)
+        {
+            printtoconsole("---+");
+        }
+        printtoconsole("\n");
 
-//         // print north wall
-//         printtoconsole(" ");
-//         printtoconsole(" ");
-//         for (int col = 0; col < MAZE_SIZE; col++)
-//         {
-//             printtoconsole("o");
-//             switch (maze[col][row].north)
-//             {
-//             case UNKNOWN:
-//                 printtoconsole("x");
-//                 break;
-//             case WALL:
-//                 printtoconsole("–");
-//                 break;
-//             case WAY:
-//                 printtoconsole("*");
-//                 break;
-//             case EXPLORED:
-//                 printtoconsole("#");
-//                 break;
-//             }
-//             printtoconsole("o ");
-//         }
-//         printtoconsole("\n");
+        // print north wall
+        printtoconsole(" ");
+        printtoconsole(" ");
+        for (int col = 0; col < MAZE_SIZE; col++)
+        {
+            printtoconsole("o");
+            switch (maze[col][row].north)
+            {
+            case UNKNOWN:
+                printtoconsole("x");
+                break;
+            case WALL:
+                printtoconsole("–");
+                break;
+            case WAY:
+                printtoconsole("*");
+                break;
+            case EXPLORED:
+                printtoconsole("#");
+                break;
+            }
+            printtoconsole("o ");
+        }
+        printtoconsole("\n");
 
-//         // add the row number in the beginning; two digits number move the cells
-//         printIntToConsole(1);
-//         // printtoconsole("|");
-//         for (int col = 0; col < MAZE_SIZE; col++)
-//         {
-//             printtoconsole(" ");
+        // add the row number in the beginning; two digits number move the cells
+        printIntToConsole(1);
+        // printtoconsole("|");
+        for (int col = 0; col < MAZE_SIZE; col++)
+        {
+            printtoconsole(" ");
 
-//             // print the west wall of the current cell
-//             switch (maze[col][row].west)
-//             {
-//             case UNKNOWN:
-//                 printtoconsole("x");
-//                 break;
-//             case WALL:
-//                 printtoconsole("|");
-//                 break;
-//             case WAY:
-//                 printtoconsole("*");
-//                 break;
-//             case EXPLORED:
-//                 printtoconsole("#");
-//                 break;
-//             }
-//             // Print the center cell value
-//             switch (maze[col][row].center)
-//             {
-//             case UNKNOWN:
-//                 printtoconsole("U");
-//                 break;
-//             case WALL:
-//                 printtoconsole("F");
-//                 break;
-//             case WAY:
-//                 printtoconsole("F");
-//                 break;
-//             case EXPLORED:
-//                 printtoconsole("E");
-//                 break;
-//             }
+            // print the west wall of the current cell
+            switch (maze[col][row].west)
+            {
+            case UNKNOWN:
+                printtoconsole("x");
+                break;
+            case WALL:
+                printtoconsole("|");
+                break;
+            case WAY:
+                printtoconsole("*");
+                break;
+            case EXPLORED:
+                printtoconsole("#");
+                break;
+            }
+            // Print the center cell value
+            switch (maze[col][row].center)
+            {
+            case UNKNOWN:
+                printtoconsole("U");
+                break;
+            case WALL:
+                printtoconsole("F");
+                break;
+            case WAY:
+                printtoconsole("F");
+                break;
+            case EXPLORED:
+                printtoconsole("E");
+                break;
+            }
 
-//             // Print the east wall of the current cell
-//             switch (maze[col][row].east)
-//             {
-//             case UNKNOWN:
-//                 printtoconsole("x");
-//                 break;
-//             case WALL:
-//                 printtoconsole("|");
-//                 break;
-//             case WAY:
-//                 printtoconsole("*");
-//                 break;
-//             case EXPLORED:
-//                 printtoconsole("#");
-//                 break;
-//             }
-//         }
-//         printtoconsole("\n");
+            // Print the east wall of the current cell
+            switch (maze[col][row].east)
+            {
+            case UNKNOWN:
+                printtoconsole("x");
+                break;
+            case WALL:
+                printtoconsole("|");
+                break;
+            case WAY:
+                printtoconsole("*");
+                break;
+            case EXPLORED:
+                printtoconsole("#");
+                break;
+            }
+        }
+        printtoconsole("\n");
 
-//         // print the south wall
-//         printtoconsole(" ");
-//         printtoconsole(" ");
-//         for (int col = 0; col < MAZE_SIZE; col++)
-//         {
-//             printtoconsole("o");
-//             switch (maze[col][row].south)
-//             {
-//             case UNKNOWN:
-//                 printtoconsole("x");
-//                 break;
-//             case WALL:
-//                 printtoconsole("–");
-//                 break;
-//             case WAY:
-//                 printtoconsole("*");
-//                 break;
-//             case EXPLORED:
-//                 printtoconsole("#");
-//                 break;
-//             }
-//             printtoconsole("o ");
-//         }
-//         printtoconsole("\n");
-//     }
+        // print the south wall
+        printtoconsole(" ");
+        printtoconsole(" ");
+        for (int col = 0; col < MAZE_SIZE; col++)
+        {
+            printtoconsole("o");
+            switch (maze[col][row].south)
+            {
+            case UNKNOWN:
+                printtoconsole("x");
+                break;
+            case WALL:
+                printtoconsole("–");
+                break;
+            case WAY:
+                printtoconsole("*");
+                break;
+            case EXPLORED:
+                printtoconsole("#");
+                break;
+            }
+            printtoconsole("o ");
+        }
+        printtoconsole("\n");
+    }
 
-//     // Print the row's bottom border
-//     printtoconsole("+");
-//     for (int col = 0; col < MAZE_SIZE; col++)
-//     {
-//         printtoconsole("-");
-//         printIntToConsole(col);
-//         printtoconsole("-+");
-//     }
-//     printtoconsole("\n");
-// }
+    // Print the row's bottom border
+    printtoconsole("+");
+    for (int col = 0; col < MAZE_SIZE; col++)
+    {
+        printtoconsole("-");
+        printIntToConsole(col);
+        printtoconsole("-+");
+    }
+    printtoconsole("\n");
+}
 
-// // function that prints relevant info for the current point
-// void printUpdate(int x, int y, int distance[16][16], struct CellData walls[16][16], int distanceOfNeighbouringCells[4])
-// {
-//     printtoconsole("/////////////////UPDATE////////////////////");
-//     printtoconsole("Current Position x and y: ");
-//     printIntToConsolewithSpace(x);
-//     printIntToConsolewithSpace(y);
-//     printtoconsole("\n");
-//     printtoconsole("Distance of current position:");
-//     printIntToConsolewithSpace(distance[x][y]);
-//     printtoconsole("\n");
-//     printtoconsole("Walls of Current Position n, e, s, w (0 = unknown, 1 = wall, 2 = way):");
-//     printIntToConsolewithSpace(walls[x][y].north);
-//     printIntToConsolewithSpace(walls[x][y].east);
-//     printIntToConsolewithSpace(walls[x][y].south);
-//     printIntToConsolewithSpace(walls[x][y].west);
-//     printtoconsole("\n");
-//     printtoconsole("Distance of Neighbouring cells n, e, s, w:");
-//     for (int i = 0; i < 4; i++)
-//     {
-//         printIntToConsolewithSpace(distanceOfNeighbouringCells[i]);
-//     }
-//     printtoconsole("\n");
-//     printtoconsole("/////////////////END////////////////////");
-//     return;
-// }
+
+/************************************
+ *
+ *   Non_recursive Implementation
+ *      Floodfill distance update
+ * 
+ *************************************/
+typedef struct
+{
+    int x, y;
+} Point;
+
+// Stack data structure
+typedef struct
+{
+    Point *items;
+    int top;
+    int capacity;
+} Stack;
+
+// Initialize a stack with a given capacity
+Stack *createStack(int capacity)
+{
+    Stack *stack = (Stack *)malloc(sizeof(Stack));
+    stack->capacity = capacity;
+    stack->top = -1;
+    stack->items = (Point *)malloc(sizeof(Point) * capacity);
+    return stack;
+}
+
+// Push an element onto the stack
+void push(Stack *stack, Point item)
+{
+    if (stack->top == stack->capacity - 1)
+    {
+        // Stack is full, handle error or resize
+        return;
+    }
+    stack->items[++stack->top] = item;
+}
+
+// Pop an element from the stack
+Point pop(Stack *stack)
+{
+    if (stack->top == -1)
+    {
+        // Stack is empty, handle error
+        Point p = {-1, -1}; // Return an invalid point to indicate an error
+        return p;
+    }
+    return stack->items[stack->top--];
+}
+
+// Swap the contents of two stacks
+void swapStacks(Stack **stack1, Stack **stack2)
+{
+    Stack *temp = *stack1;
+    *stack1 = *stack2;
+    *stack2 = temp;
+}
+
+// Function to perform flood-fill without recursion
+void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MAZE_SIZE], struct CellData walls[MAZE_SIZE][MAZE_SIZE])
+{
+    int visited[MAZE_SIZE][MAZE_SIZE];
+    for (int row = 0; row < MAZE_SIZE; row++)
+    {
+        for (int col = 0; col < MAZE_SIZE; col++)
+        {
+            distance[row][col] = 0;
+            visited[row][col] = 0;
+        }
+    }
+    // set the center cells always in first
+    push(currentLevel, (Point){7, 7});
+    push(currentLevel, (Point){7, 8});
+    push(currentLevel, (Point){8, 8});
+    push(currentLevel, (Point){8, 7});
+
+    int newValue = 0;
+
+    for (int i = 0; i < MAZE_SIZE * MAZE_SIZE; i++)
+    {
+        while (currentLevel->top >= 0)
+        {
+            // Pop a point from the stack
+            Point current = pop(currentLevel);
+            int x = current.x;
+            int y = current.y;
+
+            // Check if the current cell has been visited or already has the new value
+            if (visited[x][y] == 0)
+            {
+
+                // Update the current cell with the new value
+                distance[x][y] = newValue;
+                // newValue++;
+
+                // Mark the current cell as visited
+                visited[x][y] = 1;
+            }
+
+            else
+                continue;
+
+            // Push neighboring cells onto the stack
+            if (((walls[x][y].east == UNKNOWN) || (walls[x][y].east == WAY)) && (x + 1 < MAZE_SIZE))
+            {
+                push(nextLevel, (Point){x + 1, y});
+            }
+            if (((walls[x][y].west == UNKNOWN) || (walls[x][y].west == WAY)) && (x - 1 >= 0))
+            {
+                push(nextLevel, (Point){x - 1, y});
+            }
+            if (((walls[x][y].north == UNKNOWN) || (walls[x][y].north == WAY)) && (y + 1 < MAZE_SIZE))
+            {
+                push(nextLevel, (Point){x, y + 1});
+            }
+            if (((walls[x][y].south == UNKNOWN) || (walls[x][y].south == WAY)) && (y - 1 >= 0))
+            {
+                push(nextLevel, (Point){x, y - 1});
+            }
+        }
+        swapStacks(&nextLevel, &currentLevel);
+        newValue++;
+    }
+}
 
 int findlowestDistance(int arr[])
 {
@@ -537,59 +639,61 @@ int findlowestDistance(int arr[])
     return lowestPosition;
 }
 
-void initDistance(int distance[MAZE_SIZE][MAZE_SIZE])
-{
-    int n = MAZE_SIZE / 2;
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            distance[i][j] = 14 - i - j;
-        }
-    }
+// old distance init, but can also be done with one initial distance setup and the center point in the middle
+// void initDistance(int distance[MAZE_SIZE][MAZE_SIZE])
+// {
+//     int n = MAZE_SIZE / 2;
+//     for (int i = 0; i < n; i++)
+//     {
+//         for (int j = 0; j < n; j++)
+//         {
+//             distance[i][j] = 14 - i - j;
+//         }
+//     }
 
-    // mirror to the bottom left quadrant
+//     // mirror to the bottom left quadrant
 
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            distance[i + n][j] = distance[n - 1 - i][j];
-        }
-    }
+//     for (int i = 0; i < n; i++)
+//     {
+//         for (int j = 0; j < n; j++)
+//         {
+//             distance[i + n][j] = distance[n - 1 - i][j];
+//         }
+//     }
 
-    // mirror to the top right quadrant
-    for (int i = 0; i < n; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            distance[i][j + n] = distance[i][n - 1 - j];
-        }
-    }
+//     // mirror to the top right quadrant
+//     for (int i = 0; i < n; i++)
+//     {
+//         for (int j = 0; j < n; j++)
+//         {
+//             distance[i][j + n] = distance[i][n - 1 - j];
+//         }
+//     }
 
-    // mirror to the bottom right quadrant
+//     // mirror to the bottom right quadrant
 
-    for (int i = 0; i < MAZE_SIZE; i++)
-    {
-        for (int j = 0; j < n; j++)
-        {
-            distance[i + n][j + n] = distance[n - 1 - i][n - 1 - j];
-        }
-    }
-}
+//     for (int i = 0; i < MAZE_SIZE; i++)
+//     {
+//         for (int j = 0; j < n; j++)
+//         {
+//             distance[i + n][j + n] = distance[n - 1 - i][n - 1 - j];
+//         }
+//     }
+// }
 
 // print the distance array to the console for verification
 void printDistance_array(int distance[MAZE_SIZE][MAZE_SIZE])
 {
-    for (int i = 0; i < MAZE_SIZE; i++)
+    for (int row = MAZE_SIZE - 1; row >= 0; row--)
     {
-        for (int j = 0; j < MAZE_SIZE; j++)
+        for (int col = 0; col < MAZE_SIZE; col++)
         {
-            fprintf(stderr, "%2d ", distance[i][j]);
+            fprintf(stderr, "%2d ", distance[col][row]);
             fflush(stderr);
         }
         printtoconsole("\n");
     }
+    printtoconsole("\n_______________________\n\r");
 }
 
 void relative_direction_next_cell(int lowestNeighbour, int direction_mouse)
@@ -642,10 +746,9 @@ int main(int argc, char *argv[])
     int distance[MAZE_SIZE][MAZE_SIZE];
     int distance_Open_Neighbours[4];
     int lowestNeighbour = 6;
+    Stack *currentLevel = createStack(STACK_SIZE);
+    Stack *nextLevel = createStack(STACK_SIZE);
     // int temp_orientation = 0;
-
-    initDistance(distance);
-    printDistance_array(distance);
 
     // initialize all walls to UNKNOWN
     for (int row = 0; row < 16; row++)
@@ -669,6 +772,10 @@ int main(int argc, char *argv[])
         walls[i][15].south = WALL;
     }
 
+    // initDistance(distance);
+    floodFill(currentLevel, nextLevel, distance, walls);
+    printDistance_array(distance);
+
     /////////////////////////////////
     // left wall following algorithm
     //
@@ -676,9 +783,10 @@ int main(int argc, char *argv[])
     while (checkGoal(x, y))
     {
 
-        // setWallsforMMS(x, y, orientation);
+        setWallsforMMS(x, y, orientation);
         updateWalls(x, y, orientation, walls);
-        // printMaze(walls);
+        printDistance_array(distance);
+        printMaze(walls);
 
         /////////////////////////////////
         // find open neighbour with lowest distance
@@ -743,12 +851,12 @@ int main(int argc, char *argv[])
         // printtoconsole("\n");
 
         lowestNeighbour = findlowestDistance(distance_Open_Neighbours);
-        printtoconsole("lowestNeighbour is: ");
-        printIntToConsole(lowestNeighbour);
-        printtoconsole("\n");
-        printtoconsole("Current Orientation is: ");
-        printIntToConsole(orientation % 4);
-        printtoconsole("\n");
+        // printtoconsole("lowestNeighbour is: ");
+        // printIntToConsole(lowestNeighbour);
+        // printtoconsole("\n");
+        // printtoconsole("Current Orientation is: ");
+        // printIntToConsole(orientation % 4);
+        // printtoconsole("\n");
 
         /////////////////////////////////
         // find relative position the open neighbour with lowest distance
@@ -829,5 +937,6 @@ int main(int argc, char *argv[])
         default:
             printtoconsole("orientation is invalid\n");
         }
+        floodFill(currentLevel, nextLevel, distance, walls);
     }
 }
