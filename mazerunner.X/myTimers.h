@@ -44,6 +44,9 @@ unsigned int calcPeriod(float timeInNS, float Tcycle, float prescaler);
 
 void startTimer1(void); 
 
+void initTimer2inMS(float timeInMS);
+void startTimer2(void); 
+
 extern int mazi_running;
 
 // extern struct MovementControlParameters currMovementControlParameters;

@@ -133,6 +133,73 @@ void startTimer1(void)
  
 }
 
+/* Timer 2 */
+/**
+ * Takes a time in ms and after selecting the suitable prescaler, sets timer1 to that value
+ * @param timeInMS
+*/
+void initTimer2inMS(float timeInMS)
+{
+    // Prescaler Values: 1:1, 1:8, 1:64, 1:256
+    // The Prescaler "slows" down the clock signal of 26.666 MHz (Tcylce: 37.5ns) by the given factor
+    // We want to select a prescaler value that gives us the best resolution,
+    // i.e. the smallest possible tick size while still being able to count up to (2^16 - 1) = 65535
+    
+    T2CON = 0;              // ensure Timer 2 is in reset state
+
+    float timeInNS = timeInMS * 1000000.0f; // convert to ns
+    float Tcycle = 37.5f; // ns
+    float max_ticks = 65535.0f;
+    unsigned int period = 1;
+
+    prescaler_t prescaler = {
+        {1.0f, 8.0f, 64.0f, 256.0f},
+        {0b00, 0b01, 0b10, 0b11}
+    };
+
+    int numPrescalers = sizeof(prescaler.value) / sizeof(prescaler.value[0]);
+    
+    // f = ticks / time = 1 / Tcycle 
+    // => ticks = f * time = time / Tcycle
+    // period = (unsigned int) (timeInNS / (Tcycle * prescaler));
+
+    // Select the optimal prescaler value
+    // time = max_ticks * Tcycle * prescaler
+    for (int i = 0; i < numPrescalers; i++)
+    {
+        if ((timeInNS < Tcycle) || (timeInNS > max_ticks * Tcycle * prescaler.value[numPrescalers-1])){
+            // Not timable
+            // todo: error handling
+            break;
+        };
+
+        if(timeInNS <= max_ticks * Tcycle * prescaler.value[i])
+        {
+            T2CONbits.TCKPS = prescaler.binary[i];
+            period = calcPeriod(timeInNS, Tcycle, prescaler.value[i]);
+            printf("Prescaler Value: %.1f, Binary Value: 0x%X\n", prescaler.value[i], prescaler.binary[i]);
+            printf("Calculated Period: %u\n\n", period);
+            break;
+        };
+    };
+
+    
+    T2CONbits.TCS = 0;      // select internal FCY clock source
+    T2CONbits.TGATE = 0;    // gated time accumulation disabled
+    TMR2 = 0;
+    PR2 = period;         // set Timer2 period register ()
+    IFS0bits.T2IF = 0;      // reset Timer2 interrupt flag
+    IPC1bits.T2IP = 4;      // set Timer2 interrupt priority level to 4
+    IEC0bits.T2IE = 1;      // enable Timer2 interrupt
+    T2CONbits.TON = 0;      // leave timer disabled initially
+}
+
+void startTimer2(void) 
+{
+    T2CONbits.TON = 1; //
+ 
+}
+
 // Original
 // void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
 // {
@@ -144,6 +211,20 @@ void startTimer1(void)
 //     myCount++;
 //     // LED6=~LED6;
 // }//
+
+void __attribute__((__interrupt__, auto_psv)) _T2Interrupt(void)
+{
+    IFS0bits.T2IF = 0;           // reset Timer2 interrupt flag 
+
+    static int myCount=0;
+    
+    if (myCount >= 1000){
+        myCount=0;
+        LED4=~LED4;
+    }
+
+    myCount++;
+}
 
 // // Ex 4.4.4
 // void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
