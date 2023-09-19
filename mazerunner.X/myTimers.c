@@ -216,14 +216,31 @@ void __attribute__((__interrupt__, auto_psv)) _T2Interrupt(void)
 {
     IFS0bits.T2IF = 0;           // reset Timer2 interrupt flag 
 
-    static int myCount=0;
-    
-    if (myCount >= 1000){
-        myCount=0;
-        LED4=~LED4;
+    static bool timing = false;
+    static int timing_counter=0;
+
+    if (robot_state.start_new_timer2){
+        timing = true;
+        robot_state.start_new_timer2 = false;
+        timing_counter = 0;
     }
 
-    myCount++;
+    if (timing){
+        timing_counter++;
+    }
+
+    if (timing_counter >= robot_state.timer2_value){
+        // UART
+        // char buffer[20];
+        // sprintf(buffer, "%i >= %i", timing_counter, robot_state.timer2_value);
+        // putsUART1(buffer);
+
+        timing = false;
+        robot_state.timer2_expired = true;
+        timing_counter = 0;
+        // LED4=~LED4;
+    }
+
 }
 
 // // Ex 4.4.4

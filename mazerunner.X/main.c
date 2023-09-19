@@ -169,15 +169,53 @@ int main()
     startTimer1();
     startTimer2();
 
+    switchRobotStateTo(IDLE);
+
     while(1)
     {
-        static bool only_once_flag = true;
-        if (mazi_running) {
 
-            // ## The code section below is only temporary
-            // In the future the currMovementControlParameters values will be set in the state machine or by the explore alg
+        // State machine
+        switch (robot_state.state)
+        {
+        case IDLE:
+            /* Enter the State */
 
-            if (only_once_flag) {
+            /* Execute the State */
+            currMovementControlParameters.movementPrimitive = PARKING;
+
+            /* Exit the State */
+            // If Button1 was pressed go to DELAY_BEFORE_START
+            if (robot_state.button1_pressed) {
+                switchRobotStateTo(DELAY_BEFORE_START);
+                robot_state.button1_pressed = false;
+            }
+            break;
+        
+        case DELAY_BEFORE_START:
+            /* Enter the State */
+            if (robot_state.just_switched_state) {
+                timeWithTimer2(1000); // 1 second delay in ms
+                robot_state.just_switched_state = false;
+            }
+
+            /* Execute the State */
+
+            /* Exit the State */
+            // If the delay timer2 has expired go to EXECUTE
+            if (robot_state.timer2_expired) {
+                switchRobotStateTo(EXECUTE);
+                robot_state.timer2_expired = false;
+            }
+            break;
+
+        case EXECUTE:
+            /* Enter the State */
+            if (robot_state.just_switched_state) {
+                // Set the just_switched_state flag to false
+                robot_state.just_switched_state = false;
+                // // Set the is_movement_goal_reached flag to false
+                // currMovementControlParameters.is_movement_goal_reached = false;
+
                 /* STRAIGHT */
                 // // currMovementControlParameters = {PARKING, 0.0, 0.0, {0.0, 0.0}, false};
                 // currMovementControlParameters.movementPrimitive = DRIVING_STRAIGHT;
@@ -195,13 +233,76 @@ int main()
                 float angle_to_goal_in_degrees = -90.0;
                 initTurningForNDegrees(angle_to_goal_in_degrees); // Sets the goal encoder value in the currMovementControlParameters struct
 
-                only_once_flag = false;
             }
-            // ## End of temporary code section
-        } else {
+
+            /* Execute the State */
+            
+            /* Exit the State */
+            // If the movement goal is reached go to STOP
+            if (currMovementControlParameters.is_movement_goal_reached) {
+                switchRobotStateTo(STOP);
+            }
+            break;
+
+        case STOP:
+            /* Enter the State */
+
+            /* Execute the State */
+            // Shut off the Motors or for no set Motor controller to PARKING
             currMovementControlParameters.movementPrimitive = PARKING;
-            only_once_flag = true;
+            
+            /* Exit the State */
+            switchRobotStateTo(IDLE);
+            break;
+
+        case EMERGENCY:
+            /* Enter the State */
+            
+            /* Execute the State */
+            // Do custome Emergency Stuff
+            // Like sending a message via UART
+            // TODO: Turn everything actually off not just in an idle model like in parking
+            currMovementControlParameters.movementPrimitive = PARKING;
+            
+            /* Exit the State */
+            
+            break;
+
+        default:
+            break;
         }
+
+        // static bool only_once_flag = true;
+        // if (mazi_running) {
+
+        //     // ## The code section below is only temporary
+        //     // In the future the currMovementControlParameters values will be set in the state machine or by the explore alg
+
+        //     if (only_once_flag) {
+        //         /* STRAIGHT */
+        //         // // currMovementControlParameters = {PARKING, 0.0, 0.0, {0.0, 0.0}, false};
+        //         // currMovementControlParameters.movementPrimitive = DRIVING_STRAIGHT;
+        //         // currMovementControlParameters.vel_cruise = 0.3;
+        //         // currMovementControlParameters.vel_turn_cruise = 0.3;
+
+        //         // float distance_to_goal_in_meters = 5*MAZE_CELL_LENGTH;
+        //         // initDrivingStraightForNMeters(distance_to_goal_in_meters); // Sets the goal encoder value in the currMovementControlParameters struct
+
+        //         /* TURNING */
+        //         currMovementControlParameters.movementPrimitive = TURNING;
+        //         currMovementControlParameters.vel_cruise = 0.3;
+        //         currMovementControlParameters.vel_turn_cruise = 0.3;
+
+        //         float angle_to_goal_in_degrees = -90.0;
+        //         initTurningForNDegrees(angle_to_goal_in_degrees); // Sets the goal encoder value in the currMovementControlParameters struct
+
+        //         only_once_flag = false;
+        //     }
+        //     // ## End of temporary code section
+        // } else {
+        //     currMovementControlParameters.movementPrimitive = PARKING;
+        //     only_once_flag = true;
+        // }
 
     };
  
