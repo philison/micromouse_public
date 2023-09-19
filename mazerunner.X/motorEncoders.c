@@ -754,7 +754,7 @@ float getDistanceToGoalInMeters(){
 }
 
 bool isMovementGoalReached() {
-    switch (currMovementControlParameters.movementPrimitive)
+    switch (currMovementControlParameters.movementPrimitive.type)
     {
     case DRIVING_STRAIGHT: {
         // Currently check only the left encoder for completion as currently everything is based on the left wheel

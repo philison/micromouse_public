@@ -12,6 +12,7 @@
 #include "controllers.h"
 #include <math.h> // for fabs
 #include "newTypes.h"
+#include "serialComms.h"
 
 #define MAZE_CELL_LENGTH 0.18 // in meters
 
@@ -46,6 +47,8 @@ void drivingStraightForNMeters();
 
 void initTurningForNDegrees(float nDegrees);
 void turningForNDegrees();
+
+void initMovementFromGlobalGoal();
 // NEWEND
 
 // Turning
@@ -54,5 +57,64 @@ float turn90DegreesRight(float vel_turn_cruise, bool start_new_motion_primitive)
 float turn90DegreesLeft(float vel_turn_cruise, bool start_new_motion_primitive);
 float turn180DegreesRight(float vel_turn_cruise, bool start_new_motion_primitive);
 float turn180DegreesLeft(float vel_turn_cruise, bool start_new_motion_primitive);
+
+
+/* SIMPLE WALL FOLLOWER */
+
+enum SimpleWallFollowerStates {
+    // SWF_IDLE,
+    SWF_DRIVE_STRAIGHT_AHEAD,
+    SWF_DRIVE_AND_TURN_RIGHT,
+    SWF_DRIVE_AND_TURN_LEFT,
+    SWF_DRIVE_TO_CELL_CENTER,
+    SWF_TURN_AROUND,
+};
+
+struct SimpleWallFollowerState {
+    enum SimpleWallFollowerStates curr_state;
+    enum SimpleWallFollowerStates prev_state;
+    bool just_switched_state;
+};
+
+// extern struct SimpleWallFollowerState simple_wall_follower_state = {SWF_DRIVE_STRAIGHT_AHEAD, SWF_DRIVE_STRAIGHT_AHEAD, true};
+extern struct SimpleWallFollowerState simple_wall_follower_state;
+
+void switchSimpleWallFollowerStateTo(enum SimpleWallFollowerStates new_state);
+void updateSimpleWallFollowerState();
+
+void simpleWallFollower();
+
+
+/* SIMPLE MOTION PRIMITIVE EXECUTOR */
+
+// enum SimpleMotionPrimitiveExecutorStates {
+//     SMPE_TURN_90_RIGHT,
+//     SMPE_TURN_90_LEFT,
+//     SMPE_TURN_180_RIGHT,
+//     SMPE_TURN_180_LEFT,
+//     SMPE_TURN_M90_RIGHT,
+//     SMPE_TURN_M90_LEFT,
+//     SMPE_TURN_M180_RIGHT,
+//     SMPE_TURN_M180_LEFT,
+//     SMPE_DRIVE_018,
+//     SMPE_DRIVE_M021,
+// };
+
+// struct SimpleMotionPrimitiveExecutorState {
+//     enum SimpleMotionPrimitiveExecutorStates curr_state;
+//     enum SimpleMotionPrimitiveExecutorStates prev_state;
+//     bool just_switched_state;
+// };
+
+// // extern struct SimpleMotionPrimitiveExecutorState simple_motion_primitive_executor_state = {SMPE_TURNING_FOR_N_DEGREES, SMPE_TURNING_FOR_N_DEGREES, true};
+// extern struct SimpleMotionPrimitiveExecutorState simple_motion_primitive_executor_state;
+
+// void switchSimpleMotionPrimitiveExecutorStateTo(enum SimpleMotionPrimitiveExecutorStates new_state);
+// // void updateSimpleMotionPrimitiveExecutorState();
+
+void simpleMotionPrimitiveExecutor();
+
+
+
 
 #endif	/* __ABSTRACTCONTROL_H__ */

@@ -2720,7 +2720,7 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     // The current encoder value will be compared with the global goal encoder value
     // If the goal is reached a global goal reached flag will be set to true
 
-    switch (currMovementControlParameters.movementPrimitive)
+    switch (currMovementControlParameters.movementPrimitive.type)
     {
     case DRIVING_STRAIGHT:
         /* code */
@@ -2738,6 +2738,12 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
         //     putsUART1(buffer);
         //     myCount=0;
         // }
+
+        // UART
+        char buffer[10];
+        sprintf(buffer, "C%i,%2.2f", currMovementControlParameters.movementPrimitive.type, currMovementControlParameters.movementPrimitive.value);
+        putsUART1(buffer);
+
         break;
 
     case PARKING:

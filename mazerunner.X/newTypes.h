@@ -13,11 +13,26 @@
 #define	__NEWTYPES_H__
 
 // State that selects the correct motor control loop in the motor controller
-enum MovementPrimitive {
+// enum MovementPrimitive {
+//     DRIVING_STRAIGHT,
+//     TURNING,
+//     PARKING,
+// };
+
+enum MovementPrimitiveTypes {
     DRIVING_STRAIGHT,
     TURNING,
     PARKING,
 };
+
+// TODO: Add a velocity to the movement primitive, and use it in the motor controller !!!
+struct MovementPrimitive {
+    enum MovementPrimitiveTypes type;
+    float value;
+    float velocity;
+};
+
+void updateMovementPrimitiveParameters(enum MovementPrimitiveTypes type, float value_as_distance_or_angle, float velocity);
 
 // Struct to hold the Encoder Values in Counts for the Right and Left Motor
 struct EncoderCounts {
@@ -25,8 +40,16 @@ struct EncoderCounts {
     long left;
 };
 
+// struct MovementControlParameters {
+//     enum MovementPrimitive movementPrimitive;
+//     float vel_cruise;
+//     float vel_turn_cruise;
+//     struct EncoderCounts goalPositionInEncoderCounts;
+//     bool is_movement_goal_reached;
+// };
+
 struct MovementControlParameters {
-    enum MovementPrimitive movementPrimitive;
+    struct MovementPrimitive movementPrimitive;
     float vel_cruise;
     float vel_turn_cruise;
     struct EncoderCounts goalPositionInEncoderCounts;
@@ -51,6 +74,7 @@ typedef struct RobotState {
     // Inputs to the state machine
     bool button1_pressed;
     bool timer2_expired;
+    bool execution_finished;
     // Others
     bool start_new_timer2;
     int timer2_value;

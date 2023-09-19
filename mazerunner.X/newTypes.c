@@ -1,41 +1,17 @@
 #include "newTypes.h"
 
 // Initialize the global variables
-struct MovementControlParameters currMovementControlParameters = {PARKING, 0.0, 0.0, {0.0, 0.0}, false};
+// struct MovementControlParameters currMovementControlParameters = {PARKING, 0.0, 0.0, {0.0, 0.0}, false};
+struct MovementControlParameters currMovementControlParameters = {{PARKING, 0.0}, 0.0, 0.0, {0.0, 0.0}, false};
 
-RobotState robot_state = {IDLE, IDLE, false, false, false, false, 32000};
+RobotState robot_state = {IDLE, IDLE, false, false, false, false, false, 32000};
 
-
-// void updateRobotState(bool button1_pressed) {
-//     // Update the robot state
-//     robot_state.previous_state = robot_state.state;
-
-//     switch (robot_state.state)
-//     {
-//     case IDLE:
-//         if (button1_pressed) {
-//             robot_state.state = DELAY_BEFORE_START;
-//         }
-//         break;
-    
-//     case DELAY_BEFORE_START:
-//         robot_state.state = EXECUTE;
-//         break;
-
-//     case EXECUTE:
-//         if (currMovementControlParameters.is_movement_goal_reached) {
-//             robot_state.state = STOP;
-//         }
-//         break;
-
-//     case STOP:
-//         robot_state.state = IDLE;
-//         break;
-
-//     default:
-//         break;
-//     }
-// }
+void updateMovementPrimitiveParameters(enum MovementPrimitiveTypes type, float value_as_distance_or_angle, float velocity) {
+    // Update the movement primitive parameters
+    currMovementControlParameters.movementPrimitive.type = type;
+    currMovementControlParameters.movementPrimitive.value = value_as_distance_or_angle;
+    currMovementControlParameters.movementPrimitive.velocity = velocity;
+}
 
 void switchRobotStateTo(States new_state) {
     // Update the robot state

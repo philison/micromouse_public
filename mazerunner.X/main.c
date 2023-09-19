@@ -181,7 +181,7 @@ int main()
             /* Enter the State */
 
             /* Execute the State */
-            currMovementControlParameters.movementPrimitive = PARKING;
+            currMovementControlParameters.movementPrimitive.type = PARKING;
 
             /* Exit the State */
             // If Button1 was pressed go to DELAY_BEFORE_START
@@ -218,7 +218,7 @@ int main()
 
                 /* STRAIGHT */
                 // // currMovementControlParameters = {PARKING, 0.0, 0.0, {0.0, 0.0}, false};
-                // currMovementControlParameters.movementPrimitive = DRIVING_STRAIGHT;
+                // currMovementControlParameters.movementPrimitive.type = DRIVING_STRAIGHT;
                 // currMovementControlParameters.vel_cruise = 0.3;
                 // currMovementControlParameters.vel_turn_cruise = 0.3;
 
@@ -226,22 +226,30 @@ int main()
                 // initDrivingStraightForNMeters(distance_to_goal_in_meters); // Sets the goal encoder value in the currMovementControlParameters struct
 
                 /* TURNING */
-                currMovementControlParameters.movementPrimitive = TURNING;
-                currMovementControlParameters.vel_cruise = 0.3;
-                currMovementControlParameters.vel_turn_cruise = 0.3;
+                // currMovementControlParameters.movementPrimitive.type = TURNING;
+                // currMovementControlParameters.vel_cruise = 0.3;
+                // currMovementControlParameters.vel_turn_cruise = 0.3;
 
-                float angle_to_goal_in_degrees = -90.0;
-                initTurningForNDegrees(angle_to_goal_in_degrees); // Sets the goal encoder value in the currMovementControlParameters struct
+                // float angle_to_goal_in_degrees = -90.0;
+                // initTurningForNDegrees(angle_to_goal_in_degrees); // Sets the goal encoder value in the currMovementControlParameters struct
 
             }
+
 
             /* Execute the State */
+            // simpleWallFollower();
+            simpleMotionPrimitiveExecutor();
             
             /* Exit the State */
-            // If the movement goal is reached go to STOP
-            if (currMovementControlParameters.is_movement_goal_reached) {
+            // If the EXECUTion goal is reached go to STOP, has to be set somewhere within the function called in the EXECUTE state
+            if (robot_state.execution_finished) {
                 switchRobotStateTo(STOP);
+            } else if (robot_state.button1_pressed) {
+                // TODO: Implement a way to stop the robot while it is executing a motion primitive, does not work yet
+                switchRobotStateTo(IDLE);
+                robot_state.button1_pressed = false;
             }
+            
             break;
 
         case STOP:
@@ -249,7 +257,7 @@ int main()
 
             /* Execute the State */
             // Shut off the Motors or for no set Motor controller to PARKING
-            currMovementControlParameters.movementPrimitive = PARKING;
+            currMovementControlParameters.movementPrimitive.type = PARKING;
             
             /* Exit the State */
             switchRobotStateTo(IDLE);
@@ -262,7 +270,7 @@ int main()
             // Do custome Emergency Stuff
             // Like sending a message via UART
             // TODO: Turn everything actually off not just in an idle model like in parking
-            currMovementControlParameters.movementPrimitive = PARKING;
+            currMovementControlParameters.movementPrimitive.type = PARKING;
             
             /* Exit the State */
 
