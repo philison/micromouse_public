@@ -236,9 +236,11 @@ int main()
 
 
             /* Execute the State */
-            simpleWallFollower();
+            // simpleWallFollower();
             // simpleMotionPrimitiveExecutor();
             // remoteControlledMotionPrimitiveExecutor();
+
+            mazeSolver();
             
             /* Exit the State */
             // If the EXECUTion goal is reached go to STOP, has to be set somewhere within the function called in the EXECUTE state

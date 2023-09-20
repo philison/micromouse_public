@@ -16,6 +16,7 @@
       <itemPath>distanceSensors.h</itemPath>
       <itemPath>abstractControl.h</itemPath>
       <itemPath>newTypes.h</itemPath>
+      <itemPath>mazeSolver.h</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -37,6 +38,7 @@
       <itemPath>distanceSensors.c</itemPath>
       <itemPath>abstractControl.c</itemPath>
       <itemPath>newTypes.c</itemPath>
+      <itemPath>mazeSolver.c</itemPath>
     </logicalFolder>
     <logicalFolder name="ExternalFiles"
                    displayName="Important Files"
