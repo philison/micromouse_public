@@ -24,24 +24,24 @@ int checkStart(int x, int y)
     return 1;
 }
 
-// define values for each cell
-enum CellValue
-{
-    UNKNOWN,
-    WALL,
-    WAY,
-    EXPLORED
-};
+// // define values for each cell
+// enum CellValue
+// {
+//     UNKNOWN,
+//     WALL,
+//     WAY,
+//     EXPLORED
+// };
 
-// Define a structure to hold the four values
-struct CellData
-{
-    enum CellValue north;
-    enum CellValue east;
-    enum CellValue south;
-    enum CellValue west;
-    enum CellValue center;
-};
+// // Define a structure to hold the four values
+// struct CellData
+// {
+//     enum CellValue north;
+//     enum CellValue east;
+//     enum CellValue south;
+//     enum CellValue west;
+//     enum CellValue center;
+// };
 
 // Function that sets walls for the x / y position and the connecting walls of the neighbouring cells
 void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE][MAZE_SIZE])
@@ -261,12 +261,13 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
         }
 
         break;
-    default:
+    default: {
         // UART
         char buffer[40];
         sprintf(buffer, "walls were not set correctly");
         putsUART1(buffer);
         break;
+    }
     }
     return;
 }
@@ -578,13 +579,15 @@ int turn_to_lowest_distance(int lowestNeighbour, int orientation)
         turnLeft();
         orientation = orientation - 1;
         break;
-    default:
+    default: {
         // UART
         char buffer[60];
         sprintf(buffer, "!!!!!!!!!!!!!ERROR!!!!!!!!!!!\n");
         putsUART1(buffer);
         sprintf(buffer, "Could not turn towards neighbour with lowest distance\n");
         putsUART1(buffer);
+        break;
+    }
     }
     return orientation;
 }
@@ -708,7 +711,7 @@ void switchMazeSolverStateTo(enum MazeSolverStates new_state) {
 void mazeSolver() {
     // Init only at the beginning of the execution of this algorithm
     if (maze_solver_state.just_startet_execution) {
-        initMazeSolver()
+        initMazeSolver();
         maze_solver_state.just_startet_execution = false;
         currMovementControlParameters.is_movement_goal_reached = true;
     }
@@ -728,7 +731,7 @@ void mazeSolver() {
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
-            simple_wall_follower_state.just_switched_state = false;
+            maze_solver_state.just_switched_state = false;
 
             char buffer[50];
             sprintf(buffer, "now starting EXPLORATION_TO_CENTER\n");
@@ -797,7 +800,7 @@ void mazeSolver() {
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
-            simple_wall_follower_state.just_switched_state = false;
+            .just_switched_state = false;
 
             char buffer[50];
             sprintf(buffer, "now starting EXPLORATION_TO_START\n");
@@ -845,7 +848,7 @@ void mazeSolver() {
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
-            simple_wall_follower_state.just_switched_state = false;
+            maze_solver_state.just_switched_state = false;
 
             // only one call of the final floodfill to initialize the distance array with the optimal path
             final_floodFill(currentLevel, nextLevel, distance, walls);
@@ -871,7 +874,7 @@ void mazeSolver() {
         {
             // The goal has been reached and the algorithm can stop.
             // Switch to the according robot state STOP in the robots main state machine
-            switchRobotStateTo(STOP)
+            switchRobotStateTo(STOP);
             break;
         }
 
@@ -883,7 +886,7 @@ void mazeSolver() {
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
-            simple_wall_follower_state.just_switched_state = false;
+            maze_solver_state.just_switched_state = false;
 
             char buffer[50];
             sprintf(buffer, "now starting TURN_TO_LOWEST_DISTANCE\n");
@@ -911,7 +914,7 @@ void mazeSolver() {
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
-            simple_wall_follower_state.just_switched_state = false;
+            maze_solver_state.just_switched_state = false;
 
             char buffer[50];
             sprintf(buffer, "now starting MOVE_FORWARD\n");

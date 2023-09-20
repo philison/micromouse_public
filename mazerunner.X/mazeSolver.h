@@ -20,12 +20,63 @@
 #define MAZE_SIZE 6
 #define STACK_SIZE 256
 
+// define values for each cell
+enum CellValue
+{
+    UNKNOWN,
+    WALL,
+    WAY,
+    EXPLORED
+};
 
+// Define a structure to hold the four values
+struct CellData
+{
+    enum CellValue north;
+    enum CellValue east;
+    enum CellValue south;
+    enum CellValue west;
+    enum CellValue center;
+};
 
 int checkGoal(int x, int y);
 int checkStart(int x, int y);
 
 void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE][MAZE_SIZE]);
+
+
+typedef struct
+{
+    int x, y;
+} Point;
+
+// Stack data structure
+typedef struct
+{
+    Point *items;
+    int top;
+    int capacity;
+} Stack;
+
+// Initialize a stack with a given capacity
+Stack *createStack(int capacity)
+{
+    Stack *stack = (Stack *)malloc(sizeof(Stack));
+    stack->capacity = capacity;
+    stack->top = -1;
+    stack->items = (Point *)malloc(sizeof(Point) * capacity);
+    return stack;
+}
+
+void push(Stack *stack, Point item);
+Point pop(Stack *stack);
+void swapStacks(Stack **stack1, Stack **stack2);
+void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MAZE_SIZE], struct CellData walls[MAZE_SIZE][MAZE_SIZE], int goal);
+void final_floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MAZE_SIZE], struct CellData walls[MAZE_SIZE][MAZE_SIZE]);
+int findlowestDistance(int arr[]);
+int turn_to_lowest_distance(int lowestNeighbour, int orientation);
+void openNeighbours(int x, int y, struct CellData walls[MAZE_SIZE][MAZE_SIZE], int distance_Open_Neighbours[4], int distance[MAZE_SIZE][MAZE_SIZE]);
+
 
 // TODO: Add the remaining function prototypes. Necessary if functions are not used outside ?
 
@@ -56,28 +107,15 @@ struct MazeSolverState {
     enum MazeSolverStates curr_phase;
     bool just_switched_state;
     bool just_startet_execution;
-}
+};
 
-struct MazeSolverState maze_solver_state;
+static struct MazeSolverState maze_solver_state;
 
-
-// Needed flags:
-// just_startet_execution
-
-// States:
-// EXPLORATION_TO_CENTER
-// EXPLORATION_TO_START
-// FINAL_RUN
-
-// Caution;
-// Only when standing at the cell center should the following functions be executed:
-// checkGoal()  // to ensure that the robot does not end its run prematurely while driving to the center, however can be avoided if we only update the robot position after it has executed the movement function
-// checkStart() 
-// updateWalls()
 
 
 // From initMazeSolver()
 // TODO: do they have to be declared as extern variables to be visible in the scope of the different states of the state machine ?
+// Or in one global struct ?
 struct CellData walls[MAZE_SIZE][MAZE_SIZE];
 int orientation = 16;
 int x = 0;
