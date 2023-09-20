@@ -1,5 +1,19 @@
 #include "mazeSolver.h"
 
+// From initMazeSolver()
+// TODO: do they have to be declared as extern variables to be visible in the scope of the different states of the state machine ?
+// Or in one global struct ?
+struct CellData walls[MAZE_SIZE][MAZE_SIZE];
+int orientation = 16;
+int x = 0;
+int y = 0;
+int distance[MAZE_SIZE][MAZE_SIZE];
+int distance_Open_Neighbours[4];
+int lowestNeighbour = 6;
+Stack *currentLevel = createStack(STACK_SIZE); // current level is needed for the floodfill function
+Stack *nextLevel = createStack(STACK_SIZE);    // next level is needed for the floodfill function
+
+
 // turns false if the goal is reached
 int checkGoal(int x, int y)
 {
@@ -279,18 +293,18 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
  *      Floodfill distance update
  *
  *************************************/
-typedef struct
-{
-    int x, y;
-} Point;
+// typedef struct
+// {
+//     int x, y;
+// } Point;
 
-// Stack data structure
-typedef struct
-{
-    Point *items;
-    int top;
-    int capacity;
-} Stack;
+// // Stack data structure
+// typedef struct
+// {
+//     Point *items;
+//     int top;
+//     int capacity;
+// } Stack;
 
 // Initialize a stack with a given capacity
 Stack *createStack(int capacity)
@@ -800,7 +814,7 @@ void mazeSolver() {
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
-            .just_switched_state = false;
+            maze_solver_state.just_switched_state = false;
 
             char buffer[50];
             sprintf(buffer, "now starting EXPLORATION_TO_START\n");
@@ -882,7 +896,9 @@ void mazeSolver() {
         switchMazeSolverStateTo(TURN_TO_LOWEST_DISTANCE);
         break;
 
-    case TURN_TO_LOWEST_DISTANCE:
+    case TURN_TO_LOWEST_DISTANCE: {
+        int intended_orientation;
+
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
@@ -896,7 +912,7 @@ void mazeSolver() {
             // Now comes the first movement command: Turn to the lowest neighbour
             // Since this line initiates a movement primitive, it should only be executed once and than no more 
             // until the movement is finished and the state is re-entered from a different state
-            int intended_orientation = turn_to_lowest_distance(lowestNeighbour, orientation); // orientation should be created as a pointer
+            intended_orientation = turn_to_lowest_distance(lowestNeighbour, orientation); // orientation should be created as a pointer
             // Now follows the second movement command: Move forward to the next cell with the lowest distance
             // Therefore we have to switch to the respective state: MOVE_FORWARD as soon as the just started movement is finished
         }
@@ -909,7 +925,7 @@ void mazeSolver() {
             switchMazeSolverStateTo(MOVE_FORWARD);
         }
         break;
-
+    }
     case MOVE_FORWARD:
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {

@@ -59,14 +59,7 @@ typedef struct
 } Stack;
 
 // Initialize a stack with a given capacity
-Stack *createStack(int capacity)
-{
-    Stack *stack = (Stack *)malloc(sizeof(Stack));
-    stack->capacity = capacity;
-    stack->top = -1;
-    stack->items = (Point *)malloc(sizeof(Point) * capacity);
-    return stack;
-}
+Stack *createStack(int capacity);
 
 void push(Stack *stack, Point item);
 Point pop(Stack *stack);
@@ -113,17 +106,17 @@ static struct MazeSolverState maze_solver_state;
 
 
 
-// From initMazeSolver()
-// TODO: do they have to be declared as extern variables to be visible in the scope of the different states of the state machine ?
-// Or in one global struct ?
-struct CellData walls[MAZE_SIZE][MAZE_SIZE];
-int orientation = 16;
-int x = 0;
-int y = 0;
-int distance[MAZE_SIZE][MAZE_SIZE];
-int distance_Open_Neighbours[4];
-int lowestNeighbour = 6;
-Stack *currentLevel = createStack(STACK_SIZE); // current level is needed for the floodfill function
-Stack *nextLevel = createStack(STACK_SIZE);    // next level is needed for the floodfill function
+// // From initMazeSolver()
+// // TODO: do they have to be declared as extern variables to be visible in the scope of the different states of the state machine ?
+// // Or in one global struct ?
+// struct CellData walls[MAZE_SIZE][MAZE_SIZE];
+// int orientation = 16;
+// int x = 0;
+// int y = 0;
+// int distance[MAZE_SIZE][MAZE_SIZE];
+// int distance_Open_Neighbours[4];
+// int lowestNeighbour = 6;
+// Stack *currentLevel = createStack(STACK_SIZE); // current level is needed for the floodfill function
+// Stack *nextLevel = createStack(STACK_SIZE);    // next level is needed for the floodfill function
 
 #endif	/* MAZESOLVER_H */
