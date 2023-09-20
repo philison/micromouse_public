@@ -120,8 +120,10 @@ void __attribute__((interrupt, no_auto_psv)) _CNInterrupt(void) {
     // Toggel LED on every second flank, since the interupt gets triggered
     // on the rising and falling edge of a single button press
     if (flankCouter % 2 == 0){
-        LED2 = ~LED2;
-        mazi_running = !mazi_running;
+        // LED2 = ~LED2;
+        // mazi_running = !mazi_running;
+        // Set the button1_pressed flag to true in the global robot_state struct
+        robot_state.button1_pressed = true;
     }
 
     flankCouter++;

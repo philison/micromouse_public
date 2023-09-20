@@ -131,6 +131,7 @@ int main()
     setupIO(); //configures inputs and outputs
     //initTimer1(4166); //creates a 10ms timer interrupt
     initTimer1inMS(timer_time);
+    initTimer2inMS(timer_time);
 
     /* UART or Bluetooth Module ?
     * Set the Baudrate in the Baudrate register (U1BRG) 
@@ -142,8 +143,6 @@ int main()
     // Init Encoders
     initQEI1(0);
     initQEI2(0);
-
-    startTimer1();
     
     // LED4 = 1; //switches off
     // LED5 = LEDOFF;
@@ -158,80 +157,6 @@ int main()
     
     setupPWM();
 
-    // setPWM_DCpercentage(&P1DC1, 0.1);
-    // set_DC_and_motor_state_left(0.5, "forward_slow_decay");
-    // set_DC_and_motor_state_right(0.5, "forward_slow_decay");
-
-    // set_DC_and_motor_state_left(0.5, "forward_fast_decay");
-    // set_DC_and_motor_state_right(0.1, "forward_fast_decay");
-
-    // set_DC_and_motor_state_left(0.5, "reverse_slow_decay");
-    // set_DC_and_motor_state_right(0.5, "reverse_slow_decay");
-
-    // set_DC_and_motor_state_left(0.5, "reverse_fast_decay");
-    // set_DC_and_motor_state_right(0.5, "reverse_fast_decay");
-
-    // set_DC_and_motor_state_left(0.2, "forward_slow_decay");
-    // set_DC_and_motor_state_right(0.2, "forward_slow_decay");
-
-
-
-    // Set PWM Pin for Motors
-    // Left Motor: PWM1H1 (Pin: RB14), PWM1L1 (Pin: RB15) (PWM Pin pair 1 of the PWM Module 1)
-    // Right Motor: PWM1H2 (Pin: RB12), PWM1L2 (Pin: RB13) (PWM Pin pair 2 of the PWM Module 1)
-
-    /*  For the Motors:
-    *   The two PWM outputs 1H1 and 1H2 are used to control the H-bridge inputs AIN2 and BIN2
-    *
-    *   1H1 = RB14 <--> AIN2
-    *   1H2 = RB12 <--> BIN2
-    * 
-    *   1L1 = RB15 <--> AIN1
-    *   1L2 = RB13 <--> BIN1
-    */
-
-//    Motor IDs
-
-//    Param; Left Motor; Right Motor; 
-//    Pin; RB14,RB15; RB12, RB13;
-//    PWM-Channel; PWM1H1,PWM1L1; PWM1H2,PWM1L2
-//    H-Bridge: AIN2, AIN1; BIN2, BIN1
-
-    /*
-        Param       | Left Motor  | Right Motor 
-        ---------------------------------------
-        Pin         | RB14,RB15   | RB12, RB13
-        PWM-Channel | PWM1H1,PWM1L1 | PWM1H2,PWM1L2
-        H-Bridge    | AIN2, AIN1   | BIN2, BIN1
-    */
-   
-
-    /*
-        PWM Control of Motor Speed
-
-        RB15/RB13 | RB14/RB12 | FUNCTION
-        -------------------------------
-        PWM       | 0         | Forward PWM, fast decay
-        1         | PWM       | Forward PWM, slow decay
-        0         | PWM       | Reverse PWM, fast decay
-        PWM       | 1         | Reverse PWM, slow decay
-    */
-    //  Set Motor direction to:
-
-    /* Forward, fast decay */
-    // LATBbits.LATB14 = 0; 
-    // LATBbits.LATB12 = 0;
-    /* Forward, slow decay */
-    // LATBbits.LATB15 = 1;
-    // LATBbits.LATB13 = 1;
-    /* Reverse PWM, fast decay */
-    // LATBbits.LATB15 = 0;
-    // LATBbits.LATB13 = 0;
-    /* Reverse PWM, slow decay */
-    // LATBbits.LATB14 = 1; 
-    // LATBbits.LATB12 = 1;
-    
-
 
     setupButtons();
     
@@ -240,11 +165,120 @@ int main()
     startADC1();
     initDmaChannel4();
 
+    // Start the timers
+    startTimer1();
+    startTimer2();
 
+    switchRobotStateTo(IDLE);
 
     while(1)
     {
+
+        // State machine
+        switch (robot_state.state)
+        {
+        case IDLE:
+            /* Enter the State */
+
+            /* Execute the State */
+            currMovementControlParameters.movementPrimitive.type = PARKING;
+
+            /* Exit the State */
+            // If Button1 was pressed go to DELAY_BEFORE_START
+            if (robot_state.button1_pressed) {
+                switchRobotStateTo(DELAY_BEFORE_START);
+                robot_state.button1_pressed = false;
+            }
+            break;
         
+        case DELAY_BEFORE_START:
+            /* Enter the State */
+            if (robot_state.just_switched_state) {
+                timeWithTimer2(1000); // 1 second delay in ms
+                robot_state.just_switched_state = false;
+            }
+
+            /* Execute the State */
+
+            /* Exit the State */
+            // If the delay timer2 has expired go to EXECUTE
+            if (robot_state.timer2_expired) {
+                switchRobotStateTo(EXECUTE);
+                robot_state.timer2_expired = false;
+            }
+            break;
+
+        case EXECUTE:
+            /* Enter the State */
+            if (robot_state.just_switched_state) {
+                // Set the just_switched_state flag to false
+                robot_state.just_switched_state = false;
+                // // Set the is_movement_goal_reached flag to false
+                // currMovementControlParameters.is_movement_goal_reached = false;
+
+                /* STRAIGHT */
+                // // currMovementControlParameters = {PARKING, 0.0, 0.0, {0.0, 0.0}, false};
+                // currMovementControlParameters.movementPrimitive.type = DRIVING_STRAIGHT;
+                // currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+                // currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+
+                // float distance_to_goal_in_meters = 5*MAZE_CELL_LENGTH;
+                // initDrivingStraightForNMeters(distance_to_goal_in_meters); // Sets the goal encoder value in the currMovementControlParameters struct
+
+                /* TURNING */
+                // currMovementControlParameters.movementPrimitive.type = TURNING;
+                // currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+                // currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+
+                // float angle_to_goal_in_degrees = -90.0;
+                // initTurningForNDegrees(angle_to_goal_in_degrees); // Sets the goal encoder value in the currMovementControlParameters struct
+            }
+
+
+            /* Execute the State */
+            simpleWallFollower();
+            // simpleMotionPrimitiveExecutor();
+            // remoteControlledMotionPrimitiveExecutor();
+            
+            /* Exit the State */
+            // If the EXECUTion goal is reached go to STOP, has to be set somewhere within the function called in the EXECUTE state
+            if (robot_state.execution_finished) {
+                switchRobotStateTo(STOP);
+            } else if (robot_state.button1_pressed) {
+                // TODO: Implement a way to stop the robot while it is executing a motion primitive, does not work yet
+                switchRobotStateTo(IDLE);
+                robot_state.button1_pressed = false;
+            }
+            
+            break;
+
+        case STOP:
+            /* Enter the State */
+
+            /* Execute the State */
+            // Shut off the Motors or for no set Motor controller to PARKING
+            currMovementControlParameters.movementPrimitive.type = PARKING;
+            
+            /* Exit the State */
+            switchRobotStateTo(IDLE);
+            break;
+
+        case EMERGENCY:
+            /* Enter the State */
+            
+            /* Execute the State */
+            // Do custome Emergency Stuff
+            // Like sending a message via UART
+            // TODO: Turn everything actually off not just in an idle model like in parking
+            currMovementControlParameters.movementPrimitive.type = PARKING;
+            
+            /* Exit the State */
+
+            break;
+
+        default:
+            break;
+        }
 
     };
  

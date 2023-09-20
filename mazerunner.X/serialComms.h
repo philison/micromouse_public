@@ -31,10 +31,43 @@
 #ifndef SERIALCOMMS_H
 #define	SERIALCOMMS_H
 
-#include <xc.h> // include processor files - each processor file is guarded.  
+#include <xc.h> // include processor files - each processor file is guarded.
+#include <stdio.h> // For string handling functions
+#include <stdbool.h> // For bool type
+#include "newTypes.h"
+
+// Enum to define command codes
+enum Commands {
+    CMD_NONE,   // No command
+    CMD_VEL,    // Velocity command
+    CMD_TURN,   // Turn command
+    CMD_DRIVE,  // Drive command
+    CMD_STOP,   // Stop command
+    CMD_EMERGENCY, // Emergency stop command
+    CMD_PARK,   // Park command
+    CMD_START,  // Start command
+    // Add more command codes as needed
+};
+
+// Struct to store UART command information
+struct UARTCommand {
+    enum Commands command_code;
+    char name[20];
+    float command_value;
+    bool new_command;
+};
+
+extern volatile struct UARTCommand currentUARTCommand;
 
 void setupUART1(void);
 void putsUART1(char *buffer);
 void putsUART2(char *buffer);
+
+struct UARTCommand parseCommand(const char* commandString);
+void handleNewUARTCommand();
+void sendParsedValues();
+
+void overwriteCurrentMovementControlParametersWithUART( struct UARTCommand uartCommand );
+
 #endif	/* SERIALCOMMS_H */
 

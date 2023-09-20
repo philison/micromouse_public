@@ -5,6 +5,7 @@
 
     #include <xc.h> // include processor files - each processor file is guarded.  
     #include <stdio.h>
+    #include "newTypes.h"
 
 void setupButtons(void);
 

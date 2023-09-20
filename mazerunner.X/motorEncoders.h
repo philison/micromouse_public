@@ -11,6 +11,8 @@
 
 #include<xc.h>
 #include <stdbool.h> // for bool type
+// #include "abstractControl.h"
+#include "newTypes.h"
 
 void initQEI1( unsigned int  startPos);
 void initQEI2( unsigned int  startPos);
@@ -47,12 +49,39 @@ float convertCountsToDistanceInMeters(float counts);
 float getTotalDrivenDistanceInMeters(bool reset_static_variables);
 float getDrivenDistanceInMeters();
 float getDrivenDistanceInMeters2();
-float getDistanceToGoalInMeters(float initial_distance_to_goal, bool init_starting_position);
+// float getDistanceToGoalInMeters(float initial_distance_to_goal, bool init_starting_position);
 
 float getAngleToGoalInDegrees(float initial_angle_to_goal, bool init_starting_position);
 float getTotalDrivenAngleInDegrees(bool reset_static_variables);
 
 float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length_in_meters, float turn_radius_in_meters);
+
+//new
+#define ENCODER_COUNTS_PER_REVOLUTION (33.0 * 4.0 * 16.0)
+#define WHEEL_CIRCUMFERENCE (0.06 * 3.141592) // in meters, wheel diameter is 6 cm
+#define TURN_RADIUS 0.06 // in meters, is the distance between the wheels divided by 2
+
+#define GOAL_REACHED_THRESHOLD_DISTANCE 0.01 // in meters
+#define GOAL_REACHED_THRESHOLD_ANGLE 1.0 // in degrees
+
+// extern struct MovementControlParameters currMovementControlParameters;
+
+long getPositionInCountsLong_Left();
+long getPositionInCountsLong_Right();
+
+long convertDistanceInMetersToCounts(float distance_to_goal_in_meters);
+
+struct EncoderCounts getGoalPositionInEncoderCounts(float initial_distance_to_goal_in_meters);
+
+bool isDistanceGoalReached(float distance_to_goal);
+bool isAngleGoalReached(float distance_to_goal);
+float getDistanceToGoalInMeters();
+
+bool isMovementGoalReached();
+
+float calculateArcLengthInMeters(float angle_to_turn_in_degrees);
+//newend
+
 
 extern long rotationCount1;
 extern long rotationCount2;

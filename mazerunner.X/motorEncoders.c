@@ -512,30 +512,31 @@ float getDrivenDistanceInMeters2()
 //     return initial_distance_to_goal - distance_driven;
 // }
 
-float getDistanceToGoalInMeters(float initial_distance_to_goal, bool init_starting_position){
+// Working
+// float getDistanceToGoalInMeters(float initial_distance_to_goal, bool init_starting_position){
 
-    static float oldPosition;
-    static float distance_driven;
-    float currentPosition;
+//     static float oldPosition;
+//     static float distance_driven;
+//     float currentPosition;
 
-    currentPosition = getPositionInCounts_Left();
+//     currentPosition = getPositionInCounts_Left();
 
-    if (init_starting_position) {
-        oldPosition = currentPosition;
-        distance_driven = 0;
+//     if (init_starting_position) {
+//         oldPosition = currentPosition;
+//         distance_driven = 0;
 
-        // This return will end the function here
-        // and not execute the rest of the code
-        return initial_distance_to_goal;
-    }
+//         // This return will end the function here
+//         // and not execute the rest of the code
+//         return initial_distance_to_goal;
+//     }
 
-    // currentPosition = getPositionInCounts_Right();
-    distance_driven += convertCountsToDistanceInMeters(currentPosition-oldPosition);
+//     // currentPosition = getPositionInCounts_Right();
+//     distance_driven += convertCountsToDistanceInMeters(currentPosition-oldPosition);
 
-    oldPosition=currentPosition;
+//     oldPosition=currentPosition;
 
-    return initial_distance_to_goal - distance_driven;
-}
+//     return initial_distance_to_goal - distance_driven;
+// }
 
 // Get the angle difference between the current robot angle and the goal angle
 // TODO: Only the left wheel is used to calculate the angle driven !!!!
@@ -566,7 +567,7 @@ float getDistanceToGoalInMeters(float initial_distance_to_goal, bool init_starti
 //     // return angle_difference * 180.0 / 3.141592;
 // }
 
-/*
+/* Working
 * This function returns the angle difference between the current robot angle and the goal angle.
 * The static variables are reseted when the init_starting_position parameter is set to true
 * This should be done before each motion primitive is started, like turning for 90 degrees left
@@ -604,7 +605,7 @@ float getAngleToGoalInDegrees(float initial_angle_to_goal, bool init_starting_po
     distance_driven_in_meters = convertCountsToDistanceInMeters(current_position-old_position);
     
     // Calculate angle driven from distance of right wheel
-    angle_driven += calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(distance_driven_in_meters, 0.06);    
+    angle_driven += calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(distance_driven_in_meters,TURN_RADIUS);    
     old_position = current_position;
 
     return initial_angle_to_goal - angle_driven;
@@ -614,9 +615,17 @@ float getAngleToGoalInDegrees(float initial_angle_to_goal, bool init_starting_po
     // return angle_difference * 180.0 / 3.141592;
 }
 
+
+
+// float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length_in_meters, float turn_radius_in_meters) {
+//     // a  = d * 360 / (2 * pi * r) with a = angle_driven_in_degrees and r in meters
+//     float angle_in_degrees = arc_length_in_meters * 360.0 / (2 * 3.141592 *turn_radius_in_meters);
+//     return angle_in_degrees;
+// }
+
 float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length_in_meters, float turn_radius_in_meters) {
     // a  = d * 360 / (2 * pi * r) with a = angle_driven_in_degrees and r in meters
-    float angle_in_degrees = arc_length_in_meters * 360.0 / (2 * 3.141592 *turn_radius_in_meters);
+    float angle_in_degrees = arc_length_in_meters * 360.0 / (2 * 3.141592 * turn_radius_in_meters);
     return angle_in_degrees;
 }
 
@@ -669,7 +678,7 @@ float getTotalDrivenAngleInDegrees(bool init_starting_position) {
     distance_driven_in_meters = convertCountsToDistanceInMeters(current_position-old_position);
     
     // Calculate angle driven from distance of right wheel
-    float angle_driven_in_degrees = calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(distance_driven_in_meters, 0.06);
+    float angle_driven_in_degrees = calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(distance_driven_in_meters, TURN_RADIUS);
     angle_driven += angle_driven_in_degrees;    
 
     old_position = current_position;
@@ -684,3 +693,97 @@ float getTotalDrivenAngleInDegrees(bool init_starting_position) {
 
     distance_driven += (distance_driven_left + distance_driven_right) / 2.0;
 */
+
+
+
+
+// NEW
+
+long getPositionInCountsLong_Left() {
+    return getPositionInCounts_2();
+}
+long getPositionInCountsLong_Right() {
+    return getPositionInCounts_1();
+}
+
+long convertDistanceInMetersToCounts(float distance_to_goal_in_meters) {
+    long counts;
+
+    // float wheel_diameter = 0.06;
+    // float wheel_cirumference = wheel_diameter * 3.141592;
+
+    // TODO: check if the sign is correct after converting to long
+    // counts = (long) ( distance_to_goal_in_meters / wheel_cirumference * ENCODER_COUNTS_PER_REVOLUTION );
+    counts = (long) ( distance_to_goal_in_meters / WHEEL_CIRCUMFERENCE * ENCODER_COUNTS_PER_REVOLUTION );
+
+    return counts;
+}
+
+struct EncoderCounts getGoalPositionInEncoderCounts(float initial_distance_to_goal_in_meters) {
+    struct EncoderCounts goal_position_in_encoder_counts;
+
+    long initial_distance_to_goal_in_counts = convertDistanceInMetersToCounts(initial_distance_to_goal_in_meters);
+    long current_position_in_counts = getPositionInCountsLong_Left();
+    long goal_position_in_counts = current_position_in_counts + initial_distance_to_goal_in_counts;
+    
+    goal_position_in_encoder_counts.left = goal_position_in_counts;
+    goal_position_in_encoder_counts.right = goal_position_in_counts;
+
+    return goal_position_in_encoder_counts;
+}
+
+// TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
+// or if the robot staies in the goal reached state for a long enough time
+bool isDistanceGoalReached(float distance_to_goal) {
+    return fabs(distance_to_goal) <= GOAL_REACHED_THRESHOLD_DISTANCE;
+}
+
+// TODO: It can only register a goal reached if it is called often enough to detect the goal reached state, 
+// or if the robot staies in the goal reached state for a long enough time
+bool isAngleGoalReached(float angle_to_goal) {
+    return fabs(angle_to_goal) <= GOAL_REACHED_THRESHOLD_ANGLE;
+}
+
+float getDistanceToGoalInMeters(){
+
+    long current_position = getPositionInCountsLong_Left();
+    // TODO: Check if the sign is correct
+    long distance_to_goal_in_counts = currMovementControlParameters.goalPositionInEncoderCounts.left - current_position;
+
+    return convertCountsToDistanceInMeters(distance_to_goal_in_counts);
+}
+
+bool isMovementGoalReached() {
+    switch (currMovementControlParameters.movementPrimitive.type)
+    {
+    case DRIVING_STRAIGHT: {
+        // Currently check only the left encoder for completion as currently everything is based on the left wheel
+        float distance_to_goal_in_meters = getDistanceToGoalInMeters(); 
+        return isDistanceGoalReached(distance_to_goal_in_meters);
+        break;
+    }
+    case TURNING: {
+        // Currently check only the left encoder for completion as currently everything is based on the left wheel
+        float distance_to_goal_in_meters = getDistanceToGoalInMeters();
+        // TODO: Replace by new getAngleToGoalInDegrees function
+        float angle_to_goal_in_degrees = calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(distance_to_goal_in_meters, TURN_RADIUS);
+        return isAngleGoalReached(angle_to_goal_in_degrees);
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+
+float calculateArcLengthInMeters(float angle_to_turn_in_degrees) {
+    // a  = d * 360 / (2 * pi * r) with a = angle_driven_in_degrees and r in meters, d = arc_length_in_meters
+    float arc_length_in_meters = angle_to_turn_in_degrees * (2 * 3.141592 * TURN_RADIUS) / 360.0;
+    return arc_length_in_meters;
+}
+
+// float getAngleToGoalInDegrees(float initial_angle_to_goal, bool init_starting_position) {
+
+// }
+
+// ENDNEW
