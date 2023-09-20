@@ -107,6 +107,12 @@ void __attribute__((interrupt, no_auto_psv)) _U1RXInterrupt(void) {
 	static volatile char commandBuffer[50]; // Buffer to store the received command
 	static volatile int bufferIndex = 0;
 
+    // TODO: Sending something from the Microcontroller to the PC via UART1 does interupt the command reading process
+    //       and the command is not executed. Why is that? How can it be fixed? Is the buffer emptied when sending something? How does the command buffer work?
+    // char buffer[30];
+    // sprintf(buffer, "UART Interrupt \n");
+    // putsUART1(buffer);
+
 
     // Clear the UART receive interrupt flag
     IFS0bits.U1RXIF = 0;
@@ -124,8 +130,20 @@ void __attribute__((interrupt, no_auto_psv)) _U1RXInterrupt(void) {
     else if (receivedData == '>') {
         // Process the command when the end character is received
         currentUARTCommand = parseCommand(commandBuffer);
-		// // Send back the parsed values via UART
+
+        // Set the new_command flag to true
+	    currentUARTCommand.new_command = true;
+
+		// Send back the parsed values via UART
         sendParsedValues();
+        // Apply new command directly to the robot disregarding the current 
+        // control strategy used in main switch case EXCECUTE 
+        // (not like remoteControlledMotionPrimitiveExecutor())
+        // overwriteCurrentMovementControlParametersWithUART(currentUARTCommand);
+
+        // char buffer[30];
+        // sprintf(buffer, "New UART command\n");
+        // putsUART1(buffer);
     }
     // Store characters in the buffer
     else if (bufferIndex < sizeof(commandBuffer) - 1) {
@@ -261,27 +279,56 @@ void putsUART2(char *buffer)
 
 /************* HELPER FUNCTIONS *************/
 
+// struct UARTCommand parseCommand(const char* commandString) {
+//     struct UARTCommand parsedCommand;
+//     parsedCommand.command_code = CMD_NONE;
+
+// 	// Set the new_command flag to true
+// 	currentUARTCommand.new_command = true;
+
+//     // Check for velocity command "velX.Y"
+//     if (sscanf(commandString, "vel%f", &parsedCommand.command_value.fval) == 1) {
+//         parsedCommand.command_code = CMD_VEL;
+//         strcpy(parsedCommand.name, "vel");
+//     }
+//     // Check for turn command "turnX"
+//     else if (sscanf(commandString, "turn%d", &parsedCommand.command_value.ival) == 1) {
+//         parsedCommand.command_code = CMD_TURN;
+//         strcpy(parsedCommand.name, "turn");
+//     }
+//     // Check for drive command "driveX.Y"
+//     else if (sscanf(commandString, "drive%f", &parsedCommand.command_value.fval) == 1) {
+//         parsedCommand.command_code = CMD_DRIVE;
+//         strcpy(parsedCommand.name, "drive");
+//     }
+//     // Add more command parsing logic as needed
+
+//     return parsedCommand;
+// }
+
 struct UARTCommand parseCommand(const char* commandString) {
     struct UARTCommand parsedCommand;
     parsedCommand.command_code = CMD_NONE;
 
-	// Set the new_command flag to true
-	currentUARTCommand.new_command = true;
-
     // Check for velocity command "velX.Y"
-    if (sscanf(commandString, "vel%f", &parsedCommand.command_value.fval) == 1) {
+    if (sscanf(commandString, "vel%f", &parsedCommand.command_value) == 1) {
         parsedCommand.command_code = CMD_VEL;
         strcpy(parsedCommand.name, "vel");
     }
-    // Check for turn command "turnX"
-    else if (sscanf(commandString, "turn%d", &parsedCommand.command_value.ival) == 1) {
+    // Check for turn command "turnX.Y"
+    else if (sscanf(commandString, "turn%f", &parsedCommand.command_value) == 1) {
         parsedCommand.command_code = CMD_TURN;
         strcpy(parsedCommand.name, "turn");
     }
     // Check for drive command "driveX.Y"
-    else if (sscanf(commandString, "drive%f", &parsedCommand.command_value.fval) == 1) {
+    else if (sscanf(commandString, "drive%f", &parsedCommand.command_value) == 1) {
         parsedCommand.command_code = CMD_DRIVE;
         strcpy(parsedCommand.name, "drive");
+    }
+    // Check for stop command "stop"
+    else if (sscanf(commandString, "stop") == 1) {
+        parsedCommand.command_code = CMD_STOP;
+        strcpy(parsedCommand.name, "stop");
     }
     // Add more command parsing logic as needed
 
@@ -324,26 +371,29 @@ void sendParsedValues() {
     char responseBuffer[50];
     int responseLength = 0;
 
-    switch (currentUARTCommand.command_code) {
-        case CMD_VEL:
-            responseLength = sprintf(responseBuffer, "Command: %s, Value: %.2f\n", currentUARTCommand.name, currentUARTCommand.command_value.fval);
-            break;
+    // switch (currentUARTCommand.command_code) {
+    //     case CMD_VEL:
+    //         responseLength = sprintf(responseBuffer, "Command: %s, Value: %.2f\n", currentUARTCommand.name, currentUARTCommand.command_value);
+    //         break;
 
-        case CMD_TURN:
-            responseLength = sprintf(responseBuffer, "Command: %s, Value: %d\n", currentUARTCommand.name, currentUARTCommand.command_value.ival);
-            break;
+    //     case CMD_TURN:
+    //         responseLength = sprintf(responseBuffer, "Command: %s, Value: %.2f\n", currentUARTCommand.name, currentUARTCommand.command_value);
+    //         break;
 
-        case CMD_DRIVE:
-            responseLength = sprintf(responseBuffer, "Command: %s, Value: %.2f\n", currentUARTCommand.name, currentUARTCommand.command_value.fval);
-            break;
+    //     case CMD_DRIVE:
+    //         responseLength = sprintf(responseBuffer, "Command: %s, Value: %.2f\n", currentUARTCommand.name, currentUARTCommand.command_value);
+    //         break;
 
-        // Add cases for other commands as needed
+    //     // Add cases for other commands as needed
 
-        default:
-            // No valid command, send an error message
-            responseLength = sprintf(responseBuffer, "Invalid Command\n");
-            break;
-    }
+    //     default:
+    //         // No valid command, send an error message
+    //         responseLength = sprintf(responseBuffer, "Invalid Command\n");
+    //         break;
+    // }
+
+    responseLength = sprintf(responseBuffer, "Command: %s, Value: %.2f\n", currentUARTCommand.name, currentUARTCommand.command_value);
+
 
     // Send the response via UART
 	putsUART1(responseBuffer);
@@ -354,3 +404,53 @@ void sendParsedValues() {
     // }
 }
 
+
+// Apply new command directly to the robot disregarding the current 
+// control strategy used in main switch case EXCECUTE 
+// (not like remoteControlledMotionPrimitiveExecutor())
+void overwriteCurrentMovementControlParametersWithUART( struct UARTCommand uartCommand ) {
+    // Update the current movement control parameters
+    char buffer[30];
+    sprintf(buffer, "Overwriting...\n");
+    putsUART1(buffer);
+    switch (uartCommand.command_code) {
+        case CMD_VEL: {
+            currMovementControlParameters.movementPrimitive.vel_cruise = uartCommand.command_value;
+            char buffer[30];
+            sprintf(buffer, "vel overwritten: %f\n", currMovementControlParameters.movementPrimitive.vel_cruise);
+            putsUART1(buffer);
+            break;
+        }
+        case CMD_TURN: {
+            // The velocity has to be set via the CMD_VEL command
+            // TODO: Maybe we should hand over the motion primitive as a function parameter and not read the global values from within the init function
+            currMovementControlParameters.movementPrimitive.type = TURNING;
+            currMovementControlParameters.movementPrimitive.value = uartCommand.command_value;
+            initMovementFromGlobalGoal();
+            break;
+        }
+        case CMD_DRIVE: {
+            // The velocity has to be set via the CMD_VEL command
+            currMovementControlParameters.movementPrimitive.type = DRIVING_STRAIGHT;
+            currMovementControlParameters.movementPrimitive.value = uartCommand.command_value;
+            initMovementFromGlobalGoal();
+            char buffer[30];
+            sprintf(buffer, "Drive Mode activated: %f\n", currMovementControlParameters.movementPrimitive.value);
+            putsUART1(buffer);
+            break;
+        }
+        case CMD_STOP:
+            currMovementControlParameters.movementPrimitive.type = PARKING;
+            break;
+
+        // Add cases for other commands as needed
+
+        default: {
+            // No valid command, send an error message
+            char buffer[20];
+            sprintf(buffer, "Invalid Command\n");
+            putsUART1(buffer);
+            break;
+        }
+    }
+}

@@ -10,7 +10,7 @@ void updateMovementPrimitiveParameters(enum MovementPrimitiveTypes type, float v
     // Update the movement primitive parameters
     currMovementControlParameters.movementPrimitive.type = type;
     currMovementControlParameters.movementPrimitive.value = value_as_distance_or_angle;
-    currMovementControlParameters.movementPrimitive.velocity = velocity;
+    currMovementControlParameters.movementPrimitive.vel_cruise = velocity;
 }
 
 void switchRobotStateTo(States new_state) {

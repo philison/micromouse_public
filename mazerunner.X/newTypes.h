@@ -21,6 +21,7 @@
 
 enum MovementPrimitiveTypes {
     DRIVING_STRAIGHT,
+    DRIVING_STRAIGHT_FOREVER,
     TURNING,
     PARKING,
 };
@@ -29,7 +30,7 @@ enum MovementPrimitiveTypes {
 struct MovementPrimitive {
     enum MovementPrimitiveTypes type;
     float value;
-    float velocity;
+    float vel_cruise; // For both Driving and Turning
 };
 
 void updateMovementPrimitiveParameters(enum MovementPrimitiveTypes type, float value_as_distance_or_angle, float velocity);
@@ -50,12 +51,13 @@ struct EncoderCounts {
 
 struct MovementControlParameters {
     struct MovementPrimitive movementPrimitive;
-    float vel_cruise;
-    float vel_turn_cruise;
+    // float vel_cruise;
+    // float vel_turn_cruise;
     struct EncoderCounts goalPositionInEncoderCounts;
     bool is_movement_goal_reached;
 };
 
+// This is the global variable that holds the current movement control parameters for the motor controller
 extern struct MovementControlParameters currMovementControlParameters;
 
 typedef enum States {
@@ -80,6 +82,8 @@ typedef struct RobotState {
     int timer2_value;
 } RobotState;
 
+// This is the global variable that holds the current state of the robot 
+// (the main switch-case statement in main.c)
 extern RobotState robot_state;
 
 void switchRobotStateTo(States new_state);

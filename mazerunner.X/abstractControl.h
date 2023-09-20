@@ -15,6 +15,8 @@
 #include "serialComms.h"
 
 #define MAZE_CELL_LENGTH 0.18 // in meters
+#define VEL_CRUISE 0.3
+#define VEL_TURN_CRUISE 0.3
 
 // #define GOAL_REACHED_THRESHOLD_DISTANCE 0.01 // in meters
 // // #define GOAL_REACHED_THRESHOLD_DISTANCE 0.02 // in meters
@@ -44,6 +46,7 @@ void driveStraightForever(float vel_cruise);
 // NEW
 void initDrivingStraightForNMeters(float nMeters);
 void drivingStraightForNMeters();
+void drivingStraightForever();
 
 void initTurningForNDegrees(float nDegrees);
 void turningForNDegrees();
@@ -63,6 +66,9 @@ float turn180DegreesLeft(float vel_turn_cruise, bool start_new_motion_primitive)
 
 enum SimpleWallFollowerStates {
     // SWF_IDLE,
+    SWF_DRIVE_ONE_CELL_AHEAD,
+    SWF_TURN_LEFT,
+    SWF_TURN_RIGHT,
     SWF_DRIVE_STRAIGHT_AHEAD,
     SWF_DRIVE_AND_TURN_RIGHT,
     SWF_DRIVE_AND_TURN_LEFT,
@@ -80,6 +86,7 @@ struct SimpleWallFollowerState {
 extern struct SimpleWallFollowerState simple_wall_follower_state;
 
 void switchSimpleWallFollowerStateTo(enum SimpleWallFollowerStates new_state);
+void initStateSWF();
 void updateSimpleWallFollowerState();
 
 void simpleWallFollower();

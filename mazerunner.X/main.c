@@ -219,26 +219,26 @@ int main()
                 /* STRAIGHT */
                 // // currMovementControlParameters = {PARKING, 0.0, 0.0, {0.0, 0.0}, false};
                 // currMovementControlParameters.movementPrimitive.type = DRIVING_STRAIGHT;
-                // currMovementControlParameters.vel_cruise = 0.3;
-                // currMovementControlParameters.vel_turn_cruise = 0.3;
+                // currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+                // currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
 
                 // float distance_to_goal_in_meters = 5*MAZE_CELL_LENGTH;
                 // initDrivingStraightForNMeters(distance_to_goal_in_meters); // Sets the goal encoder value in the currMovementControlParameters struct
 
                 /* TURNING */
                 // currMovementControlParameters.movementPrimitive.type = TURNING;
-                // currMovementControlParameters.vel_cruise = 0.3;
-                // currMovementControlParameters.vel_turn_cruise = 0.3;
+                // currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+                // currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
 
                 // float angle_to_goal_in_degrees = -90.0;
                 // initTurningForNDegrees(angle_to_goal_in_degrees); // Sets the goal encoder value in the currMovementControlParameters struct
-
             }
 
 
             /* Execute the State */
-            // simpleWallFollower();
-            simpleMotionPrimitiveExecutor();
+            simpleWallFollower();
+            // simpleMotionPrimitiveExecutor();
+            // remoteControlledMotionPrimitiveExecutor();
             
             /* Exit the State */
             // If the EXECUTion goal is reached go to STOP, has to be set somewhere within the function called in the EXECUTE state

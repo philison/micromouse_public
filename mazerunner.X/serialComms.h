@@ -34,6 +34,7 @@
 #include <xc.h> // include processor files - each processor file is guarded.
 #include <stdio.h> // For string handling functions
 #include <stdbool.h> // For bool type
+#include "newTypes.h"
 
 // Enum to define command codes
 enum Commands {
@@ -48,14 +49,11 @@ enum Commands {
     // Add more command codes as needed
 };
 
-// Struct to store command information
+// Struct to store UART command information
 struct UARTCommand {
     enum Commands command_code;
     char name[20];
-    union {
-        float fval;
-        int ival;
-    } command_value;
+    float command_value;
     bool new_command;
 };
 
@@ -68,6 +66,8 @@ void putsUART2(char *buffer);
 struct UARTCommand parseCommand(const char* commandString);
 void handleNewUARTCommand();
 void sendParsedValues();
+
+void overwriteCurrentMovementControlParametersWithUART( struct UARTCommand uartCommand );
 
 #endif	/* SERIALCOMMS_H */
 

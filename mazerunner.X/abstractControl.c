@@ -108,7 +108,7 @@ void drivingStraightForNMeters() {
     }
 
     // The base velocity (vel_base) becomes zero when the goal is reached
-    float vel_base = p_goal_distance_controller(getDistanceToGoalInMeters(), currMovementControlParameters.vel_cruise);
+    float vel_base = p_goal_distance_controller(getDistanceToGoalInMeters(), currMovementControlParameters.movementPrimitive.vel_cruise);
 
     // Any wheel velocity needed to correct during the wall centering or following is added to this base velocity above
     // Resulting in the desired velocities (desiredVelocities) for the left and right wheel respectively
@@ -131,6 +131,23 @@ void drivingStraightForNMeters() {
 
 void driveStraightForever(float vel_cruise) {
     float vel_base = vel_cruise;
+
+    // Any wheel velocity needed to correct during the wall centering or following is added to this base velocity above
+    // Resulting in the desired velocities (desiredVelocities) for the left and right wheel respectively
+    struct Velocities desiredVelocities = desiredVelocitiesBasedOnCorrectLateralControlMode(vel_base);
+        
+    // Current Motor Velocities from Encoders
+    struct Velocities currentMotorVelocities = getVelocitiesInRoundsPerSecond();
+
+    // Hand the desired and current velocities to the PI velocity controller
+    // It sets the duty cycle for the PWM signal to the motors
+    // The return value is just for debugging purposes
+    float dc_left = pi_vel_controller_left(desiredVelocities.vel_left , currentMotorVelocities.vel_left);
+    float dc_right = pi_vel_controller_right(desiredVelocities.vel_right, currentMotorVelocities.vel_right);
+}
+
+void drivingStraightForever() {
+    float vel_base = currMovementControlParameters.movementPrimitive.vel_cruise;
 
     // Any wheel velocity needed to correct during the wall centering or following is added to this base velocity above
     // Resulting in the desired velocities (desiredVelocities) for the left and right wheel respectively
@@ -241,7 +258,7 @@ void turningForNDegrees() {
     // The base velocity (vel_base) becomes zero when the goal is reached
     // TODO: Replace by new getAngleToGoalInDegrees function
     float angle_to_goal = calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(getDistanceToGoalInMeters(), TURN_RADIUS);
-    float vel_turn_base = p_goal_angle_controller(angle_to_goal, currMovementControlParameters.vel_turn_cruise);
+    float vel_turn_base = p_goal_angle_controller(angle_to_goal, currMovementControlParameters.movementPrimitive.vel_cruise);
 
     // No wall centering or following is needed during turning, some corection mechanism might be added later if necessary
 
@@ -275,185 +292,264 @@ float turn180DegreesLeft(float vel_turn_cruise, bool start_new_motion_primitive)
 
 /* SIMPLE WALL FOLLOWER - NOT WORKING */
 
-struct SimpleWallFollowerState simple_wall_follower_state = {SWF_DRIVE_STRAIGHT_AHEAD, SWF_DRIVE_STRAIGHT_AHEAD, true};
+// ###########################
 
-void switchSimpleWallFollowerStateTo(enum SimpleWallFollowerStates new_state) {
-    simple_wall_follower_state.prev_state = simple_wall_follower_state.curr_state;
-    simple_wall_follower_state.curr_state = new_state;
-    simple_wall_follower_state.just_switched_state = true;
-}
+// struct SimpleWallFollowerState simple_wall_follower_state = {SWF_DRIVE_STRAIGHT_AHEAD, SWF_DRIVE_STRAIGHT_AHEAD, true};
 
-void updateSimpleWallFollowerState() {
-    if (isWallLeft() && !isWallFront()) {
-        switchSimpleWallFollowerStateTo(SWF_DRIVE_STRAIGHT_AHEAD);
-    } else if (!isWallLeft()) {
-        switchSimpleWallFollowerStateTo(SWF_DRIVE_AND_TURN_LEFT);
-    } else if (isWallLeft() && isWallFront() && !isWallRight()){
-        switchSimpleWallFollowerStateTo(SWF_DRIVE_AND_TURN_RIGHT);
-    } else if (isWallLeft() && isWallFront() && isWallRight()){
-        switchSimpleWallFollowerStateTo(SWF_TURN_AROUND);
-    }
-}
+// void switchSimpleWallFollowerStateTo(enum SimpleWallFollowerStates new_state) {
+//     simple_wall_follower_state.prev_state = simple_wall_follower_state.curr_state;
+//     simple_wall_follower_state.curr_state = new_state;
+//     simple_wall_follower_state.just_switched_state = true;
+// }
 
-void simpleWallFollower() {
+// /**
+//  * @brief Reset the is_movement_goal_reached flag and the just_switched_state flag.
+//  * 
+//  * This function resets the flags used for controlling movement and state switching
+//  * in a simple wall following algorithm.
+//  * 
+//  * @note This function should be called when newly entering a state to execute a new motion primitive.
+//  * 
+//  * @see currMovementControlParameters
+//  * @see simple_wall_follower_state
+//  */
+// void initStateSWF() {
+//     // Set the is_movement_goal_reached flag
+//     currMovementControlParameters.is_movement_goal_reached = false;
+//     // Reset the just_switched_state flag
+//     simple_wall_follower_state.just_switched_state = false;
+// }
 
-    // TODO: Add a safety layer that stops the robot 
-    // in case a signle missread from the sensors triggers a turn,
-    // although there are actually walls
+// void updateSimpleWallFollowerState() {
+//     if (isWallLeft() && !isWallFront()) {
+//         switchSimpleWallFollowerStateTo(SWF_DRIVE_STRAIGHT_AHEAD);
+//         // Write the intended state change to the UART
+//         // char buffer[40];
+//         // sprintf(buffer, "to: SWF_DRIVE_STRAIGHT_AHEAD\n");
+//         // putsUART1(buffer);
+//     } else if (!isWallLeft()) {
+//         switchSimpleWallFollowerStateTo(SWF_DRIVE_AND_TURN_LEFT);
+//         // Write the intended state change to the UART
+//         // char buffer[40];
+//         // sprintf(buffer, "to: SWF_DRIVE_AND_TURN_LEFT\n");
+//         // putsUART1(buffer);
+//     } else if (isWallLeft() && isWallFront() && !isWallRight()){
+//         switchSimpleWallFollowerStateTo(SWF_DRIVE_AND_TURN_RIGHT);
+//         // Write the intended state change to the UART
+//         // char buffer[40];
+//         // sprintf(buffer, "to: SWF_DRIVE_AND_TURN_RIGHT\n");
+//         // putsUART1(buffer);
+//     } else if (isWallLeft() && isWallFront() && isWallRight()){
+//         switchSimpleWallFollowerStateTo(SWF_TURN_AROUND);
+//         // Write the intended state change to the UART
+//         // char buffer[40];
+//         // sprintf(buffer, "to: SWF_TURN_AROUND\n");
+//         // putsUART1(buffer);
+//     }
+// }
 
-    /*
-    * Wall Following Algorithm
-    * Modes:
-    * 0 = driveStraightForever
-    * 1 = turn left
-    * 2 = turn right
-    * 3 = turn around 
-    */
+// void simpleWallFollower() {
 
-    // Set the current motion state / primitive of the robot, can also be done in the switch case 0 below
-    // This is only done while the robot is driving straight in the driveStraightForever Mode
-    // if (simple_wall_follower_state.curr_state == SWF_DRIVE_STRAIGHT_AHEAD) {
-    //     updateSimpleWallFollowerState();
-    // }
+//     // TODO: Add a safety layer that stops the robot 
+//     // in case a signle missread from the sensors triggers a turn,
+//     // although there are actually walls
+//     // This can be a problem as the robot is going blind during turns
 
-    switch (simple_wall_follower_state.curr_state) {
-        case SWF_DRIVE_STRAIGHT_AHEAD:
-            /* Enter the State */
-            if (simple_wall_follower_state.just_switched_state) {
-                // Set the is_movement_goal_reached flag
-                currMovementControlParameters.is_movement_goal_reached = false;
-                // Reset the just_switched_state flag
-                simple_wall_follower_state.just_switched_state = false;
+//     /*
+//     * Wall Following Algorithm
+//     * Modes:
+//     * 0 = driveStraightForever
+//     * 1 = turn left
+//     * 2 = turn right
+//     * 3 = turn around 
+//     */
 
-                // Set the new motion state / primitive of the robot
-                // Set the desired velocity
-                currMovementControlParameters.vel_cruise = 0.3;
-                // TODO: Change to DRIVING_STRAIGHT_FOREVER and implement it as a new motion primitive
-                float initial_distance_to_goal_in_meters = 10.0; // in meters, 10 is like driving forever
-                initDrivingStraightForNMeters(initial_distance_to_goal_in_meters);
-            }
-            /* Exit the State */
-            updateSimpleWallFollowerState();
-            break;
+//     // Set the current motion state / primitive of the robot, can also be done in the switch case 0 below
+//     // This is only done while the robot is driving straight in the driveStraightForever Mode
+//     // if (simple_wall_follower_state.curr_state == SWF_DRIVE_STRAIGHT_AHEAD) {
+//     //     updateSimpleWallFollowerState();
+//     // }
 
-        case SWF_DRIVE_AND_TURN_LEFT:
-            // First drive straight to the cell center and than turn left
-            /* Enter the State */
+//     // The simple_wall_follower_state.curr_state is initialized with SWF_DRIVE_STRAIGHT_AHEAD as the starting state
+//     switch (simple_wall_follower_state.curr_state) {
+//         case SWF_DRIVE_STRAIGHT_AHEAD: {
+//             /* Enter the State */
+//             if (simple_wall_follower_state.just_switched_state) {
+//                 initStateSWF();
 
-            // 1. Straight Driving to the Cell Center
-            if (simple_wall_follower_state.just_switched_state && simple_wall_follower_state.prev_state == SWF_DRIVE_STRAIGHT_AHEAD) {
-                // Reset the just_switched_state flag
-                simple_wall_follower_state.just_switched_state = false;
-                switchSimpleWallFollowerStateTo(SWF_DRIVE_TO_CELL_CENTER);
-            }
+//                 // Set the new motion state / primitive of the robot
+//                 // Set the desired velocity
+//                 currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+//                 // TODO: Change to DRIVING_STRAIGHT_FOREVER and implement it as a new motion primitive
+//                 float initial_distance_to_goal_in_meters = 10.0; // in meters, 10 is like driving forever
+//                 initDrivingStraightForNMeters(initial_distance_to_goal_in_meters);
 
-            // 2. Turning Left after Driving Straight to the Cell Center is completed
-            if (simple_wall_follower_state.just_switched_state && simple_wall_follower_state.prev_state == SWF_DRIVE_TO_CELL_CENTER) {
-                // Set the current motion state / primitive of the robot
-                currMovementControlParameters.movementPrimitive.type = TURNING;
-                // Set the desired velocity
-                currMovementControlParameters.vel_turn_cruise = 0.3;
-                // Set the is_movement_goal_reached flag
-                currMovementControlParameters.is_movement_goal_reached = false;
-                // Reset the just_switched_state flag
-                simple_wall_follower_state.just_switched_state = false;
-
-                float initial_angle_to_goal_in_degrees = -90.0; // in degrees, with pos values for right turn and neg values for left turn (clockwise)
-                initTurningForNDegrees(initial_angle_to_goal_in_degrees);
-            }
-
-            /* Exit the State */
-            // If the movement goal is reached go back to the SWF_DRIVE_STRAIGHT_AHEAD state
-            if (currMovementControlParameters.is_movement_goal_reached) {
-                currMovementControlParameters.is_movement_goal_reached = false;
-                switchSimpleWallFollowerStateTo(SWF_DRIVE_STRAIGHT_AHEAD);
-            }
-            break;
-        case SWF_DRIVE_AND_TURN_RIGHT:
-            // First drive straight to the cell center and than turn right
-            /* Enter the State */
-
-            // 1. Straight Driving to the Cell Center
-            if (simple_wall_follower_state.just_switched_state && simple_wall_follower_state.prev_state == SWF_DRIVE_STRAIGHT_AHEAD) {
-                // Reset the just_switched_state flag
-                simple_wall_follower_state.just_switched_state = false;
-                switchSimpleWallFollowerStateTo(SWF_DRIVE_TO_CELL_CENTER);
-            }
-
-            // 2. Turning Right after Driving Straight to the Cell Center is completed
-            if (simple_wall_follower_state.just_switched_state && simple_wall_follower_state.prev_state == SWF_DRIVE_TO_CELL_CENTER) {
-                // Set the current motion state / primitive of the robot
-                currMovementControlParameters.movementPrimitive.type = TURNING;
-                // Set the desired velocity
-                currMovementControlParameters.vel_turn_cruise = 0.3;
-                // Set the is_movement_goal_reached flag
-                currMovementControlParameters.is_movement_goal_reached = false;
-                // Reset the just_switched_state flag
-                simple_wall_follower_state.just_switched_state = false;
-
-                float initial_angle_to_goal_in_degrees = 90.0; // in degrees, with pos values for right turn and neg values for left turn (clockwise)
-                initTurningForNDegrees(initial_angle_to_goal_in_degrees);
-            }
-
-            /* Exit the State */
-            // If the movement goal is reached go back to the SWF_DRIVE_STRAIGHT_AHEAD state
-            if (currMovementControlParameters.is_movement_goal_reached) {
-                currMovementControlParameters.is_movement_goal_reached = false;
-                switchSimpleWallFollowerStateTo(SWF_DRIVE_STRAIGHT_AHEAD);
-            }
-            break;
-        case SWF_DRIVE_TO_CELL_CENTER:
-            /* Enter the State */
-            if (simple_wall_follower_state.just_switched_state) {
-                // Set the current motion state / primitive of the robot
-                currMovementControlParameters.movementPrimitive.type = DRIVING_STRAIGHT;
-                // Set the desired velocity
-                currMovementControlParameters.vel_cruise = 0.3;
-                // Set the is_movement_goal_reached flag
-                currMovementControlParameters.is_movement_goal_reached = false;
-                // Reset the just_switched_state flag
-                simple_wall_follower_state.just_switched_state = false;
-
-                float initial_distance_to_goal_in_meters = 0.1; // in meters, distance to the cell center from the point where one of the walls falls away
-                initDrivingStraightForNMeters(initial_distance_to_goal_in_meters);
-            }
-
-            /* Exit the State */
-            if (currMovementControlParameters.is_movement_goal_reached) {
-                currMovementControlParameters.is_movement_goal_reached = false;
-                // Return to the prev state which is either SWF_DRIVE_AND_TURN_LEFT or SWF_DRIVE_AND_TURN_RIGHT
-                switchSimpleWallFollowerStateTo(simple_wall_follower_state.prev_state);
-            }
-            break;
-        case SWF_TURN_AROUND:
-            /* Enter the State */
-            if (simple_wall_follower_state.just_switched_state) {
-                // Set the current motion state / primitive of the robot
-                currMovementControlParameters.movementPrimitive.type = TURNING;
-                // Set the desired velocity
-                currMovementControlParameters.vel_turn_cruise = 0.3;
-                // Set the is_movement_goal_reached flag
-                currMovementControlParameters.is_movement_goal_reached = false;
-                // Reset the just_switched_state flag
-                simple_wall_follower_state.just_switched_state = false;
-
-                float initial_angle_to_goal_in_degrees = 180.0; // in degrees, with pos values for right turn and neg values for left turn (clockwise)
-                initTurningForNDegrees(initial_angle_to_goal_in_degrees);
-            }
-
-            /* Exit the State */
-            // If the movement goal is reached go back to the SWF_DRIVE_STRAIGHT_AHEAD state
-            if (currMovementControlParameters.is_movement_goal_reached) {
-                currMovementControlParameters.is_movement_goal_reached = false;
-                switchSimpleWallFollowerStateTo(SWF_DRIVE_STRAIGHT_AHEAD);
-            }
-            break;
-        default:
-            break;
-    }
+//                 char buffer[40];
+//                 sprintf(buffer, "in: SWF_DRIVE_STRAIGHT_AHEAD\n");
+//                 putsUART1(buffer);
+//             }
 
 
-}
+
+//             // // // For Debugging:
+//             // float sensor_left_distance_in_percentage = distanceSensorInPercentLeft(); 
+//             // float sensor_front_distance_in_percentage = distanceSensorInPercentFront(); 
+//             // float sensor_right_distance_in_percentage = distanceSensorInPercentRight(); 
+            
+//             // // // Print Sensor Values to UART
+//             // char buffer[50];
+//             // sprintf(buffer, "%3.2f \t%3.2f \t%3.2f \n", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage));    
+//             // putsUART1(buffer);
+
+//             // // sprintf(buffer, "%3.2f \t%3.2f \t%3.2f \n", isWallLeft(), (is), (sensor_right_distance_in_percentage));    
+//             // // sprintf(buffer, "L%f F%f R%f\n\r", isWallLeft(), isWallFront(), isWallRight());
+//             // sprintf(buffer, "L%s F%s R%s\n\r", isWallLeft() ? "true" : "false", isWallFront() ? "true" : "false", isWallRight() ? "true" : "false");
+//             // putsUART1(buffer);
+
+//             // enum lateralControlMode lC = getLateralControlMode();
+
+//             // sprintf(buffer, "LC: %d\n\r", lC);
+//             // putsUART1(buffer);
+
+//             /* Exit the State */
+//             updateSimpleWallFollowerState();
+//             break;
+//         }
+//         case SWF_DRIVE_AND_TURN_LEFT: {
+//             // First drive straight to the cell center and than turn left
+//             /* Enter the State */
+
+//             // 1. Straight Driving to the Cell Center (when the previous state was SWF_DRIVE_STRAIGHT_AHEAD)
+//             if (simple_wall_follower_state.just_switched_state && simple_wall_follower_state.prev_state == SWF_DRIVE_STRAIGHT_AHEAD) {
+//                 // Reset the just_switched_state flag
+//                 simple_wall_follower_state.just_switched_state = false;
+//                 switchSimpleWallFollowerStateTo(SWF_DRIVE_TO_CELL_CENTER);
+
+//                 char buffer[40];
+//                 sprintf(buffer, "in: SWF_DRIVE_AND_TURN_LEFT 1\n");
+//                 putsUART1(buffer);
+//             }
+
+//             // 2. Turning Left after Driving Straight to the Cell Center is completed
+//             if (simple_wall_follower_state.just_switched_state && simple_wall_follower_state.prev_state == SWF_DRIVE_TO_CELL_CENTER) {
+//                 initStateSWF();
+                
+//                 // Set the desired velocity
+//                 currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+//                 float initial_angle_to_goal_in_degrees = -90.0; // in degrees, with pos values for right turn and neg values for left turn (clockwise)
+//                 initTurningForNDegrees(initial_angle_to_goal_in_degrees);
+
+//                 char buffer[40];
+//                 sprintf(buffer, "in: SWF_DRIVE_AND_TURN_LEFT 2\n");
+//                 putsUART1(buffer);
+//             }
+
+
+
+//             /* Exit the State */
+//             // If the movement goal is reached go back to the SWF_DRIVE_STRAIGHT_AHEAD state
+//             if (currMovementControlParameters.is_movement_goal_reached) {
+//                 currMovementControlParameters.is_movement_goal_reached = false;
+//                 switchSimpleWallFollowerStateTo(SWF_DRIVE_STRAIGHT_AHEAD);
+//             }
+//             break;
+//         }
+//         case SWF_DRIVE_AND_TURN_RIGHT: {
+//             // First drive straight to the cell center and than turn right
+//             /* Enter the State */
+
+//             // 1. Straight Driving to the Cell Center
+//             if (simple_wall_follower_state.just_switched_state && simple_wall_follower_state.prev_state == SWF_DRIVE_STRAIGHT_AHEAD) {
+//                 // Reset the just_switched_state flag
+//                 simple_wall_follower_state.just_switched_state = false;
+//                 switchSimpleWallFollowerStateTo(SWF_DRIVE_TO_CELL_CENTER);
+
+//                 char buffer[40];
+//                 sprintf(buffer, "in: SWF_DRIVE_AND_TURN_RIGHT 1\n");
+//                 putsUART1(buffer);
+//             }
+
+//             // 2. Turning Right after Driving Straight to the Cell Center is completed
+//             if (simple_wall_follower_state.just_switched_state && simple_wall_follower_state.prev_state == SWF_DRIVE_TO_CELL_CENTER) {
+//                 initStateSWF();
+                
+//                 // Set the desired velocity
+//                 currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+//                 float initial_angle_to_goal_in_degrees = 90.0; // in degrees, with pos values for right turn and neg values for left turn (clockwise)
+//                 initTurningForNDegrees(initial_angle_to_goal_in_degrees);
+
+//                 char buffer[40];
+//                 sprintf(buffer, "in: SWF_DRIVE_AND_TURN_RIGHT 2\n");
+//                 putsUART1(buffer);
+//             }
+
+            
+
+//             /* Exit the State */
+//             // If the movement goal is reached go back to the SWF_DRIVE_STRAIGHT_AHEAD state
+//             if (currMovementControlParameters.is_movement_goal_reached) {
+//                 currMovementControlParameters.is_movement_goal_reached = false;
+//                 switchSimpleWallFollowerStateTo(SWF_DRIVE_STRAIGHT_AHEAD);
+//             }
+//             break;
+//         }
+//         case SWF_DRIVE_TO_CELL_CENTER:
+//             /* Enter the State */
+//             if (simple_wall_follower_state.just_switched_state) {
+//                 initStateSWF();
+
+//                 // Set the desired velocity
+//                 currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+//                 float initial_distance_to_goal_in_meters = 0.15; // in meters, distance to the cell center from the point where one of the walls falls away
+//                 initDrivingStraightForNMeters(initial_distance_to_goal_in_meters);
+
+//                 char buffer[40];
+//                 sprintf(buffer, "in: SWF_DRIVE_TO_CELL_CENTER\n");
+//                 putsUART1(buffer);
+//             }
+
+
+
+//             /* Exit the State */
+//             if (currMovementControlParameters.is_movement_goal_reached) {
+//                 currMovementControlParameters.is_movement_goal_reached = false;
+//                 // Return to the prev state which is either SWF_DRIVE_AND_TURN_LEFT or SWF_DRIVE_AND_TURN_RIGHT
+//                 switchSimpleWallFollowerStateTo(simple_wall_follower_state.prev_state);
+//             }
+//             break;
+//         case SWF_TURN_AROUND: {
+//             /* Enter the State */
+//             if (simple_wall_follower_state.just_switched_state) {
+//                 initStateSWF();
+
+//                 // Set the desired velocity
+//                 currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+//                 float initial_angle_to_goal_in_degrees = 180.0; // in degrees, with pos values for right turn and neg values for left turn (clockwise)
+//                 initTurningForNDegrees(initial_angle_to_goal_in_degrees);
+
+//                 char buffer[40];
+//                 sprintf(buffer, "in: SWF_TURN_AROUND\n");
+//                 putsUART1(buffer);
+//             }
+
+
+
+//             /* Exit the State */
+//             // If the movement goal is reached go back to the SWF_DRIVE_STRAIGHT_AHEAD state
+//             if (currMovementControlParameters.is_movement_goal_reached) {
+//                 currMovementControlParameters.is_movement_goal_reached = false;
+//                 switchSimpleWallFollowerStateTo(SWF_DRIVE_STRAIGHT_AHEAD);
+//             }
+//             break;
+//         }
+//         default:
+//             break;
+//     }
+
+
+// }
+
+// ##########################
 
 
 /* SIMPLE MOTION PRIMITIVE EXECUTOR */
@@ -491,20 +587,21 @@ void simpleMotionPrimitiveExecutor() {
 
     // Define the movement primitives to be executed, 
     // with the resepctive type and value
-    static struct MovementPrimitive smpe_motion_array[10] = { 
-        {TURNING, 90.0},
-        {TURNING, -90.0},
-        {TURNING, 180.0},
-        {TURNING, -180.0},
-        {TURNING, 360.0},
-        {DRIVING_STRAIGHT, 0.18},
-        {DRIVING_STRAIGHT, -0.18},
+    static struct MovementPrimitive smpe_motion_array[] = {
+        {DRIVING_STRAIGHT_FOREVER, 0.0, VEL_CRUISE},
+        {TURNING, 90.0, VEL_TURN_CRUISE},
+        {TURNING, -90.0, VEL_TURN_CRUISE},
+        {TURNING, 180.0, VEL_TURN_CRUISE},
+        {TURNING, -180.0, VEL_TURN_CRUISE},
+        {TURNING, 360.0, VEL_TURN_CRUISE},
+        {DRIVING_STRAIGHT, 0.18, VEL_CRUISE},
+        {DRIVING_STRAIGHT, -0.18, VEL_CRUISE},
     };
 
     static int smpe_motion_array_index = 0;
 
-    currMovementControlParameters.vel_cruise = 0.3;
-    currMovementControlParameters.vel_turn_cruise = 0.3;
+    currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+    currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
 
     if (currMovementControlParameters.is_movement_goal_reached || first_invocation) {
         // Reset the flags
@@ -527,4 +624,293 @@ void simpleMotionPrimitiveExecutor() {
             smpe_motion_array_index = 0;
         }
     }
+}
+
+
+            
+void remoteControlledMotionPrimitiveExecutor() {
+
+    // Decide wheather to execute the incoming commands after the last one is finished 
+    // or wheather to interrupt the current motion primitive and execute the new one
+    // This behaviour could be made changeable by sending the respective command via UART
+
+    // A. Execute the incoming command directly when it is received
+    if (currentUARTCommand.new_command) {
+        currentUARTCommand.new_command = false;
+
+        char buffer[30];
+        sprintf(buffer, "Processing new Command\n");
+        putsUART1(buffer);
+
+        // This is not yet implemented in the currentUARTCommand struct
+        // currMovementControlParameters.movementPrimitive = currentUARTCommand.movementPrimitive;
+
+        overwriteCurrentMovementControlParametersWithUART(currentUARTCommand);
+        // switch (currentUARTCommand.command_code) {
+        //     case CMD_VEL:
+        //         currMovementControlParameters.movementPrimitive.vel_cruise = currentUARTCommand.command_value;
+        //         break;
+
+        //     case CMD_TURN:
+        //         // The velocity has to be set via the CMD_VEL command
+        //         // TODO: Maybe we should hand over the motion primitive as a function parameter and not read the global values from within the init function
+        //         currMovementControlParameters.movementPrimitive.type = TURNING;
+        //         currMovementControlParameters.movementPrimitive.value = currentUARTCommand.command_value;
+        //         initMovementFromGlobalGoal();
+        //         break;
+
+        //     case CMD_DRIVE:
+        //         // The velocity has to be set via the CMD_VEL command
+        //         currMovementControlParameters.movementPrimitive.type = DRIVING_STRAIGHT;
+        //         currMovementControlParameters.movementPrimitive.value = currentUARTCommand.command_value;
+        //         initMovementFromGlobalGoal();
+        //         break;
+
+        //     case CMD_STOP:
+        //         currMovementControlParameters.movementPrimitive.type = PARKING;
+        //         break;
+
+        //     // Add cases for other commands as needed
+
+        //     default: {
+        //         // No valid command, send an error message
+        //         char buffer[20];
+        //         sprintf(buffer, "Invalid Command\n");
+        //         putsUART1(buffer);
+        //         break;
+        //     }
+        // }
+    }
+
+}
+
+
+
+
+
+
+
+// #######################
+
+
+
+struct SimpleWallFollowerState simple_wall_follower_state = {SWF_DRIVE_ONE_CELL_AHEAD, SWF_DRIVE_ONE_CELL_AHEAD, true};
+
+void switchSimpleWallFollowerStateTo(enum SimpleWallFollowerStates new_state) {
+    simple_wall_follower_state.prev_state = simple_wall_follower_state.curr_state;
+    simple_wall_follower_state.curr_state = new_state;
+    simple_wall_follower_state.just_switched_state = true;
+}
+
+/**
+ * @brief Reset the is_movement_goal_reached flag and the just_switched_state flag.
+ * 
+ * This function resets the flags used for controlling movement and state switching
+ * in a simple wall following algorithm.
+ * 
+ * @note This function should be called when newly entering a state to execute a new motion primitive.
+ * 
+ * @see currMovementControlParameters
+ * @see simple_wall_follower_state
+ */
+void initStateSWF() {
+    // Set the is_movement_goal_reached flag
+    currMovementControlParameters.is_movement_goal_reached = false;
+    // Reset the just_switched_state flag
+    simple_wall_follower_state.just_switched_state = false;
+}
+
+// void updateSimpleWallFollowerState() {
+//     if (!isWallLeft()) {
+//         // No wall Left
+//         switchSimpleWallFollowerStateTo(SWF_TURN_LEFT);
+//         // Write the intended state change to the UART
+//         // char buffer[40];
+//         // sprintf(buffer, "to: SWF_DRIVE_STRAIGHT_AHEAD\n");
+//         // putsUART1(buffer);
+//     } else if (!isWallFront()) {
+//         switchSimpleWallFollowerStateTo(SWF_DRIVE_AND_TURN_LEFT);
+//         // Write the intended state change to the UART
+//         // char buffer[40];
+//         // sprintf(buffer, "to: SWF_DRIVE_AND_TURN_LEFT\n");
+//         // putsUART1(buffer);
+//     } else if (!isWallRight()){
+//         switchSimpleWallFollowerStateTo(SWF_DRIVE_AND_TURN_RIGHT);
+//         // Write the intended state change to the UART
+//         // char buffer[40];
+//         // sprintf(buffer, "to: SWF_DRIVE_AND_TURN_RIGHT\n");
+//         // putsUART1(buffer);
+//     } else {
+//         switchSimpleWallFollowerStateTo(SWF_TURN_AROUND);
+//         // Write the intended state change to the UART
+//         // char buffer[40];
+//         // sprintf(buffer, "to: SWF_TURN_AROUND\n");
+//         // putsUART1(buffer);
+//     }
+// }
+
+
+// TODO: Add 180 turn functionality
+// TODO: Chekc for wall before driving straight after turning right
+
+void updateSimpleWallFollowerState() {
+    if (!isWallLeft()) {
+        // No wall Left
+        switchSimpleWallFollowerStateTo(SWF_TURN_LEFT);
+        // Write the intended state change to the UART
+        char buffer[40];
+        sprintf(buffer, "to: SWF_TURN_LEFT\n");
+        putsUART1(buffer);
+    } else if (isWallFront()) {
+        switchSimpleWallFollowerStateTo(SWF_TURN_RIGHT);
+        // Write the intended state change to the UART
+        char buffer[40];
+        sprintf(buffer, "to: SWF_TURN_RIGHT\n");
+        putsUART1(buffer);
+    } else {
+        switchSimpleWallFollowerStateTo(SWF_DRIVE_ONE_CELL_AHEAD);
+        // Write the intended state change to the UART
+        char buffer[40];
+        sprintf(buffer, "to: SWF_DRIVE_ONE_CELL_AHEAD\n");
+        putsUART1(buffer);
+    }
+}
+
+
+void simpleWallFollower() {
+
+    // TODO: Add a safety layer that stops the robot 
+    // in case a signle missread from the sensors triggers a turn,
+    // although there are actually walls
+    // This can be a problem as the robot is going blind during turns
+
+    /*
+    * Wall Following Algorithm
+    * Modes:
+    * 0 = driveStraightForever
+    * 1 = turn left
+    * 2 = turn right
+    * 3 = turn around 
+    */
+
+    // Set the current motion state / primitive of the robot, can also be done in the switch case 0 below
+    // This is only done while the robot is driving straight in the driveStraightForever Mode
+    // if (simple_wall_follower_state.curr_state == SWF_DRIVE_STRAIGHT_AHEAD) {
+    //     updateSimpleWallFollowerState();
+    // }
+
+    // The simple_wall_follower_state.curr_state is initialized with SWF_DRIVE_STRAIGHT_AHEAD as the starting state
+    switch (simple_wall_follower_state.curr_state) {
+        case SWF_DRIVE_ONE_CELL_AHEAD: {
+            /* Enter the State */
+            if (simple_wall_follower_state.just_switched_state) {
+                initStateSWF();
+
+                // Set the new motion state / primitive of the robot
+                // Set the desired velocity
+                currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+                // TODO: Change to DRIVING_STRAIGHT_FOREVER and implement it as a new motion primitive
+                float initial_distance_to_goal_in_meters = 0.20; // in meters
+                initDrivingStraightForNMeters(initial_distance_to_goal_in_meters);
+
+                char buffer[40];
+                sprintf(buffer, "in: SWF_DRIVE_ONE_CELL_AHEAD\n");
+                putsUART1(buffer);
+            }
+
+            // // // For Debugging:
+            // float sensor_left_distance_in_percentage = distanceSensorInPercentLeft(); 
+            // float sensor_front_distance_in_percentage = distanceSensorInPercentFront(); 
+            // float sensor_right_distance_in_percentage = distanceSensorInPercentRight(); 
+            
+            // // // Print Sensor Values to UART
+            // char buffer[50];
+            // sprintf(buffer, "%3.2f \t%3.2f \t%3.2f \n", (sensor_left_distance_in_percentage), (sensor_front_distance_in_percentage), (sensor_right_distance_in_percentage));    
+            // putsUART1(buffer);
+
+            // // sprintf(buffer, "%3.2f \t%3.2f \t%3.2f \n", isWallLeft(), (is), (sensor_right_distance_in_percentage));    
+            // // sprintf(buffer, "L%f F%f R%f\n\r", isWallLeft(), isWallFront(), isWallRight());
+            // sprintf(buffer, "L%s F%s R%s\n\r", isWallLeft() ? "true" : "false", isWallFront() ? "true" : "false", isWallRight() ? "true" : "false");
+            // putsUART1(buffer);
+
+            // enum lateralControlMode lC = getLateralControlMode();
+
+            // sprintf(buffer, "LC: %d\n\r", lC);
+            // putsUART1(buffer);
+
+            /* Exit the State */
+            // updateSimpleWallFollowerState();
+            if (currMovementControlParameters.is_movement_goal_reached)
+            {
+                char buffer[40];
+                sprintf(buffer, "Goal Reached\n");
+                putsUART1(buffer);
+                currMovementControlParameters.is_movement_goal_reached = false;
+
+                updateSimpleWallFollowerState();
+            }
+            
+            break;
+        }
+        case SWF_TURN_LEFT: {
+            // First drive straight to the cell center and than turn left
+            /* Enter the State */
+
+            // 2. Turning Left after Driving Straight to the Cell Center is completed
+            if (simple_wall_follower_state.just_switched_state) {
+                initStateSWF();
+                
+                // Set the desired velocity
+                currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+                float initial_angle_to_goal_in_degrees = -90.0; // in degrees, with pos values for right turn and neg values for left turn (clockwise)
+                initTurningForNDegrees(initial_angle_to_goal_in_degrees);
+
+                char buffer[40];
+                sprintf(buffer, "in: SWF_DRIVE_AND_TURN_LEFT 2\n");
+                putsUART1(buffer);
+            }
+
+
+
+            /* Exit the State */
+            // If the movement goal is reached go back to the SWF_DRIVE_STRAIGHT_AHEAD state
+            if (currMovementControlParameters.is_movement_goal_reached) {
+                currMovementControlParameters.is_movement_goal_reached = false;
+                switchSimpleWallFollowerStateTo(SWF_DRIVE_ONE_CELL_AHEAD);
+            }
+            break;
+        }
+        case SWF_TURN_RIGHT: {
+            // First drive straight to the cell center and than turn right
+            /* Enter the State */
+
+            // 2. Turning Right after Driving Straight to the Cell Center is completed
+            if (simple_wall_follower_state.just_switched_state) {
+                initStateSWF();
+                
+                // Set the desired velocity
+                currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
+                float initial_angle_to_goal_in_degrees = 90.0; // in degrees, with pos values for right turn and neg values for left turn (clockwise)
+                initTurningForNDegrees(initial_angle_to_goal_in_degrees);
+
+                char buffer[40];
+                sprintf(buffer, "in: SWF_DRIVE_AND_TURN_RIGHT 2\n");
+                putsUART1(buffer);
+            }
+
+            
+
+            /* Exit the State */
+            // If the movement goal is reached go back to the SWF_DRIVE_STRAIGHT_AHEAD state
+            if (currMovementControlParameters.is_movement_goal_reached) {
+                currMovementControlParameters.is_movement_goal_reached = false;
+                switchSimpleWallFollowerStateTo(SWF_DRIVE_ONE_CELL_AHEAD);
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+
 }

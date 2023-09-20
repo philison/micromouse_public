@@ -2723,13 +2723,15 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
     switch (currMovementControlParameters.movementPrimitive.type)
     {
     case DRIVING_STRAIGHT:
-        /* code */
         // Make sure to check if the goal is reached and update the global flag accordingly
         drivingStraightForNMeters();
         break;
+
+    case DRIVING_STRAIGHT_FOREVER:
+        drivingStraightForever();
+        break;
     
     case TURNING:
-        /* code */
         turningForNDegrees();
         // Write to Uart that the state was reached
         // if (myCount >= 100){
@@ -2739,15 +2741,14 @@ void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
         //     myCount=0;
         // }
 
-        // UART
-        char buffer[10];
-        sprintf(buffer, "C%i,%2.2f", currMovementControlParameters.movementPrimitive.type, currMovementControlParameters.movementPrimitive.value);
-        putsUART1(buffer);
+        // // UART
+        // char buffer[10];
+        // sprintf(buffer, "C%i,%2.2f", currMovementControlParameters.movementPrimitive.type, currMovementControlParameters.movementPrimitive.value);
+        // putsUART1(buffer);
 
         break;
 
     case PARKING:
-        /* code */
         set_DC_and_motor_state_left(0.0, "forward_fast_decay");
         set_DC_and_motor_state_right(0.0, "forward_fast_decay");
         break;
