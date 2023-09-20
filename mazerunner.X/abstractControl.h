@@ -15,8 +15,8 @@
 #include "serialComms.h"
 
 #define MAZE_CELL_LENGTH 0.18 // in meters
-#define VEL_CRUISE 0.3
-#define VEL_TURN_CRUISE 0.3
+#define VEL_CRUISE 0.8
+#define VEL_TURN_CRUISE 0.8
 
 // #define GOAL_REACHED_THRESHOLD_DISTANCE 0.01 // in meters
 // // #define GOAL_REACHED_THRESHOLD_DISTANCE 0.02 // in meters
@@ -80,6 +80,7 @@ struct SimpleWallFollowerState {
     enum SimpleWallFollowerStates curr_state;
     enum SimpleWallFollowerStates prev_state;
     bool just_switched_state;
+    bool seen_left_wall_after_turn;
 };
 
 // extern struct SimpleWallFollowerState simple_wall_follower_state = {SWF_DRIVE_STRAIGHT_AHEAD, SWF_DRIVE_STRAIGHT_AHEAD, true};

@@ -293,7 +293,8 @@ float p_goal_distance_controller(float distance_to_goal, float vel_cruise)
 {
     
     float error = distance_to_goal;
-    float kp = 6;
+    // float kp = 6;
+    float kp = 25;
     
     float vel_base = kp*error;
 
@@ -324,7 +325,8 @@ float p_goal_angle_controller(float angle_to_goal, float vel_turn_cruise)
     
     float error = angle_to_goal;
     // float error = angle_to_goal;
-    float kp = 0.03;
+    // float kp = 0.03;
+    float kp = 0.12;
     
     float vel_turn_base = kp*error;
 
