@@ -555,22 +555,27 @@ int turn_to_lowest_distance(int lowestNeighbour, int orientation)
     case 2:
     case -2:
         // printtoconsole("Lowest neighbour behind. mouse needs to turn 180 degrees\n");
-        // TODO: Implement/replace functionality to turn
-        API_turnRight();
-        orientation = orientation + 1;
-        API_turnRight();
-        orientation = orientation + 1;
+        // API_turnRight();
+        // orientation = orientation + 1;
+        // API_turnRight();
+        // orientation = orientation + 1;
+        turn180();
+        // TODO: as this variable is not defined again in this function as a global variable it directly effects the orientation variable outside of this function
+        // Is that a problem ? this lead to the orientation beeing updated before the actual goal position is reached.
+        orientation = orientation + 2;
         break;
     case 1:
     case -3:
         // printtoconsole("Lowest neighbour to the right. One right turn\n");
-        API_turnRight();
+        // API_turnRight();
+        turnRight();
         orientation = orientation + 1;
         break;
     case -1:
     case 3:
         // printtoconsole("lowest neighbour is to the left. One left turn\n");
-        API_turnLeft();
+        // API_turnLeft();
+        turnLeft();
         orientation = orientation - 1;
         break;
     default:
@@ -685,6 +690,7 @@ void initMazeSolver() {
 static struct MazeSolverState maze_solver_state = {
     .curr_state = EXPLORATION_TO_CENTER,
     .prev_state = EXPLORATION_TO_CENTER,
+    .curr_phase = EXPLORATION_TO_CENTER,
     .just_switched_state = true,
     .just_startet_execution = true
 };
@@ -694,6 +700,7 @@ void switchMazeSolverStateTo(enum MazeSolverStates new_state) {
     maze_solver_state.curr_state = new_state;
     maze_solver_state.just_switched_state = true;
 }
+
 
 /*
 * Replaces the main function of the Maze Solver algorithm from the simulation implementation
@@ -713,6 +720,8 @@ void mazeSolver() {
     *   This ensures that the robot waits until the movement is finished before executing the next movement or wall detection procedure
     */
 
+    // TODO: Write down the states in the order of execution
+
     switch (maze_solver_state.curr_state)
     {
     case EXPLORATION_TO_CENTER:
@@ -725,23 +734,11 @@ void mazeSolver() {
             sprintf(buffer, "now starting EXPLORATION_TO_CENTER\n");
             putsUART1(buffer);
 
-            // From the explorationToCenter() function (which corresponds to the first while loop in the simulation implementation)
-            // This section gets only executed once when the state is entered
-            updateWalls(x, y, orientation, walls);
-            floodFill(currentLevel, nextLevel, distance, walls, 0);
-            // printDistance_array(distance);
-            // API_setColor(x, y, 'G'); // set the current cell to green in the simulator, to track which cells have been visited
-            // printMaze(walls);
-
-            openNeighbours(x, y, walls, distance_Open_Neighbours, distance);
-
-            lowestNeighbour = findlowestDistance(distance_Open_Neighbours);
-            // Now follows the first movement command: Turn to the lowest neighbour
-            // Therefore we have to switch to the respective state: TURN_TO_LOWEST_DISTANCE
-            switchMazeSolverStateTo(TURN_TO_LOWEST_DISTANCE);
+            // Setting the current phase
+            maze_solver_state.curr_phase = EXPLORATION_TO_CENTER;
         }
 
-        /* Execute */
+        // TODO: Old: these comments show the thought process that led to the current structure of the state machine
         // Only execute if the robot is standing still at the center of a cell
         // -> therefore only when he just the current movement goal has been reached
         // -> Alternative have a flag that is set when the robot is moving / standing still
@@ -753,9 +750,28 @@ void mazeSolver() {
         //     // explorationToCenter();
         // }
 
+        /* Execute */
+        // From the explorationToCenter() function (which corresponds to the first while loop in the simulation implementation)
+        // This section should only be executed once in every state loop
+        // meaning: this state has to be left right after its content has been executed once or this section has to be put back into the Enter the State section
+        updateWalls(x, y, orientation, walls);
+        floodFill(currentLevel, nextLevel, distance, walls, 0);
+        // printDistance_array(distance);
+        // API_setColor(x, y, 'G'); // set the current cell to green in the simulator, to track which cells have been visited
+        // printMaze(walls);
+
+        openNeighbours(x, y, walls, distance_Open_Neighbours, distance);
+
+        lowestNeighbour = findlowestDistance(distance_Open_Neighbours);
+        // Now follows the first movement command: Turn to the lowest neighbour
+        // Therefore we have to switch to the respective state: TURN_TO_LOWEST_DISTANCE 
+        // after first checking the goal condition
+
         /* Exit the State */
         // If checkGoal returns 0, the goal has been reached
         // and the algorithm can move on to the next phase
+        // TODO: should the goal be checked right at the beginning of the state ? 
+        // Doing otherwise, as currently implemented, would lead to the execution of the functions in the Entered the State section
         if (checkGoal(x, y) == 0)
         {
             switchMazeSolverStateTo(EXPLORATION_TO_START);
@@ -767,7 +783,14 @@ void mazeSolver() {
             // printMaze(walls, distance);
             // printDistance_array(distance);
             break;
+
+            // Setting the current phase
+            maze_solver_state.curr_phase = EXPLORATION_TO_START;
         }
+
+        // If the goal is not yet reached, the algorithm can move on to the next state as described above
+        switchMazeSolverStateTo(TURN_TO_LOWEST_DISTANCE);
+
         break;
     
     case EXPLORATION_TO_START:
@@ -779,14 +802,26 @@ void mazeSolver() {
             char buffer[50];
             sprintf(buffer, "now starting EXPLORATION_TO_START\n");
             putsUART1(buffer);
+
+            maze_solver_state.curr_phase = EXPLORATION_TO_START;
         }
 
         /* Execute */
-        // Only execute if the robot is standing still at the center of a cell
-        // -> therefore only when he just the current movement goal has been reached
-        // -> Alternative have a flag that is set when the robot is moving / standing still
-        if (currMovementControlParameters.is_movement_goal_reached)
-        explorationToStart();
+        // From the explorationToCenter() function (which corresponds to the first while loop in the simulation implementation)
+        // This section should only be executed once in every state loop
+        // meaning: this state has to be left right after its content has been executed once or this section has to be put back into the Enter the State section
+        updateWalls(x, y, orientation, walls);
+        floodFill(currentLevel, nextLevel, distance, walls, 0);
+        // printDistance_array(distance);
+        // API_setColor(x, y, 'G'); // set the current cell to green in the simulator, to track which cells have been visited
+        // printMaze(walls);
+
+        openNeighbours(x, y, walls, distance_Open_Neighbours, distance);
+
+        lowestNeighbour = findlowestDistance(distance_Open_Neighbours);
+        // Now follows the first movement command: Turn to the lowest neighbour
+        // Therefore we have to switch to the respective state: TURN_TO_LOWEST_DISTANCE 
+        // after first checking the goal condition
 
         /* Exit the State */
         // If checkStart returns 0, the start has been reached
@@ -801,6 +836,9 @@ void mazeSolver() {
             putsUART1(buffer);
             break;
         }
+
+        // If the goal is not yet reached, the algorithm can move on to the next state as described above
+        switchMazeSolverStateTo(TURN_TO_LOWEST_DISTANCE);
         break;
 
     case FINAL_RUN:
@@ -816,11 +854,15 @@ void mazeSolver() {
             char buffer[50];
             sprintf(buffer, "now starting FINAL_RUN\n");
             putsUART1(buffer);
+
+            maze_solver_state.curr_phase = FINAL_RUN;
         }
 
 
         /* Execute */
-        finalRun();
+        openNeighbours(x, y, walls, distance_Open_Neighbours, distance);
+
+        lowestNeighbour = findlowestDistance(distance_Open_Neighbours);
 
         /* Exit the State */
         // If checkGoal returns 0, the goal has been reached
@@ -832,6 +874,9 @@ void mazeSolver() {
             switchRobotStateTo(STOP)
             break;
         }
+
+        // If the goal is not yet reached, the algorithm can move on to the next state as described above
+        switchMazeSolverStateTo(TURN_TO_LOWEST_DISTANCE);
         break;
 
     case TURN_TO_LOWEST_DISTANCE:
@@ -846,12 +891,44 @@ void mazeSolver() {
 
             // Continuing from below the findlowestDistance() function call
             // Now comes the first movement command: Turn to the lowest neighbour
-            orientation = turn_to_lowest_distance(lowestNeighbour, orientation); // orientation should be created as a pointer
+            // Since this line initiates a movement primitive, it should only be executed once and than no more 
+            // until the movement is finished and the state is re-entered from a different state
+            int intended_orientation = turn_to_lowest_distance(lowestNeighbour, orientation); // orientation should be created as a pointer
+            // Now follows the second movement command: Move forward to the next cell with the lowest distance
+            // Therefore we have to switch to the respective state: MOVE_FORWARD as soon as the just started movement is finished
+        }
 
+        /* Exit the State */
+        if (currMovementControlParameters.is_movement_goal_reached) {
+            // Updated the Orientation now that the turn is actually completed
+            orientation = intended_orientation;
+            // Leave the state as soon as the movement is finished
+            switchMazeSolverStateTo(MOVE_FORWARD);
         }
         break;
 
     case MOVE_FORWARD:
+        /* Enter the State */
+        if (maze_solver_state.just_switched_state) {
+            // Reset the just_switched_state flag
+            simple_wall_follower_state.just_switched_state = false;
+
+            char buffer[50];
+            sprintf(buffer, "now starting MOVE_FORWARD\n");
+            putsUART1(buffer);
+
+            // Continuing from below the turn_to_lowest_distance() function call
+            // Now comes the second movement command: Move forward to the next cell with the lowest distance
+            moveForward();
+        }
+
+        /* Exit the State */
+        if (currMovementControlParameters.is_movement_goal_reached) {
+            // TODO: Update the x and y coordinates ?
+            // Leave the state as soon as the movement is finished
+            // Switch back to the state based on the current phase (exp to center / exp to start / final run)
+            switchMazeSolverStateTo(maze_solver_state.curr_phase);
+        }
         break;
 
     default:

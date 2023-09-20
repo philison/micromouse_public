@@ -62,6 +62,13 @@ float turn180DegreesRight(float vel_turn_cruise, bool start_new_motion_primitive
 float turn180DegreesLeft(float vel_turn_cruise, bool start_new_motion_primitive);
 
 
+// Movement functions for the maze solver
+void turn180();
+void turnLeft();
+void turnRight();
+void moveForward();
+
+
 /* SIMPLE WALL FOLLOWER */
 
 enum SimpleWallFollowerStates {

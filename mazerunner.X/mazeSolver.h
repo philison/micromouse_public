@@ -29,16 +29,19 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
 
 // TODO: Add the remaining function prototypes. Necessary if functions are not used outside ?
 
+
 void initMazeSolver();
-void explorationToCenter();
-void explorationToStart();
-void finalRun();
+// void explorationToCenter();
+// void explorationToStart();
+// void finalRun();
 
 void mazeSolver();
 
 void printString2UART(const char *str); // TODO: Untested function
 
 // State Machine:
+// TODO: The first three states could be combined into one state, however this would make the code less readable ? 
+// and some lines are not executed in all three phases, and every phase has a different goal condition to check for
 enum MazeSolverStates {
     EXPLORATION_TO_CENTER,
     EXPLORATION_TO_START,
@@ -50,6 +53,7 @@ enum MazeSolverStates {
 struct MazeSolverState {
     enum MazeSolverStates curr_state;
     enum MazeSolverStates prev_state;
+    enum MazeSolverStates curr_phase;
     bool just_switched_state;
     bool just_startet_execution;
 }
@@ -73,6 +77,7 @@ struct MazeSolverState maze_solver_state;
 
 
 // From initMazeSolver()
+// TODO: do they have to be declared as extern variables to be visible in the scope of the different states of the state machine ?
 struct CellData walls[MAZE_SIZE][MAZE_SIZE];
 int orientation = 16;
 int x = 0;

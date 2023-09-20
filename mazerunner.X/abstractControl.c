@@ -290,6 +290,34 @@ float turn180DegreesLeft(float vel_turn_cruise, bool start_new_motion_primitive)
 }
 
 
+// Movement functions for the maze solver
+void turn180() {
+    // Set the desired velocity
+    currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE;
+    initTurningForNDegrees(180.0);
+}
+
+void turnLeft() {
+    // Set the desired velocity
+    currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE;
+    initTurningForNDegrees(-90.0);
+}
+
+void turnRight() {
+    // Set the desired velocity
+    currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE;
+    initTurningForNDegrees(90.0);
+}
+
+void moveForward() {
+    // Should move the robot forward for one cell length
+    // Set the desired velocity
+    currMovementControlParameters.movementPrimitive.vel_cruise = VEL_CRUISE;
+    initDrivingStraightForNMeters(MAZE_CELL_LENGTH);
+}
+
+
+
 /* SIMPLE WALL FOLLOWER - NOT WORKING */
 
 // ###########################
