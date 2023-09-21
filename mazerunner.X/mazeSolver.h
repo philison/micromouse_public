@@ -20,59 +20,59 @@
 #define MAZE_SIZE 6
 #define STACK_SIZE 256
 
-// define values for each cell
-enum CellValue
-{
-    UNKNOWN,
-    WALL,
-    WAY,
-    EXPLORED
-};
+// *** Start of Existing Functions ***
+// // define values for each cell
+// enum CellValue
+// {
+//     UNKNOWN,
+//     WALL,
+//     WAY,
+//     EXPLORED
+// };
 
-// Define a structure to hold the four values
-struct CellData
-{
-    enum CellValue north;
-    enum CellValue east;
-    enum CellValue south;
-    enum CellValue west;
-    enum CellValue center;
-};
+// // Define a structure to hold the four values
+// struct CellData
+// {
+//     enum CellValue north;
+//     enum CellValue east;
+//     enum CellValue south;
+//     enum CellValue west;
+//     enum CellValue center;
+// };
 
-int checkGoal(int x, int y);
-int checkStart(int x, int y);
+// int checkGoal(int x, int y);
+// int checkStart(int x, int y);
 
-void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE][MAZE_SIZE]);
+// void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE][MAZE_SIZE]);
 
 
-typedef struct
-{
-    int x, y;
-} Point;
+// typedef struct
+// {
+//     int x, y;
+// } Point;
 
-// Stack data structure
-typedef struct
-{
-    Point *items;
-    int top;
-    int capacity;
-} Stack;
+// // Stack data structure
+// typedef struct
+// {
+//     Point *items;
+//     int top;
+//     int capacity;
+// } Stack;
 
-// Initialize a stack with a given capacity
-Stack *createStack(int capacity);
+// // Initialize a stack with a given capacity
+// Stack *createStack(int capacity);
 
-void push(Stack *stack, Point item);
-Point pop(Stack *stack);
-void swapStacks(Stack **stack1, Stack **stack2);
-void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MAZE_SIZE], struct CellData walls[MAZE_SIZE][MAZE_SIZE], int goal);
-void final_floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MAZE_SIZE], struct CellData walls[MAZE_SIZE][MAZE_SIZE]);
-int findlowestDistance(int arr[]);
-int turn_to_lowest_distance(int lowestNeighbour, int orientation);
-void openNeighbours(int x, int y, struct CellData walls[MAZE_SIZE][MAZE_SIZE], int distance_Open_Neighbours[4], int distance[MAZE_SIZE][MAZE_SIZE]);
-
+// void push(Stack *stack, Point item);
+// Point pop(Stack *stack);
+// void swapStacks(Stack **stack1, Stack **stack2);
+// void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MAZE_SIZE], struct CellData walls[MAZE_SIZE][MAZE_SIZE], int goal);
+// void final_floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MAZE_SIZE], struct CellData walls[MAZE_SIZE][MAZE_SIZE]);
+// int findlowestDistance(int arr[]);
+// int turn_to_lowest_distance(int lowestNeighbour, int orientation);
+// void openNeighbours(int x, int y, struct CellData walls[MAZE_SIZE][MAZE_SIZE], int distance_Open_Neighbours[4], int distance[MAZE_SIZE][MAZE_SIZE]);
+// *** End of Existing Functions ***
 
 // TODO: Add the remaining function prototypes. Necessary if functions are not used outside ?
-
 
 void initMazeSolver();
 // void explorationToCenter();
