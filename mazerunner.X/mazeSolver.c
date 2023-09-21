@@ -308,10 +308,13 @@ void push(Stack *stack, Point item)
 {
     if (stack->top == stack->capacity - 1)
     {
+        // printString2UARTmax60("stack full\n");
         // Stack is full, handle error or resize
         return;
     }
+    // printString2UARTmax60("before stack\n");
     stack->items[++stack->top] = item;
+    // printString2UARTmax60("after stack\n");
 }
 
 // Pop an element from the stack
@@ -347,6 +350,7 @@ void swapStacks(Stack **stack1, Stack **stack2)
 
 void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MAZE_SIZE], struct CellData walls[MAZE_SIZE][MAZE_SIZE], int goal)
 {
+    printString2UARTmax60("flood\n");
     int visited[MAZE_SIZE][MAZE_SIZE];
     for (int row = 0; row < MAZE_SIZE; row++)
     {
@@ -371,7 +375,9 @@ void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MA
     {
         push(currentLevel, (Point){0, 0});
     }
-    
+
+    printString2UARTmax60("floodfill inter 1\n");
+
     int newValue = 0;
 
     for (int i = 0; i < MAZE_SIZE * MAZE_SIZE; i++)
@@ -437,6 +443,7 @@ void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MA
         //         }
         //     }
         // }
+        printString2UARTmax60("floodfill done\n");
     }
 }
 
@@ -668,10 +675,6 @@ void openNeighbours(int x, int y, struct CellData walls[MAZE_SIZE][MAZE_SIZE], i
 // Stack *currentLevel = createStack(STACK_SIZE); // current level is needed for the floodfill function
 // Stack *nextLevel = createStack(STACK_SIZE);    // next level is needed for the floodfill function
 
-
-
-
-
 // Define global variables here
 struct CellData walls[MAZE_SIZE][MAZE_SIZE];
 int orientation = 16;
@@ -681,9 +684,10 @@ int distance[MAZE_SIZE][MAZE_SIZE];
 int distance_Open_Neighbours[4];
 int lowestNeighbour = 6;
 
-Stack *currentLevel; // Define currentLevel globally
-Stack *nextLevel;    // Define nextLevel globally
-
+// DEBUGGING
+// Stack *currentLevel; // Define currentLevel globally
+// Stack *nextLevel;    // Define nextLevel globally
+// DEBUGGING
 
 
 /* 
@@ -691,8 +695,8 @@ Stack *nextLevel;    // Define nextLevel globally
 *   happened within the main function                           
 */
 
-void initMazeSolver() {
-
+void initMazeSolver(Stack *currentLevel, Stack *nextLevel) {
+    printString2UARTmax60("initMS\n");
     // initialize all walls to UNKNOWN
     for (int row = 0; row < MAZE_SIZE; row++)
     {
@@ -740,12 +744,16 @@ void switchMazeSolverStateTo(enum MazeSolverStates new_state) {
 /*
 * Replaces the main function of the Maze Solver algorithm from the simulation implementation
 */
-void mazeSolver() {
+void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
+
+    printString2UARTmax60("mazeSolver() called\n");
     // Init only at the beginning of the execution of this algorithm
     if (maze_solver_state.just_startet_execution) {
-        initMazeSolver();
+        printString2UARTmax60("MS just_startet_execution\n");
+        initMazeSolver(&nextLevel, &currentLevel);
         maze_solver_state.just_startet_execution = false;
-        currMovementControlParameters.is_movement_goal_reached = true;
+        currMovementControlParameters.is_movement_goal_reached = false; // was true before
+        printString2UARTmax60("MS just_startet_execution2\n");
     }
 
     /*
@@ -877,6 +885,7 @@ void mazeSolver() {
         break;
 
     case FINAL_RUN:
+        printString2UARTmax60("MS: FINAL_RUN\n");
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
@@ -906,7 +915,8 @@ void mazeSolver() {
         {
             // The goal has been reached and the algorithm can stop.
             // Switch to the according robot state STOP in the robots main state machine
-            switchRobotStateTo(STOP);
+            // switchRobotStateTo(STOP);
+            robot_state.execution_finished = true;
             break;
         }
 
@@ -1046,4 +1056,12 @@ void printString2UART(const char *str) {
 
     // Free the dynamically allocated memory
     free(buffer);
+}
+
+
+// Function to format and print a string of max length 60
+void printString2UARTmax60(const char *str) {
+    char buffer[60];
+    sprintf(buffer, "%s", str);
+    putsUART1(buffer);
 }

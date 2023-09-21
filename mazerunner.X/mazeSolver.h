@@ -74,14 +74,15 @@ void openNeighbours(int x, int y, struct CellData walls[MAZE_SIZE][MAZE_SIZE], i
 
 // TODO: Add the remaining function prototypes. Necessary if functions are not used outside ?
 
-void initMazeSolver();
+void initMazeSolver(Stack *currentLevel, Stack *nextLevel);
 // void explorationToCenter();
 // void explorationToStart();
 // void finalRun();
 
-void mazeSolver();
+void mazeSolver(Stack *currentLevel, Stack *nextLevel);
 
 void printString2UART(const char *str); // TODO: Untested function
+void printString2UARTmax60(const char *str); // Does work
 
 // State Machine:
 // TODO: The first three states could be combined into one state, however this would make the code less readable ? 
@@ -122,19 +123,20 @@ static struct MazeSolverState maze_solver_state;
 // Stack *currentLevel; // Declare currentLevel as a global variable
 // Stack *nextLevel;    // Declare nextLevel as a global variable
 
+// DEBUGGING
+// // Declare global variables here
+// extern struct CellData walls[MAZE_SIZE][MAZE_SIZE];
+// extern int orientation;
+// extern int x;
+// extern int y;
+// extern int distance[MAZE_SIZE][MAZE_SIZE];
+// extern int distance_Open_Neighbours[4];
+// extern int lowestNeighbour;
 
-// Declare global variables here
-extern struct CellData walls[MAZE_SIZE][MAZE_SIZE];
-extern int orientation;
-extern int x;
-extern int y;
-extern int distance[MAZE_SIZE][MAZE_SIZE];
-extern int distance_Open_Neighbours[4];
-extern int lowestNeighbour;
-
-// Declare global pointers to Stack
-extern Stack *currentLevel;
-extern Stack *nextLevel;
+// // Declare global pointers to Stack
+// extern Stack *currentLevel;
+// extern Stack *nextLevel;
+// DEBUGGING
 
 
 
