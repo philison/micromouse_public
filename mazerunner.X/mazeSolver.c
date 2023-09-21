@@ -25,24 +25,24 @@ int checkStart(int x, int y)
     return 1;
 }
 
-// define values for each cell
-enum CellValue
-{
-    UNKNOWN,
-    WALL,
-    WAY,
-    EXPLORED
-};
+// // define values for each cell
+// enum CellValue
+// {
+//     UNKNOWN,
+//     WALL,
+//     WAY,
+//     EXPLORED
+// };
 
-// Define a structure to hold the four values
-struct CellData
-{
-    enum CellValue north;
-    enum CellValue east;
-    enum CellValue south;
-    enum CellValue west;
-    enum CellValue center;
-};
+// // Define a structure to hold the four values
+// struct CellData
+// {
+//     enum CellValue north;
+//     enum CellValue east;
+//     enum CellValue south;
+//     enum CellValue west;
+//     enum CellValue center;
+// };
 
 // Function that sets walls for the x / y position and the connecting walls of the neighbouring cells
 void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE][MAZE_SIZE])
@@ -280,18 +280,18 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
  *      Floodfill distance update
  *
  *************************************/
-typedef struct
-{
-    int x, y;
-} Point;
+// typedef struct
+// {
+//     int x, y;
+// } Point;
 
-// Stack data structure
-typedef struct
-{
-    Point *items;
-    int top;
-    int capacity;
-} Stack;
+// // Stack data structure
+// typedef struct
+// {
+//     Point *items;
+//     int top;
+//     int capacity;
+// } Stack;
 
 // Initialize a stack with a given capacity
 Stack *createStack(int capacity)
@@ -655,9 +655,24 @@ void openNeighbours(int x, int y, struct CellData walls[MAZE_SIZE][MAZE_SIZE], i
 
 
 
-// From initMazeSolver()
-// TODO: do they have to be declared as extern variables to be visible in the scope of the different states of the state machine ?
-// Or in one global struct ?
+// // From initMazeSolver()
+// // TODO: do they have to be declared as extern variables to be visible in the scope of the different states of the state machine ?
+// // Or in one global struct ?
+// struct CellData walls[MAZE_SIZE][MAZE_SIZE];
+// int orientation = 16;
+// int x = 0;
+// int y = 0;
+// int distance[MAZE_SIZE][MAZE_SIZE];
+// int distance_Open_Neighbours[4];
+// int lowestNeighbour = 6;
+// Stack *currentLevel = createStack(STACK_SIZE); // current level is needed for the floodfill function
+// Stack *nextLevel = createStack(STACK_SIZE);    // next level is needed for the floodfill function
+
+
+
+
+
+// Define global variables here
 struct CellData walls[MAZE_SIZE][MAZE_SIZE];
 int orientation = 16;
 int x = 0;
@@ -665,8 +680,9 @@ int y = 0;
 int distance[MAZE_SIZE][MAZE_SIZE];
 int distance_Open_Neighbours[4];
 int lowestNeighbour = 6;
-Stack *currentLevel = createStack(STACK_SIZE); // current level is needed for the floodfill function
-Stack *nextLevel = createStack(STACK_SIZE);    // next level is needed for the floodfill function
+
+Stack *currentLevel; // Define currentLevel globally
+Stack *nextLevel;    // Define nextLevel globally
 
 
 
