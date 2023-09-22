@@ -18,7 +18,7 @@
 #define	MAZESOLVER_H
 
 #define MAZE_SIZE 6
-#define STACK_SIZE 256
+#define STACK_SIZE 36
 
 // *** Start of Existing Functions ***
 // define values for each cell
@@ -81,8 +81,11 @@ void initMazeSolver(Stack *currentLevel, Stack *nextLevel);
 
 void mazeSolver(Stack *currentLevel, Stack *nextLevel);
 
-void printString2UART(const char *str); // TODO: Untested function
+void printString2UARTmalloc(const char *str); // To use malloc: the heap size has to be set in the project settings
 void printString2UARTmax60(const char *str); // Does work
+void printString2UARTmax10(const char *str); // Does work
+
+const char *getOrientationString(int orientation);
 
 // State Machine:
 // TODO: The first three states could be combined into one state, however this would make the code less readable ? 
@@ -101,6 +104,7 @@ struct MazeSolverState {
     enum MazeSolverStates curr_phase;
     bool just_switched_state;
     bool just_startet_execution;
+    bool already_aligned_with_lowest_distance;
 };
 
 static struct MazeSolverState maze_solver_state;

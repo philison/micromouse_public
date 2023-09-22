@@ -300,12 +300,28 @@ Stack *createStack(int capacity)
     stack->capacity = capacity;
     stack->top = -1;
     stack->items = (Point *)malloc(sizeof(Point) * capacity);
+
+    // Check if stack was created successfully
+    // By checking if the created pointer is NULL
+    if (stack->items == NULL) {
+        printString2UARTmax60("Cannot allocate memory. Check HeapSize in IDE\n");
+    }
+    else 
+    { 
+        printString2UARTmax60("Memory Allocated successfully\n");
+        // printf ("Memory Allocated successfully \n");
+    }
+
     return stack;
 }
 
 // Push an element onto the stack
 void push(Stack *stack, Point item)
 {
+    // Disable interrupts
+    __builtin_disable_interrupts();
+    __builtin_disi(0x3FFF); /* disable interrupts */
+
     if (stack->top == stack->capacity - 1)
     {
         // printString2UARTmax60("stack full\n");
@@ -315,11 +331,19 @@ void push(Stack *stack, Point item)
     // printString2UARTmax60("before stack\n");
     stack->items[++stack->top] = item;
     // printString2UARTmax60("after stack\n");
+
+    // Re-enable interrupts
+    __builtin_disi(0x0000); /* enable interrupts */
+    __builtin_enable_interrupts();
 }
 
 // Pop an element from the stack
 Point pop(Stack *stack)
 {
+    // Disable interrupts
+    __builtin_disable_interrupts();
+    __builtin_disi(0x3FFF); /* disable interrupts */
+
     if (stack->top == -1)
     {
         // Stack is empty, handle error
@@ -327,14 +351,27 @@ Point pop(Stack *stack)
         return p;
     }
     return stack->items[stack->top--];
+
+    // Re-enable interrupts
+    __builtin_disi(0x0000); /* enable interrupts */
+    __builtin_enable_interrupts();
 }
 
 // Swap the contents of two stacks
 void swapStacks(Stack **stack1, Stack **stack2)
 {
+     // Disable interrupts
+    __builtin_disable_interrupts();
+    __builtin_disi(0x3FFF); /* disable interrupts */
+
+
     Stack *temp = *stack1;
     *stack1 = *stack2;
     *stack2 = temp;
+
+    // Re-enable interrupts
+    __builtin_disi(0x0000); /* enable interrupts */
+    __builtin_enable_interrupts();
 }
 
 
@@ -375,8 +412,6 @@ void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MA
     {
         push(currentLevel, (Point){0, 0});
     }
-
-    printString2UARTmax60("floodfill inter 1\n");
 
     int newValue = 0;
 
@@ -443,8 +478,8 @@ void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MA
         //         }
         //     }
         // }
-        printString2UARTmax60("floodfill done\n");
     }
+    printString2UARTmax60("floodfill done\n");
 }
 
 void final_floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MAZE_SIZE], struct CellData walls[MAZE_SIZE][MAZE_SIZE])
@@ -560,6 +595,7 @@ int turn_to_lowest_distance(int lowestNeighbour, int orientation)
     {
     case 0:
         // printtoconsole("mouse does not need to turn\n");
+        maze_solver_state.already_aligned_with_lowest_distance = true;
         break;
     case 2:
     case -2:
@@ -731,7 +767,8 @@ static struct MazeSolverState maze_solver_state = {
     .prev_state = EXPLORATION_TO_CENTER,
     .curr_phase = EXPLORATION_TO_CENTER,
     .just_switched_state = true,
-    .just_startet_execution = true
+    .just_startet_execution = true,
+    .already_aligned_with_lowest_distance = false
 };
 
 void switchMazeSolverStateTo(enum MazeSolverStates new_state) {
@@ -750,10 +787,9 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
     // Init only at the beginning of the execution of this algorithm
     if (maze_solver_state.just_startet_execution) {
         printString2UARTmax60("MS just_startet_execution\n");
-        initMazeSolver(&nextLevel, &currentLevel);
+        initMazeSolver(nextLevel, currentLevel);
         maze_solver_state.just_startet_execution = false;
         currMovementControlParameters.is_movement_goal_reached = false; // was true before
-        printString2UARTmax60("MS just_startet_execution2\n");
     }
 
     /*
@@ -768,14 +804,13 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
     switch (maze_solver_state.curr_state)
     {
     case EXPLORATION_TO_CENTER:
+        printString2UARTmax60("MS: EXPLORATION_TO_CENTER\n");
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
             maze_solver_state.just_switched_state = false;
 
-            char buffer[50];
-            sprintf(buffer, "now starting EXPLORATION_TO_CENTER\n");
-            putsUART1(buffer);
+            printString2UARTmax60("now starting EXPLORATION_TO_CENTER\n");
 
             // Setting the current phase
             maze_solver_state.curr_phase = EXPLORATION_TO_CENTER;
@@ -806,6 +841,10 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
         openNeighbours(x, y, walls, distance_Open_Neighbours, distance);
 
         lowestNeighbour = findlowestDistance(distance_Open_Neighbours);
+        // Print the lowest neighbour for debugging as cardinal direction using getOrientationString
+        char buffer[40];
+        sprintf(buffer, "lowestNeighbour: %i = %s\n", lowestNeighbour, getOrientationString(lowestNeighbour));
+        putsUART1(buffer);
         // Now follows the first movement command: Turn to the lowest neighbour
         // Therefore we have to switch to the respective state: TURN_TO_LOWEST_DISTANCE 
         // after first checking the goal condition
@@ -819,16 +858,14 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
         {
             switchMazeSolverStateTo(EXPLORATION_TO_START);
 
-            // UART
-            char buffer[40];
-            sprintf(buffer, "CENTER is reached\n\n");
-            putsUART1(buffer);
+            printString2UARTmax60("CENTER is reached\n\n");
             // printMaze(walls, distance);
             // printDistance_array(distance);
-            break;
 
             // Setting the current phase
-            maze_solver_state.curr_phase = EXPLORATION_TO_START;
+            // maze_solver_state.curr_phase = EXPLORATION_TO_START;
+
+            break;
         }
 
         // If the goal is not yet reached, the algorithm can move on to the next state as described above
@@ -837,6 +874,7 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
         break;
     
     case EXPLORATION_TO_START:
+        printString2UARTmax60("MS: EXPLORATION_TO_START\n");
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
@@ -862,6 +900,8 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
         openNeighbours(x, y, walls, distance_Open_Neighbours, distance);
 
         lowestNeighbour = findlowestDistance(distance_Open_Neighbours);
+        sprintf(buffer, "lowestNeighbour: %d\n", lowestNeighbour);
+        putsUART1(buffer);
         // Now follows the first movement command: Turn to the lowest neighbour
         // Therefore we have to switch to the respective state: TURN_TO_LOWEST_DISTANCE 
         // after first checking the goal condition
@@ -925,36 +965,47 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
         break;
 
     case TURN_TO_LOWEST_DISTANCE: {
-        int intended_orientation;
+        printString2UARTmax60("MS: TURN_TO_LOWEST_DISTANCE\n");
+        // int intended_orientation;
 
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
             maze_solver_state.just_switched_state = false;
 
-            char buffer[50];
-            sprintf(buffer, "now starting TURN_TO_LOWEST_DISTANCE\n");
-            putsUART1(buffer);
+            printString2UARTmax60("now starting TURN_TO_LOWEST_DISTANCE\n");
 
             // Continuing from below the findlowestDistance() function call
             // Now comes the first movement command: Turn to the lowest neighbour
             // Since this line initiates a movement primitive, it should only be executed once and than no more 
             // until the movement is finished and the state is re-entered from a different state
-            intended_orientation = turn_to_lowest_distance(lowestNeighbour, orientation); // orientation should be created as a pointer
+            // intended_orientation = turn_to_lowest_distance(lowestNeighbour, orientation); // orientation should be created as a pointer
+            orientation = turn_to_lowest_distance(lowestNeighbour, orientation); // orientation should be created as a pointer
+            buffer[40];
+            sprintf(buffer, "orientation: %i = %s\n", orientation, getOrientationString(orientation));
+            putsUART1(buffer);
             // Now follows the second movement command: Move forward to the next cell with the lowest distance
             // Therefore we have to switch to the respective state: MOVE_FORWARD as soon as the just started movement is finished
         }
 
         /* Exit the State */
-        if (currMovementControlParameters.is_movement_goal_reached) {
+        // Either if the turn movement is finished or if the mouse is already aligned with the lowest distance
+        if (currMovementControlParameters.is_movement_goal_reached || maze_solver_state.already_aligned_with_lowest_distance) {
+            if (maze_solver_state.already_aligned_with_lowest_distance) {
+                // If the mouse is already aligned with the lowest distance, there is no need to turn again
+                printString2UARTmax60("already aligned with lowest distance\n");
+                maze_solver_state.already_aligned_with_lowest_distance = false;
+            }
             // Updated the Orientation now that the turn is actually completed
-            orientation = intended_orientation;
+            // orientation = intended_orientation;
             // Leave the state as soon as the movement is finished
             switchMazeSolverStateTo(MOVE_FORWARD);
         }
+
         break;
     }
     case MOVE_FORWARD:
+        printString2UARTmax60("MS: MOVE_FORWARD\n");
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
@@ -1035,7 +1086,8 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
 
 
 // Function to format and print a string
-void printString2UART(const char *str) {
+// CAUTION: this requires the user to set a heap size in the MPLAB X IDE in order to use malloc
+void printString2UARTmalloc(const char *str) {
     // Calculate the required buffer size based on the length of the input string
     int bufferSize = snprintf(NULL, 0, "%s", str) + 1; // +1 for the null-terminator
 
@@ -1058,10 +1110,34 @@ void printString2UART(const char *str) {
     free(buffer);
 }
 
-
 // Function to format and print a string of max length 60
 void printString2UARTmax60(const char *str) {
     char buffer[60];
     sprintf(buffer, "%s", str);
     putsUART1(buffer);
+}
+
+// Function to format and print a string of max length 10
+void printString2UARTmax10(const char *str) {
+    char buffer[10];
+    sprintf(buffer, "%s", str);
+    putsUART1(buffer);
+}
+
+// Function that returns a string with the integer orientation
+//  turned into the corresponding cardinal direction
+const char *getOrientationString(int orientation) {
+    switch (orientation % 4)
+    {
+    case 0:
+        return "NORTH";
+    case 1:
+        return "EAST";
+    case 2:
+        return "SOUTH";
+    case 3:
+        return "WEST";
+    default:
+        return "INVALID";
+    }
 }

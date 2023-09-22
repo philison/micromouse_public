@@ -52,6 +52,7 @@
 #include "serialComms.h"
 #include "adc.h"
 #include "dma.h"
+#include <stdlib.h>
 
 
 /// Defines----------------------------
@@ -125,18 +126,32 @@ int main()
     
     //setupUART2();
     
-    setupPWM();
+    // setupPWM(); DEBUG
 
     // setPWM_DCpercentage(&P1DC1, 0.1);
     LATAbits.LATA0 = 0; // Set Motor direction to forward
     
     //setupButtons();
     
-    setupADC1();
-    startADC1();
-    initDmaChannel4();
+    // setupADC1(); DEBUG
+    // startADC1();DEBUG
+    // initDmaChannel4();DEBUG
     
 
+    volatile int *ptr= malloc(100*sizeof(int));
+    if (ptr == NULL)
+        printf ("Cannot allocate memory\n");
+    else 
+    { 
+        printf ("Memory Allocated successfully \n");
+        for (int i=0; i<(100*sizeof(int)); i++)
+        {
+            *ptr=i;
+            printf ("Pointer value=%d \t i=%d\n",*ptr++,i);
+        }
+    }
+    free ((void *)ptr); 
+    return 0;
 
 
     while(1)

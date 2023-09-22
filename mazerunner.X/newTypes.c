@@ -2,7 +2,12 @@
 
 // Initialize the global variables
 // struct MovementControlParameters currMovementControlParameters = {PARKING, 0.0, 0.0, {0.0, 0.0}, false};
-struct MovementControlParameters currMovementControlParameters = {{PARKING, 0.0}, 0.0, 0.0, {0.0, 0.0}, false};
+// struct MovementControlParameters currMovementControlParameters = {{PARKING, 0.0}, 0.0, 0.0, {0.0, 0.0}, false};
+struct MovementControlParameters currMovementControlParameters = {
+    {PARKING, 0.0, 0.0}, // movementPrimitive
+    {0.0, 0.0}, // goalPositionInEncoderCounts
+    false // is_movement_goal_reached
+};
 
 RobotState robot_state = {IDLE, IDLE, false, false, false, false, false, 32000};
 
