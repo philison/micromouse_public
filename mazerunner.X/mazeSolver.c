@@ -140,7 +140,7 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
         if (isWallFront())
         {
             walls[x][y].north = WALL;
-            if (y < 15)
+            if (y < MAZE_SIZE-1)
             {
                 walls[x][y + 1].south = WALL;
             }
@@ -148,7 +148,7 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
         if (!isWallFront())
         {
             walls[x][y].north = WAY;
-            if (y < 15)
+            if (y < MAZE_SIZE-1)
             {
                 walls[x][y + 1].south = WAY;
             }
@@ -157,7 +157,7 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
         if (isWallRight())
         {
             walls[x][y].east = WALL;
-            if (x < 15)
+            if (x < MAZE_SIZE-1)
             {
                 walls[x + 1][y].west = WALL;
             }
@@ -165,7 +165,7 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
         if (!isWallRight())
         {
             walls[x][y].east = WAY;
-            if (x < 15)
+            if (x < MAZE_SIZE-1)
             {
                 walls[x + 1][y].west = WAY;
             }
@@ -176,7 +176,7 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
         if (isWallLeft())
         {
             walls[x][y].north = WALL;
-            if (y < 15)
+            if (y < MAZE_SIZE-1)
             {
                 walls[x][y + 1].south = WALL;
             }
@@ -184,7 +184,7 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
         if (!isWallLeft())
         {
             walls[x][y].north = WAY;
-            if (y < 15)
+            if (y < MAZE_SIZE-1)
             {
                 walls[x][y + 1].south = WAY;
             }
@@ -193,7 +193,7 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
         if (isWallFront())
         {
             walls[x][y].east = WALL;
-            if (x < 15)
+            if (x < MAZE_SIZE-1)
             {
                 walls[x + 1][y].west = WALL;
             }
@@ -201,7 +201,7 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
         if (!isWallFront())
         {
             walls[x][y].east = WAY;
-            if (x < 15)
+            if (x < MAZE_SIZE-1)
             {
                 walls[x + 1][y].west = WAY;
             }
@@ -229,7 +229,7 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
         if (isWallLeft())
         {
             walls[x][y].east = WALL;
-            if (x < 15)
+            if (x < MAZE_SIZE-1)
             {
                 walls[x + 1][y].west = WALL;
             }
@@ -237,7 +237,7 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
         if (!isWallLeft())
         {
             walls[x][y].east = WAY;
-            if (x < 15)
+            if (x < MAZE_SIZE-1)
             {
                 walls[x + 1][y].west = WAY;
             }
@@ -315,7 +315,7 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
         if (isWallRight())
         {
             walls[x][y].north = WALL;
-            if (y < 15)
+            if (y < MAZE_SIZE-1)
             {
                 walls[x][y + 1].south = WALL;
             }
@@ -323,7 +323,7 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
         if (!isWallRight())
         {
             walls[x][y].north = WAY;
-            if (y < 15)
+            if (y < MAZE_SIZE-1)
             {
                 walls[x][y + 1].south = WAY;
             }
@@ -403,7 +403,7 @@ void printMaze(struct CellData maze[MAZE_SIZE][MAZE_SIZE], int distance[MAZE_SIZ
         printtoconsole("\n");
 
         // add the row number in the beginning; two digits number move the cells
-        fprintf(stderr, "%2d", 15 - row);
+        fprintf(stderr, "%2d", MAZE_SIZE - 1 - row);
         fflush(stderr);
         for (int col = 0; col < MAZE_SIZE; col++)
         {
@@ -959,6 +959,11 @@ void openNeighbours(int x, int y, struct CellData walls[MAZE_SIZE][MAZE_SIZE], i
     // printIntToConsolewithSpace(distance_Open_Neighbours[2]);
     // printIntToConsolewithSpace(distance_Open_Neighbours[3]);
     // printtoconsole("\n");
+    char buffer[60];
+    sprintf(buffer, "distance_Open_Neighbours after update\n");
+    putsUART1(buffer);
+    sprintf(buffer, "%i, %i, %i, %i\n", distance_Open_Neighbours[0], distance_Open_Neighbours[1], distance_Open_Neighbours[2], distance_Open_Neighbours[3]);
+    putsUART1(buffer);
 }
 
 
@@ -1068,14 +1073,20 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
 
     switch (maze_solver_state.curr_state)
     {
-    case EXPLORATION_TO_CENTER:
-        // printString2UARTmax60("MS: EXPLORATION_TO_CENTER\n"); // TESTING
+    case EXPLORATION_TO_CENTER: {
+        printString2UARTmax60("MS: EXPLORATION_TO_CENTER\n"); // TESTING
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
             maze_solver_state.just_switched_state = false;
 
             // printString2UARTmax60("now starting EXPLORATION_TO_CENTER\n"); // TESTING
+            char buffer[40];
+            sprintf(buffer, "orientation: %i = %s\n", orientation, getOrientationString(orientation)); // TESTING
+            putsUART1(buffer);
+
+            sprintf(buffer, "position: %i, %i\n", x, y); // TESTING
+            putsUART1(buffer);
 
             // Setting the current phase
             maze_solver_state.curr_phase = EXPLORATION_TO_CENTER;
@@ -1141,8 +1152,8 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
         switchMazeSolverStateTo(TURN_TO_LOWEST_DISTANCE);
 
         break;
-    
-    case EXPLORATION_TO_START:
+    }
+    case EXPLORATION_TO_START: {
         // printString2UARTmax60("MS: EXPLORATION_TO_START\n"); // TESTING
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
@@ -1153,6 +1164,7 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
             sprintf(buffer, "now starting EXPLORATION_TO_START\n"); // TESTING
             putsUART1(buffer);
 
+            // Setting the current phase
             maze_solver_state.curr_phase = EXPLORATION_TO_START;
         }
 
@@ -1161,7 +1173,7 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
         // This section should only be executed once in every state loop
         // meaning: this state has to be left right after its content has been executed once or this section has to be put back into the Enter the State section
         updateWalls(x, y, orientation, walls);
-        floodFill(currentLevel, nextLevel, distance, walls, 0);
+        floodFill(currentLevel, nextLevel, distance, walls, 1);
         // printDistance_array(distance);
         // API_setColor(x, y, 'G'); // set the current cell to green in the simulator, to track which cells have been visited
         char buffer[20];
@@ -1195,7 +1207,7 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
         // If the goal is not yet reached, the algorithm can move on to the next state as described above
         switchMazeSolverStateTo(TURN_TO_LOWEST_DISTANCE);
         break;
-
+    }
     case FINAL_RUN:
         // printString2UARTmax60("MS: FINAL_RUN\n"); // TESTING
         /* Enter the State */
@@ -1237,7 +1249,7 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
         break;
 
     case TURN_TO_LOWEST_DISTANCE: {
-        printString2UARTmax60("MS: TURN_TO_LOWEST_DISTANCE\n"); // TESTING
+        // printString2UARTmax60("MS: TURN_TO_LOWEST_DISTANCE\n"); // TESTING
         // int intended_orientation;
 
         /* Enter the State */
@@ -1245,7 +1257,7 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
             // Reset the just_switched_state flag
             maze_solver_state.just_switched_state = false;
 
-            // printString2UARTmax60("now starting TURN_TO_LOWEST_DISTANCE\n"); // TESTING
+            printString2UARTmax60("now starting TURN_TO_LOWEST_DISTANCE\n"); // TESTING
 
             // Continuing from below the findlowestDistance() function call
             // Now comes the first movement command: Turn to the lowest neighbour
@@ -1277,15 +1289,13 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
         break;
     }
     case MOVE_FORWARD:
-        printString2UARTmax60("MS: MOVE_FORWARD\n"); // TESTING
+        // printString2UARTmax60("MS: MOVE_FORWARD\n"); // TESTING
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
             maze_solver_state.just_switched_state = false;
 
-            // char buffer[50];
-            // sprintf(buffer, "now starting MOVE_FORWARD\n"); // TESTING
-            // putsUART1(buffer);
+            printString2UARTmax60("now starting MOVE_FORWARD\n"); // TESTING
 
             // Continuing from below the turn_to_lowest_distance() function call
             // Now comes the second movement command: Move forward to the next cell with the lowest distance
@@ -1299,6 +1309,28 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
         /* Exit the State */
         if (currMovementControlParameters.is_movement_goal_reached) {
             // TODO: Update the x and y coordinates ?
+            switch (orientation % 4)
+                {
+                case 0:
+                    y++;
+                    // printtoconsole("Orientation is north\n");
+                    break;
+                case 1:
+                    x++;
+                    // printtoconsole("Orientation is east\n");
+                    break;
+                case 2:
+                    y--;
+                    // printtoconsole("Orientation is south\n");
+                    break;
+                case 3:
+                    x--;
+                    // printtoconsole("Orientation is west\n");
+                    break;
+                default:
+                    // printtoconsole("orientation is invalid\n");
+                    printString2UARTmax60("orientation is invalid\n");
+                }
             // Leave the state as soon as the movement is finished
             // Switch back to the state based on the current phase (exp to center / exp to start / final run)
             switchMazeSolverStateTo(maze_solver_state.curr_phase);
