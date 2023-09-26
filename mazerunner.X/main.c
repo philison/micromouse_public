@@ -52,6 +52,7 @@
 #include "serialComms.h"
 #include "adc.h"
 #include "dma.h"
+#include "mazeSolver.h"
 
 
 /// Defines----------------------------
@@ -169,7 +170,40 @@ int main()
     startTimer1();
     startTimer2();
 
+    printString2UARTmax60("Hello Restarting...\n");
+
     switchRobotStateTo(IDLE);
+
+    /*
+    *   Init the Maze Solver
+    */ 
+    // From initMazeSolver()
+    // TODO: do they have to be declared as extern variables to be visible in the scope of the different states of the state machine ?
+    // Or in one global struct ?
+    // struct CellData walls[MAZE_SIZE][MAZE_SIZE];
+    // int orientation = 16;
+    // int x = 0;
+    // int y = 0;
+    // int distance[MAZE_SIZE][MAZE_SIZE];
+    // int distance_Open_Neighbours[4];
+    // int lowestNeighbour = 6;
+    // Stack *currentLevel = createStack(STACK_SIZE); // current level is needed for the floodfill function
+    // Stack *nextLevel = createStack(STACK_SIZE);    // next level is needed for the floodfill function
+
+    // struct CellData walls[MAZE_SIZE][MAZE_SIZE];
+    // int orientation = 16;
+    // int x = 0;
+    // int y = 0;
+    // int distance[MAZE_SIZE][MAZE_SIZE];
+    // int distance_Open_Neighbours[4];
+    // int lowestNeighbour = 6;
+    // DEBUGGING
+    // currentLevel = createStack(STACK_SIZE); // current level is needed for the floodfill function
+    // nextLevel = createStack(STACK_SIZE);    // next level is needed for the floodfill function
+
+    Stack *currentLevel = createStack(STACK_SIZE); // current level is needed for the floodfill function
+    Stack *nextLevel = createStack(STACK_SIZE);    // next level is needed for the floodfill function
+
 
     while(1)
     {
@@ -179,6 +213,10 @@ int main()
         {
         case IDLE:
             /* Enter the State */
+            if (robot_state.just_switched_state) {
+                printString2UARTmax60("RS: IDLE\n");
+                robot_state.just_switched_state = false;
+            }
 
             /* Execute the State */
             currMovementControlParameters.movementPrimitive.type = PARKING;
@@ -192,6 +230,7 @@ int main()
             break;
         
         case DELAY_BEFORE_START:
+            // printString2UARTmax60("RS: DELAY_BEFORE_START\n"); // TESTING
             /* Enter the State */
             if (robot_state.just_switched_state) {
                 timeWithTimer2(1000); // 1 second delay in ms
@@ -205,10 +244,12 @@ int main()
             if (robot_state.timer2_expired) {
                 switchRobotStateTo(EXECUTE);
                 robot_state.timer2_expired = false;
+                printString2UARTmax60("RS: Exiting DELAY_BEFORE_START\n");
             }
             break;
 
         case EXECUTE:
+            // printString2UARTmax60("RS: EXECUTE\n"); // TESTING
             /* Enter the State */
             if (robot_state.just_switched_state) {
                 // Set the just_switched_state flag to false
@@ -236,23 +277,28 @@ int main()
 
 
             /* Execute the State */
-            simpleWallFollower();
+            // simpleWallFollower();
             // simpleMotionPrimitiveExecutor();
             // remoteControlledMotionPrimitiveExecutor();
+
+            mazeSolver(nextLevel, currentLevel);
             
             /* Exit the State */
             // If the EXECUTion goal is reached go to STOP, has to be set somewhere within the function called in the EXECUTE state
             if (robot_state.execution_finished) {
+                printString2UARTmax60("RS: Execution finished\n");
                 switchRobotStateTo(STOP);
             } else if (robot_state.button1_pressed) {
                 // TODO: Implement a way to stop the robot while it is executing a motion primitive, does not work yet
                 switchRobotStateTo(IDLE);
                 robot_state.button1_pressed = false;
+                printString2UARTmax60("RS: exEx due to btn press\n");
             }
             
             break;
 
         case STOP:
+            printString2UARTmax60("RS: STOP\n");
             /* Enter the State */
 
             /* Execute the State */
@@ -264,6 +310,7 @@ int main()
             break;
 
         case EMERGENCY:
+            printString2UARTmax60("RS: EMERGENCY\n");
             /* Enter the State */
             
             /* Execute the State */

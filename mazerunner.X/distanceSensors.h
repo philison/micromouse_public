@@ -17,7 +17,8 @@
 // Threshold values to decide whether a wall is present or not
 #define WALL_DETECTION_THRESHOLD_SIDES 22.0 // in percent old: 28
 // #define WALL_DETECTION_THRESHOLD_FRONT 15.0 // old 15 
-#define WALL_DETECTION_THRESHOLD_FRONT 40.0 // For SWF special case
+// #define WALL_DETECTION_THRESHOLD_FRONT 40.0 // For SWF special case
+#define WALL_DETECTION_THRESHOLD_FRONT 15.0 // For SWF special case
 
 
 // Sensor Value when the robot (Rotation Center between the two wheels) is positioned in the cell center and there are walls on all sides

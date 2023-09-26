@@ -14,9 +14,18 @@
 #include "newTypes.h"
 #include "serialComms.h"
 
-#define MAZE_CELL_LENGTH 0.18 // in meters
-#define VEL_CRUISE 0.8
-#define VEL_TURN_CRUISE 0.8
+// #define MAZE_CELL_LENGTH 0.18 // in meters
+#define MAZE_CELL_LENGTH 0.19 // in meters
+//Works for Left-Wall Following:
+// #define VEL_CRUISE 0.8
+// #define VEL_TURN_CRUISE 0.8
+#define VEL_CRUISE 0.5
+#define VEL_TURN_CRUISE 0.5
+#define VEL_CRUISE_FINAL_RUN 0.8
+#define VEL_TURN_CRUISE_FINAL_RUN 0.8
+// For Testing
+// #define VEL_CRUISE 0.3
+// #define VEL_TURN_CRUISE 0.3
 
 // #define GOAL_REACHED_THRESHOLD_DISTANCE 0.01 // in meters
 // // #define GOAL_REACHED_THRESHOLD_DISTANCE 0.02 // in meters
@@ -60,6 +69,13 @@ float turn90DegreesRight(float vel_turn_cruise, bool start_new_motion_primitive)
 float turn90DegreesLeft(float vel_turn_cruise, bool start_new_motion_primitive);
 float turn180DegreesRight(float vel_turn_cruise, bool start_new_motion_primitive);
 float turn180DegreesLeft(float vel_turn_cruise, bool start_new_motion_primitive);
+
+
+// Movement functions for the maze solver
+void turn180();
+void turnLeft();
+void turnRight();
+void moveForward();
 
 
 /* SIMPLE WALL FOLLOWER */
