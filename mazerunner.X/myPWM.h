@@ -32,8 +32,10 @@
 #define	__MYPWM_H__
 
 #include <xc.h> // include processor files - each processor file is guarded.  
-#define MYPWM_MAX (2*26666L)
-#define MYPWM_MAX_MAZE_MOTOR (35199) // 2*26666*0.66 Limit the Motor PWM max duty cycle to 66% for mazerunner to limit the motor voltage to 6V (from 9V H-Bridge Supply)
+// #define MYPWM_MAX (2*26666L)
+#define MYPWM_MAX (2*527L) // For ~50.5kHz PWM frequency / or 20ys Period
+// #define MYPWM_MAX_MAZE_MOTOR (35199) // 2*26666*0.66 Limit the Motor PWM max duty cycle to 66% for mazerunner to limit the motor voltage to 6V (from 9V H-Bridge Supply)
+#define MYPWM_MAX_MAZE_MOTOR (MYPWM_MAX*0.66) // 2*26666*0.66 Limit the Motor PWM max duty cycle to 66% for mazerunner to limit the motor voltage to 6V (from 9V H-Bridge Supply)
 void setupPWM();
 void modulatePWMwithSINE(uint16_t *pwmDutyCycleRegister);
 void setPWM_DCpercentage(uint16_t *pwmDutyCycleRegister, float percentage);

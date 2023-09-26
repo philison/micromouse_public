@@ -113,7 +113,7 @@ struct MazeSolverState {
     bool already_aligned_with_lowest_distance;
 };
 
-static struct MazeSolverState maze_solver_state;
+extern struct MazeSolverState maze_solver_state;
 
 
 

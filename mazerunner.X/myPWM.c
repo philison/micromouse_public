@@ -80,7 +80,7 @@ void setupPWM()
          */
     P1TCONbits.PTEN = 0; // Switch off PWM generator
     P1TCONbits.PTCKPS = 0b00; // Sets prescaler, available are 1(00),4(01),16(10) or 64(11)
-    P1TPER = MYPWM_MAX/2; //15 bit register
+    P1TPER = MYPWM_MAX/2; //15 bit register 
     PWM1CON1bits.PMOD1 = 1; // Left Motor PWM Pin pair/ set PWM unit 1 to independent mode: sets the PWM output pin pair such that both pins are either active high or low -> not complementary / Complementary mode would be 0
     PWM1CON1bits.PMOD2 = 1; // Right Motor PWM Pin pair
 
@@ -329,7 +329,7 @@ void setPWM_DCpercentage(uint16_t *pwmDutyCycleRegister, float percentage)
 void setPWM_DCpercentage_Motor(uint16_t *pwmDutyCycleRegister, float percentage)
 {
     // Add error handling to prefent a duty cycle higher than 100% -> percentage > 1.0f
-    float maxDC = 0.5;
+    float maxDC = 1.0;
     float minDC = 0.0;
 
     if (percentage > maxDC)
@@ -351,7 +351,7 @@ void setPWM_DCpercentage_Motor(uint16_t *pwmDutyCycleRegister, float percentage)
 void setPWM_DCpercentage_Motor_inverted(uint16_t *pwmDutyCycleRegister, float percentage)
 {
     // Add error handling to prefent a duty cycle higher than 100% -> percentage > 1.0f
-    float maxDC = 0.5;
+    float maxDC = 1.0;
     float minDC = 0.0;
 
     if (percentage > maxDC)

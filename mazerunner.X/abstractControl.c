@@ -103,12 +103,13 @@ void drivingStraightForNMeters() {
         // Set the is_movement_goal_reached flag
         currMovementControlParameters.is_movement_goal_reached = true;
         // Set the movement primitive to PARKING
-        currMovementControlParameters.movementPrimitive.type = PARKING;
+        // currMovementControlParameters.movementPrimitive.type = PARKING;
         return;
     }
 
     // The base velocity (vel_base) becomes zero when the goal is reached
-    float vel_base = p_goal_distance_controller(getDistanceToGoalInMeters(), currMovementControlParameters.movementPrimitive.vel_cruise);
+    // float vel_base = p_goal_distance_controller(getDistanceToGoalInMeters(), currMovementControlParameters.movementPrimitive.vel_cruise);
+    float vel_base = currMovementControlParameters.movementPrimitive.vel_cruise;
 
     // Any wheel velocity needed to correct during the wall centering or following is added to this base velocity above
     // Resulting in the desired velocities (desiredVelocities) for the left and right wheel respectively
@@ -251,14 +252,16 @@ void turningForNDegrees() {
         // Set the is_movement_goal_reached flag
         currMovementControlParameters.is_movement_goal_reached = true;
         // Set the movement primitive to PARKING
-        currMovementControlParameters.movementPrimitive.type = PARKING;
+        // currMovementControlParameters.movementPrimitive.type = PARKING;
         return;
     }
 
     // The base velocity (vel_base) becomes zero when the goal is reached
     // TODO: Replace by new getAngleToGoalInDegrees function
     float angle_to_goal = calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(getDistanceToGoalInMeters(), TURN_RADIUS);
-    float vel_turn_base = p_goal_angle_controller(angle_to_goal, currMovementControlParameters.movementPrimitive.vel_cruise);
+    // float vel_turn_base = p_goal_angle_controller(angle_to_goal, currMovementControlParameters.movementPrimitive.vel_cruise);
+    float vel_4_sign = p_goal_angle_controller(angle_to_goal, currMovementControlParameters.movementPrimitive.vel_cruise);
+    float vel_turn_base = vel_4_sign/fabs(vel_4_sign) * currMovementControlParameters.movementPrimitive.vel_cruise;
 
     // No wall centering or following is needed during turning, some corection mechanism might be added later if necessary
 
@@ -292,27 +295,84 @@ float turn180DegreesLeft(float vel_turn_cruise, bool start_new_motion_primitive)
 
 // Movement functions for the maze solver
 void turn180() {
-    // Set the desired velocity
-    currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE;
+    // Set the desired velocity based on the current maze solving phase
+    switch (maze_solver_state.curr_phase)
+    {
+    case EXPLORATION_TO_START:
+    case EXPLORATION_TO_CENTER:
+        currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE;
+        break;
+    case FINAL_RUN:
+        currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE_FINAL_RUN;
+        break;
+    default:
+        currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE;
+        break;
+    }
     initTurningForNDegrees(180.0);
 }
 
 void turnLeft() {
-    // Set the desired velocity
-    currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE;
+    // Set the desired velocity based on the current maze solving phase
+    switch (maze_solver_state.curr_phase)
+    {
+    case EXPLORATION_TO_START:
+    case EXPLORATION_TO_CENTER:
+        currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE;
+        break;
+    case FINAL_RUN:
+        currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE_FINAL_RUN;
+        break;
+    default:
+        currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE;
+        break;
+    }
     initTurningForNDegrees(-90.0);
 }
 
 void turnRight() {
-    // Set the desired velocity
-    currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE;
+    // Set the desired velocity based on the current maze solving phase
+    switch (maze_solver_state.curr_phase)
+    {
+    case EXPLORATION_TO_START:
+    case EXPLORATION_TO_CENTER:
+        currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE;
+        break;
+    case FINAL_RUN:
+        currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE_FINAL_RUN;
+        break;
+    default:
+        currMovementControlParameters.movementPrimitive.vel_cruise = VEL_TURN_CRUISE;
+        break;
+    }
     initTurningForNDegrees(90.0);
 }
 
 void moveForward() {
     // Should move the robot forward for one cell length
-    // Set the desired velocity
-    currMovementControlParameters.movementPrimitive.vel_cruise = VEL_CRUISE;
+    // Set the desired velocity based on the current maze solving phase
+    char buffer[40];
+    sprintf(buffer, "phase %i\n", maze_solver_state.curr_phase);
+    putsUART1(buffer);
+    switch (maze_solver_state.curr_phase)
+    {
+    case EXPLORATION_TO_START:
+    case EXPLORATION_TO_CENTER:
+        printString2UARTmax10("EXPvel\n");
+        currMovementControlParameters.movementPrimitive.vel_cruise = VEL_CRUISE;
+        // currMovementControlParameters.movementPrimitive.vel_cruise = 0.8;
+        break;
+    case FINAL_RUN:
+        printString2UARTmax10("FRvel\n");
+        currMovementControlParameters.movementPrimitive.vel_cruise = VEL_CRUISE_FINAL_RUN;
+        break;
+    default:
+        // currMovementControlParameters.movementPrimitive.vel_cruise = VEL_CRUISE;
+        currMovementControlParameters.movementPrimitive.vel_cruise = 0.1;
+        break;
+    }
+    sprintf(buffer, "vel mf %2.2f\n", currMovementControlParameters.movementPrimitive.vel_cruise);
+    putsUART1(buffer);
     initDrivingStraightForNMeters(MAZE_CELL_LENGTH);
 }
 

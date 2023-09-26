@@ -273,6 +273,10 @@ int main()
 
                 // float angle_to_goal_in_degrees = -90.0;
                 // initTurningForNDegrees(angle_to_goal_in_degrees); // Sets the goal encoder value in the currMovementControlParameters struct
+
+                // currMovementControlParameters.movementPrimitive.type = DRIVING_STRAIGHT_FOREVER;
+                // currMovementControlParameters.movementPrimitive.vel_cruise = 500.0;
+                // drivingStraightForever();
             }
 
 
