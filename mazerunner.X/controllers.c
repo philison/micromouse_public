@@ -329,6 +329,7 @@ float p_goal_angle_controller(float angle_to_goal, float vel_turn_cruise)
     // float error = angle_to_goal;
     // float kp = 0.03;
     float kp = 0.12;
+    // float kp = 0.03;
     
     float vel_turn_base = kp*error;
 

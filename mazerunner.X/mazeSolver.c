@@ -1032,7 +1032,7 @@ void initMazeSolver(Stack *currentLevel, Stack *nextLevel) {
     // printDistance_array(distance); // TESTING
 }
 
-static struct MazeSolverState maze_solver_state = {
+extern struct MazeSolverState maze_solver_state = {
     .curr_state = EXPLORATION_TO_CENTER,
     .prev_state = EXPLORATION_TO_CENTER,
     .curr_phase = EXPLORATION_TO_CENTER,
@@ -1214,6 +1214,8 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
             maze_solver_state.just_switched_state = false;
+            // Setting the current phase
+            maze_solver_state.curr_phase = FINAL_RUN;
 
             // only one call of the final floodfill to initialize the distance array with the optimal path
             final_floodFill(currentLevel, nextLevel, distance, walls);
@@ -1222,8 +1224,6 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
             char buffer[50];
             sprintf(buffer, "now starting FINAL_RUN\n");
             putsUART1(buffer);
-
-            maze_solver_state.curr_phase = FINAL_RUN;
         }
 
 

@@ -259,6 +259,7 @@ void turningForNDegrees() {
     // The base velocity (vel_base) becomes zero when the goal is reached
     // TODO: Replace by new getAngleToGoalInDegrees function
     float angle_to_goal = calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(getDistanceToGoalInMeters(), TURN_RADIUS);
+    // float vel_turn_base = p_goal_angle_controller(angle_to_goal, currMovementControlParameters.movementPrimitive.vel_cruise);
     float vel_4_sign = p_goal_angle_controller(angle_to_goal, currMovementControlParameters.movementPrimitive.vel_cruise);
     float vel_turn_base = vel_4_sign/fabs(vel_4_sign) * currMovementControlParameters.movementPrimitive.vel_cruise;
 
@@ -349,11 +350,15 @@ void turnRight() {
 
 void moveForward() {
     // Should move the robot forward for one cell length
-        // Set the desired velocity based on the current maze solving phase
+    // Set the desired velocity based on the current maze solving phase
+    char buffer[40];
+    sprintf(buffer, "phase %i\n", maze_solver_state.curr_phase);
+    putsUART1(buffer);
     switch (maze_solver_state.curr_phase)
     {
     case EXPLORATION_TO_START:
     case EXPLORATION_TO_CENTER:
+        printString2UARTmax10("EXPvel\n");
         currMovementControlParameters.movementPrimitive.vel_cruise = VEL_CRUISE;
         // currMovementControlParameters.movementPrimitive.vel_cruise = 0.8;
         break;
@@ -366,6 +371,8 @@ void moveForward() {
         currMovementControlParameters.movementPrimitive.vel_cruise = 0.1;
         break;
     }
+    sprintf(buffer, "vel mf %2.2f\n", currMovementControlParameters.movementPrimitive.vel_cruise);
+    putsUART1(buffer);
     initDrivingStraightForNMeters(MAZE_CELL_LENGTH);
 }
 
