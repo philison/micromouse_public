@@ -13,6 +13,7 @@
 #include <math.h> // for fabs
 #include "newTypes.h"
 #include "serialComms.h"
+#include "mazeSolver.h"
 
 // #define MAZE_CELL_LENGTH 0.18 // in meters
 #define MAZE_CELL_LENGTH 0.19 // in meters

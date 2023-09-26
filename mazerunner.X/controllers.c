@@ -24,7 +24,8 @@ float pi_vel_controller_left(float targetVelocity, float currentVelocity)
     float ki = 0.1;
     static float integral = 0;
     // float dt = 0.01;
-    float maxDC = 0.5;
+    // float maxDC = 0.5;
+    float maxDC = 1.0;
     float minDC = 0.0;
     // float minDC = -100; // Should reverse motor direction for active breaking ?
     float maxIntegral = 4;
@@ -187,7 +188,8 @@ float pi_vel_controller_right(float targetVelocity, float currentVelocity)
     float ki = 0.1;
     static float integral = 0;
     // float dt = 0.01;
-    float maxDC = 0.5;
+    // float maxDC = 0.5;
+    float maxDC = 1.0;
     float minDC = 0.0;
     // float minDC = -100; // Should reverse motor direction for active breaking ?
     float maxIntegral = 4;
