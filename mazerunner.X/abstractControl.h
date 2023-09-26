@@ -15,8 +15,12 @@
 #include "serialComms.h"
 
 #define MAZE_CELL_LENGTH 0.18 // in meters
-#define VEL_CRUISE 0.8
-#define VEL_TURN_CRUISE 0.8
+//Works for Left-Wall Following:
+// #define VEL_CRUISE 0.8
+// #define VEL_TURN_CRUISE 0.8
+// For Testing
+#define VEL_CRUISE 0.3
+#define VEL_TURN_CRUISE 0.3
 
 // #define GOAL_REACHED_THRESHOLD_DISTANCE 0.01 // in meters
 // // #define GOAL_REACHED_THRESHOLD_DISTANCE 0.02 // in meters

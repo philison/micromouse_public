@@ -230,7 +230,7 @@ int main()
             break;
         
         case DELAY_BEFORE_START:
-            printString2UARTmax60("RS: DELAY_BEFORE_START\n");
+            // printString2UARTmax60("RS: DELAY_BEFORE_START\n"); // TESTING
             /* Enter the State */
             if (robot_state.just_switched_state) {
                 timeWithTimer2(1000); // 1 second delay in ms
@@ -249,7 +249,7 @@ int main()
             break;
 
         case EXECUTE:
-            printString2UARTmax60("RS: EXECUTE\n");
+            // printString2UARTmax60("RS: EXECUTE\n"); // TESTING
             /* Enter the State */
             if (robot_state.just_switched_state) {
                 // Set the just_switched_state flag to false

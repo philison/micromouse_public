@@ -40,10 +40,15 @@ struct CellData
     enum CellValue center;
 };
 
+void printtoconsole(char *text);
+void printIntToConsole(int number);
+char orientationToDirection(int orientation);
+void setWallsforMMS(int x, int y, int orientation);
 int checkGoal(int x, int y);
 int checkStart(int x, int y);
 
 void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE][MAZE_SIZE]);
+void printMaze(struct CellData maze[MAZE_SIZE][MAZE_SIZE], int distance[MAZE_SIZE][MAZE_SIZE]);
 
 
 typedef struct
@@ -68,6 +73,7 @@ void swapStacks(Stack **stack1, Stack **stack2);
 void floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MAZE_SIZE], struct CellData walls[MAZE_SIZE][MAZE_SIZE], int goal);
 void final_floodFill(Stack *currentLevel, Stack *nextLevel, int distance[MAZE_SIZE][MAZE_SIZE], struct CellData walls[MAZE_SIZE][MAZE_SIZE]);
 int findlowestDistance(int arr[]);
+void printDistance_array(int distance[MAZE_SIZE][MAZE_SIZE]);
 int turn_to_lowest_distance(int lowestNeighbour, int orientation);
 void openNeighbours(int x, int y, struct CellData walls[MAZE_SIZE][MAZE_SIZE], int distance_Open_Neighbours[4], int distance[MAZE_SIZE][MAZE_SIZE]);
 // *** End of Existing Functions ***
