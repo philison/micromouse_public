@@ -175,71 +175,75 @@ def handle_server(server_socket):
 
         log(f"Received command from server: {command}")
 
-        # Process the received command as needed
-        if command == "mF":
-            # Execute API.moveForward() for "mF" command
-            API.moveForward()
-        elif command == "tR":
-            API.turnRight()
-        elif command == "tL":
-            API.turnLeft()
-        # elif command == "sW":
-        #     # "sW-%i-%i-%c\n", x, y, orientationToDirection((orientation - 1) % 4)
-        #     # Filter the command string above to extract the x, y, and direction
-        #     # Example: "sW-1-2-E" -> "1-2-E" -> ["1", "2", "E"] -> [1, 2, "E"]
-        #     x, y, direction = command[3:].split("-")
-        #     API.setWall(x, y, direction)
-        elif command.startswith("sW-"):
-            # Example command: "sW-1-2-E"
-            parts = command.strip().split("-")  # Split the command by "-"
-            
-            # Check if we have enough parts (4 parts in total, we only need the last 3)
-            if len(parts) == 4:
-                x, y, direction = parts[1], parts[2], parts[3]
-                # Convert x and y to integers if needed
-                try:
-                    x = int(x)
-                    y = int(y)
-                except ValueError:
-                    # Handle the case where x or y is not a valid integer
-                    log("Invalid x or y value in the command.")
-                    continue  # Skip processing this command
+        commands = command.strip().split(">")  # Split the command by ">"
 
-                API.setWall(x, y, direction)
-        elif command.startswith("sC-"):
-            # Example command: "sC-1-2-G"
-            parts = command.strip().split("-")  # Split the command by "-"
-            
-            # Check if we have enough parts (4 parts in total)
-            if len(parts) == 4:
-                x, y, character = parts[1], parts[2], parts[3]
-                # Convert x and y to integers if needed
-                try:
-                    x = int(x)
-                    y = int(y)
-                except ValueError:
-                    # Handle the case where x or y is not a valid integer
-                    log("Invalid x or y value in the command.")
-                    continue  # Skip processing this command
+        for command in commands:
+            log(f"Cleaned Command: {command}")
+            # Process the received command as needed
+            if command == "mF":
+                # Execute API.moveForward() for "mF" command
+                API.moveForward()
+            elif command == "tR":
+                API.turnRight()
+            elif command == "tL":
+                API.turnLeft()
+            # elif command == "sW":
+            #     # "sW-%i-%i-%c\n", x, y, orientationToDirection((orientation - 1) % 4)
+            #     # Filter the command string above to extract the x, y, and direction
+            #     # Example: "sW-1-2-E" -> "1-2-E" -> ["1", "2", "E"] -> [1, 2, "E"]
+            #     x, y, direction = command[3:].split("-")
+            #     API.setWall(x, y, direction)
+            elif command.startswith("sW-"):
+                # Example command: "sW-1-2-E"
+                parts = command.strip().split("-")  # Split the command by "-"
+                
+                # Check if we have enough parts (4 parts in total, we only need the last 3)
+                if len(parts) == 4:
+                    x, y, direction = parts[1], parts[2], parts[3]
+                    # Convert x and y to integers if needed
+                    try:
+                        x = int(x)
+                        y = int(y)
+                    except ValueError:
+                        # Handle the case where x or y is not a valid integer
+                        log("Invalid x or y value in the command.")
+                        continue  # Skip processing this command
 
-                API.setColor(x, y, character)
-        elif command.startswith("sT-"):
-            # Example command: "sT-1-2-1"
-            parts = command.strip().split("-")
+                    API.setWall(x, y, direction)
+            elif command.startswith("sC-"):
+                # Example command: "sC-1-2-G"
+                parts = command.strip().split("-")  # Split the command by "-"
+                
+                # Check if we have enough parts (4 parts in total)
+                if len(parts) == 4:
+                    x, y, character = parts[1], parts[2], parts[3]
+                    # Convert x and y to integers if needed
+                    try:
+                        x = int(x)
+                        y = int(y)
+                    except ValueError:
+                        # Handle the case where x or y is not a valid integer
+                        log("Invalid x or y value in the command.")
+                        continue  # Skip processing this command
 
-            # Check if we have enough parts (4 parts in total)
-            if len(parts) == 4:
-                x, y, text = parts[1], parts[2], parts[3]
-                # Convert x and y to integers if needed
-                try:
-                    x = int(x)
-                    y = int(y)
-                except ValueError:
-                    # Handle the case where x or y is not a valid integer
-                    log("Invalid x or y value in the command.")
-                    continue
+                    API.setColor(x, y, character)
+            elif command.startswith("sT-"):
+                # Example command: "sT-1-2-1"
+                parts = command.strip().split("-")
 
-                API.setText(x, y, text)
+                # Check if we have enough parts (4 parts in total)
+                if len(parts) == 4:
+                    x, y, text = parts[1], parts[2], parts[3]
+                    # Convert x and y to integers if needed
+                    try:
+                        x = int(x)
+                        y = int(y)
+                    except ValueError:
+                        # Handle the case where x or y is not a valid integer
+                        log("Invalid x or y value in the command.")
+                        continue
+
+                    API.setText(x, y, text)
         
 
 

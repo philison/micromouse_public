@@ -138,21 +138,6 @@ int main()
     // initDmaChannel4();DEBUG
     
 
-    volatile int *ptr= malloc(100*sizeof(int));
-    if (ptr == NULL)
-        printf ("Cannot allocate memory\n");
-    else 
-    { 
-        printf ("Memory Allocated successfully \n");
-        for (int i=0; i<(100*sizeof(int)); i++)
-        {
-            *ptr=i;
-            printf ("Pointer value=%d \t i=%d\n",*ptr++,i);
-        }
-    }
-    free ((void *)ptr); 
-    return 0;
-
 
     while(1)
     {
