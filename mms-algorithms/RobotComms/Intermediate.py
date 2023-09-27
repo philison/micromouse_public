@@ -105,15 +105,18 @@ def main():
         while True:
             # Read a command from the serial port (e.g., "mF")
             command = serial_port.readline().decode().strip()
-
-            if not command:
-                break
-
-            # Send the received command to the client
-            client_socket.send(command.encode())
-
             # Print the received command to the console
             print(f"Received UART command: {command}")
+
+            # Only send the command to the client if it is a valid command
+            if command == "mF" or command == "tR" or command == "tL" or command.startswith("sW-") or command.startswith("sC-") or command.startswith("sT-"):
+                # Add a destinctive character to the beginning of the command
+                command = ">" + command
+                # Send the received command to the client
+                client_socket.send(command.encode())
+
+            # Send the received command to the client
+            # client_socket.send(command.encode())
 
             # Receive a response from the client
             # response = client_socket.recv(1024).decode()

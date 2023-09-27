@@ -35,7 +35,7 @@ char orientationToDirection(int orientation)
         direction = 'w';
         break;
     default:
-        printtoconsole("direction conversion is not possible"); // TESTING
+        printtoconsole("direction conversion is not possible\n"); // TESTING
     }
     return direction;
 }
@@ -333,7 +333,7 @@ void updateWalls(int x, int y, int orientation, struct CellData walls[MAZE_SIZE]
     default: {
         // UART
         char buffer[40];
-        sprintf(buffer, "walls were not set correctly");
+        sprintf(buffer, "walls were not set correctly\n");
         putsUART1(buffer);
         break;
     }
@@ -880,7 +880,6 @@ int turn_to_lowest_distance(int lowestNeighbour, int orientation)
         // API_turnLeft();
         turnLeft();
         orientation = orientation - 1;
-        break;
 
         // Update Sim State on Pc
         char buffer[5];
@@ -1002,7 +1001,7 @@ int lowestNeighbour = 6;
 */
 
 void initMazeSolver(Stack *currentLevel, Stack *nextLevel) {
-    printString2UARTmax60("initMS\n");
+    // printString2UARTmax60("initMS\n");
     // initialize all walls to UNKNOWN
     for (int row = 0; row < MAZE_SIZE; row++)
     {
@@ -1074,19 +1073,19 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
     switch (maze_solver_state.curr_state)
     {
     case EXPLORATION_TO_CENTER: {
-        printString2UARTmax60("MS: EXPLORATION_TO_CENTER\n"); // TESTING
+        // printString2UARTmax60("MS: EXPLORATION_TO_CENTER\n"); // TESTING
         /* Enter the State */
         if (maze_solver_state.just_switched_state) {
             // Reset the just_switched_state flag
             maze_solver_state.just_switched_state = false;
 
             // printString2UARTmax60("now starting EXPLORATION_TO_CENTER\n"); // TESTING
-            char buffer[40];
-            sprintf(buffer, "orientation: %i = %s\n", orientation, getOrientationString(orientation)); // TESTING
-            putsUART1(buffer);
+            // char buffer[40];
+            // sprintf(buffer, "orientation: %i = %s\n", orientation, getOrientationString(orientation)); // TESTING
+            // putsUART1(buffer);
 
-            sprintf(buffer, "position: %i, %i\n", x, y); // TESTING
-            putsUART1(buffer);
+            // sprintf(buffer, "position: %i, %i\n", x, y); // TESTING
+            // putsUART1(buffer);
 
             // Setting the current phase
             maze_solver_state.curr_phase = EXPLORATION_TO_CENTER;
@@ -1257,7 +1256,7 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
             // Reset the just_switched_state flag
             maze_solver_state.just_switched_state = false;
 
-            printString2UARTmax60("now starting TURN_TO_LOWEST_DISTANCE\n"); // TESTING
+            // printString2UARTmax60("now starting TURN_TO_LOWEST_DISTANCE\n"); // TESTING
 
             // Continuing from below the findlowestDistance() function call
             // Now comes the first movement command: Turn to the lowest neighbour
@@ -1295,7 +1294,7 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
             // Reset the just_switched_state flag
             maze_solver_state.just_switched_state = false;
 
-            printString2UARTmax60("now starting MOVE_FORWARD\n"); // TESTING
+            // printString2UARTmax60("now starting MOVE_FORWARD\n"); // TESTING
 
             // Continuing from below the turn_to_lowest_distance() function call
             // Now comes the second movement command: Move forward to the next cell with the lowest distance
