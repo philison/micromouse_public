@@ -1,6 +1,5 @@
 /* 
  * File:   abstractControl.h
- * Author: Nicki, Philipp
  *
  * Created on September 13, 2023, 5:18 PM
  */

@@ -1,6 +1,5 @@
 /* 
  * File:   controllers.h
- * Author: Noah & Phil / Algorithm: Noah
  *
  * Created on June 27, 2023, 5:59 PM
  */

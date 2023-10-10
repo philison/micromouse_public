@@ -1,6 +1,5 @@
 /* 
  * File:   motorControl.h
- * Author: phil
  *
  * Created on June 27, 2023, 5:59 PM
  */

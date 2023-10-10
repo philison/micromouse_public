@@ -1,6 +1,5 @@
 /* 
  * File:   distanceSensors.h
- * Author: Nicki, Philipp
  *
  * Created on September 12, 2023, 7:29 PM
  */
