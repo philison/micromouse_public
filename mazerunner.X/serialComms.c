@@ -330,6 +330,42 @@ struct UARTCommand parseCommand(const char* commandString) {
         parsedCommand.command_code = CMD_STOP;
         strcpy(parsedCommand.name, "stop");
     }
+    // Check for command to set a new turn_angle for left or right
+    // else if (sscanf(commandString, "set_turn_angle_left%f", &turn_angle.left) == 1) {
+    //     // Turn angle left has to be negative
+    //     // Therefore we ensure that if it is positive, it is converted to negative
+    //     if (turn_angle.left > 0) {
+    //         turn_angle.left = -turn_angle.left;
+    //     }
+    //     parsedCommand.command_code = CMD_NONE;
+    //     strcpy(parsedCommand.name, "set_turn_angle_left");
+    // }
+    // else if (sscanf(commandString, "set_turn_angle_right%f", &turn_angle.right) == 1) {
+    //     parsedCommand.command_code = CMD_NONE;
+    //     strcpy(parsedCommand.name, "set_turn_angle_right");
+    // }
+    // // Check for command to set a new turn or cruise velocity
+    // else if (sscanf(commandString, "set_vel_straight%f", &cruise_velocities.straight) == 1) {
+    //     parsedCommand.command_code = CMD_NONE;
+    //     strcpy(parsedCommand.name, "set_vel_straight");
+    // }
+    // else if (sscanf(commandString, "set_vel_turn%f", &cruise_velocities.turn) == 1) {
+    //     parsedCommand.command_code = CMD_NONE;
+    //     strcpy(parsedCommand.name, "set_vel_turn");
+    // }
+    // // Check for commands to adjust the PI Controller Kp and Ki values
+    // else if (sscanf(commandString, "set_kp%f", &parsedCommand.command_value) == 1) {
+    //     pi_vel_controller_left_params.kp = parsedCommand.command_value;
+    //     pi_vel_controller_right_params.kp = parsedCommand.command_value;
+    //     parsedCommand.command_code = CMD_NONE;
+    //     strcpy(parsedCommand.name, "set_kp");
+    // }
+    // else if (sscanf(commandString, "set_ki%f", &parsedCommand.command_value) == 1) {
+    //     pi_vel_controller_left_params.ki = parsedCommand.command_value;
+    //     pi_vel_controller_right_params.ki = parsedCommand.command_value;
+    //     parsedCommand.command_code = CMD_NONE;
+    //     strcpy(parsedCommand.name, "set_ki");
+    // }
     // Add more command parsing logic as needed
 
     return parsedCommand;
