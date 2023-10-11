@@ -90,7 +90,7 @@ Control Loop:
 | ----------------------| --------------------------------------------------- |
 | Timer2 ISR            | [myTimers.c](./mazerunner.X/myTimers.c)            |
 
-#### 🟢 HAL Modules
+#### 🟢🔵 HAL Modules
 
 HAL (Hardware Abstraction Layer) Functionality:
 
