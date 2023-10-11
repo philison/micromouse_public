@@ -60,8 +60,8 @@
 #define SEVEN_MEG_OSC 1//set to 1 if we use slow (7.3728 MHz) oscillator and not 16 MHz
 
 
-/// Global Variables-------------------
-float timer_time = 1.0; // in [ms]
+/// Important Global Variables-------------------
+float timer_time = 10.0; // in [ms], Determines the Control Loop Period
 int mazi_running = 0; // 0 = not running, 1 = running
 
 /*
@@ -72,50 +72,19 @@ int main()
     int pinStatus;
 
 
-//      Mazerunner Osci config:
-//      /*** oscillator setup --------------------------------------------------
-//      * The external oscillator runs at 20MHz
-//      * PLL is used to generate 53.3 MHz clock (FOSC)
-//      * The relationship between oscillator and cycle frequency: FCY = FOSC/2
-//      * Have a look at "PLL Configuration" paragraph in the mcu manual
+     // Mazerunner Osci config:
+     /*** oscillator setup --------------------------------------------------
+     * The external oscillator runs at 20MHz
+     * PLL is used to generate 53.3 MHz clock (FOSC)
+     * The relationship between oscillator and cycle frequency: FCY = FOSC/2
+     * Have a look at "PLL Configuration" paragraph in the mcu manual
     
-//      * Result: FCY = 0.5 * (20MHz*16/(3*2)) = 26.666 MIPS, Tcycle=37.5nsec
-//     ---------------------------------------------------------------------***/
+     * Result: FCY = 0.5 * (20MHz*16/(3*2)) = 26.666 MIPS, Tcycle=37.5nsec
+    ---------------------------------------------------------------------***/
     PLLFBDbits.PLLDIV = 14;           //
     CLKDIVbits.PLLPRE = 1;            //N1 = input/3
     CLKDIVbits.PLLPOST = 0;           //N2 = output/2
 
-
-// #if (SEVEN_MEG_OSC == 0) 
-//      /*** oscillator setup --------------------------------------------------
-//      * The external oscillator runs at 16MHz
-//      * PLL is used to generate 53.3 MHz clock (FOSC)
-//      * The relationship between oscillator and cycle frequency: FCY = FOSC/2
-//      * Have a look at "PLL Configuration" paragraph in the mcu manual
-    
-//      * Result: FCY = 0.5 * (16MHz*20/(3*2)) = 26.666 MIPS, Tcycle=37.5nsec
-//     ---------------------------------------------------------------------***/
-//     PLLFBDbits.PLLDIV = 18;                      //set PPL to M=20 (18+2)
-//     CLKDIVbits.PLLPRE = 1;            //N1 = input/3
-//     CLKDIVbits.PLLPOST = 0;           //N2 = output/2
-    
-    
-    
-// #else //Below the 7.3728 Setup 
-    
-//          /*** oscillator setup --------------------------------------------------
-//      * The external oscillator runs at 7.3728 MHz
-//      * PLL is used to generate 53.3 MHz clock (FOSC)
-//      * The relationship between oscillator and cycle frequency: FCY = FOSC/2
-//      * Have a look at "PLL Configuration" paragraph in the mcu manual
-    
-//      * Result: FCY = 0.5 * (7.3728 MHz*29/(2*2)) = 26.73 MIPS, which is 
-//           * not exactl Tcycle=37.5nsec, but close enough for our purposes
-//     ---------------------------------------------------------------------***/
-//     PLLFBDbits.PLLDIV = 27;                      //set PPL to M=29 (27+2)
-//     CLKDIVbits.PLLPRE = 0;            //N1 = input/2
-//     CLKDIVbits.PLLPOST = 0;           //N2 = output/2
-// #endif //SEVEN_MEG_OSC == 0
     
     
         /* Clock switch to incorporate PLL*/
@@ -134,31 +103,27 @@ int main()
     initTimer1inMS(timer_time);
     initTimer2inMS(timer_time);
 
-    /* UART or Bluetooth Module ?
+
+    /* UART or Bluetooth Module
     * Set the Baudrate in the Baudrate register (U1BRG) 
-    * Bluetooth: 9600 kbit/s
-    * UART: 57600 kbit/s
+    * Bluetooth: 115200
+    * UART: 115200
     */
     setupUART1(); 
+    //setupUART2();
 
     // Init Encoders
     initQEI1(0);
     initQEI2(0);
-    
-    // LED4 = 1; //switches off
-    // LED5 = LEDOFF;
-    // LED6 = LEDOFF;
-    // LED7 = LEDOFF;
 
     // Switch off all leds at once in the beginning
-    // LED4 = LED5 = LED6 = LED7 = LEDOFF;
     LED1 = LED2 = LED3= LED4 = LEDOFF;
     
-    //setupUART2();
-    
+
+    // PWM Setup
     setupPWM();
 
-
+    // Button Setup
     setupButtons();
     
     // IR-Seonsor Setup
@@ -167,40 +132,13 @@ int main()
     initDmaChannel4();
 
     // Start the timers
-    startTimer1();
-    startTimer2();
+    startTimer1(); // Control Loop Timer
+    startTimer2(); // Delay Timer
 
-    printString2UARTmax60("Hello Restarting...\n");
-
+    // Ensure that the Robot State Machien starts out in the proper state
     switchRobotStateTo(IDLE);
 
-    /*
-    *   Init the Maze Solver
-    */ 
-    // From initMazeSolver()
-    // TODO: do they have to be declared as extern variables to be visible in the scope of the different states of the state machine ?
-    // Or in one global struct ?
-    // struct CellData walls[MAZE_SIZE][MAZE_SIZE];
-    // int orientation = 16;
-    // int x = 0;
-    // int y = 0;
-    // int distance[MAZE_SIZE][MAZE_SIZE];
-    // int distance_Open_Neighbours[4];
-    // int lowestNeighbour = 6;
-    // Stack *currentLevel = createStack(STACK_SIZE); // current level is needed for the floodfill function
-    // Stack *nextLevel = createStack(STACK_SIZE);    // next level is needed for the floodfill function
-
-    // struct CellData walls[MAZE_SIZE][MAZE_SIZE];
-    // int orientation = 16;
-    // int x = 0;
-    // int y = 0;
-    // int distance[MAZE_SIZE][MAZE_SIZE];
-    // int distance_Open_Neighbours[4];
-    // int lowestNeighbour = 6;
-    // DEBUGGING
-    // currentLevel = createStack(STACK_SIZE); // current level is needed for the floodfill function
-    // nextLevel = createStack(STACK_SIZE);    // next level is needed for the floodfill function
-
+    // Create the stacks for the floodfill algorithm, can be moved to the maze solver files
     Stack *currentLevel = createStack(STACK_SIZE); // current level is needed for the floodfill function
     Stack *nextLevel = createStack(STACK_SIZE);    // next level is needed for the floodfill function
 
@@ -208,7 +146,7 @@ int main()
     while(1)
     {
 
-        // State machine
+        // Robot State Machine
         switch (robot_state.state)
         {
         case IDLE:
@@ -254,38 +192,23 @@ int main()
             if (robot_state.just_switched_state) {
                 // Set the just_switched_state flag to false
                 robot_state.just_switched_state = false;
-                // // Set the is_movement_goal_reached flag to false
-                // currMovementControlParameters.is_movement_goal_reached = false;
-
-                /* STRAIGHT */
-                // // currMovementControlParameters = {PARKING, 0.0, 0.0, {0.0, 0.0}, false};
-                // currMovementControlParameters.movementPrimitive.type = DRIVING_STRAIGHT;
-                // currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
-                // currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
-
-                // float distance_to_goal_in_meters = 5*MAZE_CELL_LENGTH;
-                // initDrivingStraightForNMeters(distance_to_goal_in_meters); // Sets the goal encoder value in the currMovementControlParameters struct
-
-                /* TURNING */
-                // currMovementControlParameters.movementPrimitive.type = TURNING;
-                // currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
-                // currMovementControlParameters.movementPrimitive.vel_cruise = 0.3;
-
-                // float angle_to_goal_in_degrees = -90.0;
-                // initTurningForNDegrees(angle_to_goal_in_degrees); // Sets the goal encoder value in the currMovementControlParameters struct
-
-                // currMovementControlParameters.movementPrimitive.type = DRIVING_STRAIGHT_FOREVER;
-                // currMovementControlParameters.movementPrimitive.vel_cruise = 500.0;
-                // drivingStraightForever();
             }
 
 
-            /* Execute the State */
+            /* Execute the selected Execute Mode */
+
+            // EM1 - Wall Follower
             // simpleWallFollower();
+            
+            // EM2 - Motion Primitive Executor
             // simpleMotionPrimitiveExecutor();
+
+            // EM3 - Maze Solver
+            mazeSolver(nextLevel, currentLevel);
+
+            // EM4 - Remote Controlled Motion Primitive Executor
             // remoteControlledMotionPrimitiveExecutor();
 
-            mazeSolver(nextLevel, currentLevel);
             
             /* Exit the State */
             // If the EXECUTion goal is reached go to STOP, has to be set somewhere within the function called in the EXECUTE state
@@ -320,7 +243,7 @@ int main()
             /* Execute the State */
             // Do custome Emergency Stuff
             // Like sending a message via UART
-            // TODO: Turn everything actually off not just in an idle model like in parking
+            // TODO: Turn everything/Mc modules actually off not just in an idle model like in parking
             currMovementControlParameters.movementPrimitive.type = PARKING;
             
             /* Exit the State */

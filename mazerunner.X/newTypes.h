@@ -12,12 +12,6 @@
 #define	__NEWTYPES_H__
 
 // State that selects the correct motor control loop in the motor controller
-// enum MovementPrimitive {
-//     DRIVING_STRAIGHT,
-//     TURNING,
-//     PARKING,
-// };
-
 enum MovementPrimitiveTypes {
     DRIVING_STRAIGHT,
     DRIVING_STRAIGHT_FOREVER,
@@ -40,13 +34,6 @@ struct EncoderCounts {
     long left;
 };
 
-// struct MovementControlParameters {
-//     enum MovementPrimitive movementPrimitive;
-//     float vel_cruise;
-//     float vel_turn_cruise;
-//     struct EncoderCounts goalPositionInEncoderCounts;
-//     bool is_movement_goal_reached;
-// };
 
 struct MovementControlParameters {
     struct MovementPrimitive movementPrimitive;

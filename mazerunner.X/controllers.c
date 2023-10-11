@@ -13,23 +13,18 @@
 ***/
 float pi_vel_controller_left(float targetVelocity, float currentVelocity)
 {
-    float targetVelocityAbs = fabs(targetVelocity);
-    float currentVelocityAbs = fabs(currentVelocity);
-    // TODO: What happens when we switch to forward drive while driving backwards ? Weirted control behavior ?
 
     //float currentVelocity = getVelocityInCountsPerSample_1(); // The control loop does not work if the function is called within the function
-    float error = targetVelocityAbs - currentVelocityAbs; // -20
+    float error = targetVelocity - currentVelocity; 
     float dc = 0;
-    float kp = 0.5;
-    float ki = 0.1;
+    float kp = 0.7;
+    float ki = 0.08;
     static float integral = 0;
     // float dt = 0.01;
-    // float maxDC = 0.5;
     float maxDC = 1.0;
     float minDC = 0.0;
-    // float minDC = -100; // Should reverse motor direction for active breaking ?
-    float maxIntegral = 4;
-    float minIntegral = -4;
+    float maxIntegral = 5;
+    float minIntegral = -5;
     
     // integral += error * dt;
     integral += error;
@@ -43,7 +38,10 @@ float pi_vel_controller_left(float targetVelocity, float currentVelocity)
         integral = minIntegral;
     }
     
-    dc = kp * error + ki * integral; // -200
+    dc = kp * error + ki * integral; 
+
+    float dc_sign = dc/fabs(dc);
+    dc = fabs(dc);
     
     if (dc > maxDC)
     {
@@ -55,121 +53,19 @@ float pi_vel_controller_left(float targetVelocity, float currentVelocity)
     }
 
     // Handle wheel turning direction:
-    // float signTargetVelocity = targetVelocity/targetVelocityAbs;
-
-    // if (forward)
-    // {
-    //     set_DC_and_motor_state_left(dc, "forward_slow_decay");
-    // }
-    // else
-    // {
-    //     set_DC_and_motor_state_left(dc, "reverse_slow_decay");
-    // }
-
-    if (targetVelocity >= 0)
+    if (dc_sign >= 0)
     {
         // set_DC_and_motor_state_left(dc, "forward_slow_decay");
         set_DC_and_motor_state_left(dc, "forward_fast_decay");
     }
-    else if (targetVelocity < 0)
+    else if (dc_sign < 0)
     {
         // set_DC_and_motor_state_left(dc, "reverse_slow_decay");
         set_DC_and_motor_state_left(dc, "reverse_fast_decay");
     }
 
-    // set_DC_and_motor_state_left(dc, "forward_slow_decay");
     return dc;
 }
-
-
-// /***
-//  * A simple PI-Controller to drive the motor at a targetVelocity via PWM
-// ***/
-// float pi_vel_controller_right(float targetVelocity, float currentVelocity, bool shouldTurn)
-// {
-//     float targetVelocityAbs = fabs(targetVelocity);
-//     float currentVelocityAbs = fabs(currentVelocity);
-
-//     //float currentVelocity = getVelocityInCountsPerSample_1(); // The control loop does not work if the function is called within the function
-//     float error = targetVelocityAbs - currentVelocityAbs; // -20
-//     float dc = 0;
-//     float kp = 0.5;
-//     float ki = 0.1;
-//     static float integral = 0;
-//     // float dt = 0.01;
-//     float maxDC = 0.5;
-//     float minDC = 0.0;
-//     // float minDC = -100; // Should reverse motor direction for active breaking ?
-//     float maxIntegral = 4;
-//     float minIntegral = -4;
-    
-//     // integral += error * dt;
-//     integral += error;
-    
-//     if (integral > maxIntegral)
-//     {
-//         integral = maxIntegral;
-//     }
-//     else if (integral < minIntegral)
-//     {
-//         integral = minIntegral;
-//     }
-    
-//     dc = kp * error + ki * integral; // -200
-    
-//     if (dc > maxDC)
-//     {
-//         dc = maxDC;
-//     }
-//     else if (dc < minDC)
-//     {
-//         dc = minDC;
-//     }
-    
-//     // Handle wheel turning direction:
-
-//     // if (forward)
-//     // {
-//     //     set_DC_and_motor_state_right(dc, "forward_slow_decay");
-//     // }
-//     // else
-//     // {
-//     //     set_DC_and_motor_state_right(dc, "reverse_slow_decay");
-//     // }
-
-
-//     // TODO: Change the driveMode var to an enum
-//     // TODO: Think if the shouldTurn var for the right motor should be replaced by a similar system as used whith the left wheel. 
-//     //      We would have to calculcate the vel_turn_base for the right wheel seperatly from the left wheel (currently everything is based on the left wheel, therfore also the signs) than the signs of the targetVelocity should be "correct"
-//     //      Nicer:::: Remove the shouldTurn varibale and just add a negative sign to the targetVelocity for the right wheel if the robot should turn (is in turning mode)
-
-//     if (!shouldTurn) {
-//         // Driving Straight (Forward/Reverse)
-//         if (targetVelocity >= 0)
-//         {
-//             set_DC_and_motor_state_right(dc, "forward_slow_decay");
-//         }
-//         else if (targetVelocity < 0)
-//         {
-//             set_DC_and_motor_state_right(dc, "reverse_slow_decay");
-//         }
-//     }
-//     else if (shouldTurn){
-//         // Turning
-//         if (targetVelocity >= 0)
-//         {
-//             set_DC_and_motor_state_right(dc, "reverse_slow_decay");
-//         }
-//         else if (targetVelocity < 0)
-//         {
-//             set_DC_and_motor_state_right(dc, "forward_slow_decay");
-//         }
-//     }
-    
-
-//     // set_DC_and_motor_state_right(dc, "forward_slow_decay");
-//     return dc;
-// }
 
 
 /***
@@ -178,26 +74,21 @@ float pi_vel_controller_left(float targetVelocity, float currentVelocity)
 ***/
 float pi_vel_controller_right(float targetVelocity, float currentVelocity)
 {
-    float targetVelocityAbs = fabs(targetVelocity);
-    float currentVelocityAbs = fabs(currentVelocity);
-
-    //float currentVelocity = getVelocityInCountsPerSample_1(); // The control loop does not work if the function is called within the function
-    float error = targetVelocityAbs - currentVelocityAbs; // -20
+    float error = targetVelocity - currentVelocity; 
     float dc = 0;
-    float kp = 0.5;
-    float ki = 0.1;
+    float kp = 0.7;
+    float ki = 0.08;
     static float integral = 0;
     // float dt = 0.01;
-    // float maxDC = 0.5;
     float maxDC = 1.0;
     float minDC = 0.0;
-    // float minDC = -100; // Should reverse motor direction for active breaking ?
-    float maxIntegral = 4;
-    float minIntegral = -4;
+    float maxIntegral = 5;
+    float minIntegral = -5;
     
     // integral += error * dt;
     integral += error;
-    
+
+
     if (integral > maxIntegral)
     {
         integral = maxIntegral;
@@ -207,7 +98,11 @@ float pi_vel_controller_right(float targetVelocity, float currentVelocity)
         integral = minIntegral;
     }
     
-    dc = kp * error + ki * integral; // -200
+    dc = kp * error + ki * integral;
+
+    float dc_sign = dc/fabs(dc);
+    dc = fabs(dc);
+
     
     if (dc > maxDC)
     {
@@ -219,13 +114,12 @@ float pi_vel_controller_right(float targetVelocity, float currentVelocity)
     }
     
     // Handle wheel turning direction:
-
-    if (targetVelocity >= 0)
+    if (dc_sign >= 0)
     {
         // set_DC_and_motor_state_right(dc, "forward_slow_decay");
         set_DC_and_motor_state_right(dc, "forward_fast_decay");
     }
-    else if (targetVelocity < 0)
+    else if (dc_sign < 0)
     {
         // set_DC_and_motor_state_right(dc, "reverse_slow_decay");
         set_DC_and_motor_state_right(dc, "reverse_fast_decay");
@@ -247,48 +141,14 @@ struct Velocities p_wall_centering_controller(float distance_left, float distanc
     // --> distance_right increases
     float error = distance_right - distance_left;
     float kp = 0.05;
-    // float maxDC = 1.0;
-    // float minDC = 0.0;
     
     result.vel_left = vel_base - kp * error;
     result.vel_right = vel_base + kp * error;
-    
-    // if (dc > maxDC)
-    // {
-    //     dc = maxDC;
-    // }
-    // else if (dc < minDC)
-    // {
-    //     dc = minDC;
-    // }
     
     // return both velocities
     return result;
 }
 
-
-
-
-/* P-Distance-To-Goal Controller */
-// Ensures that the robot slows down when it approaches the goal distance
-
-// float p_goal_distance_controller(float distance_to_goal, float vel_cruise)
-// {
-    
-//     float error = distance_to_goal;
-//     float kp = 6;
-    
-//     float vel_base = kp*error;
-
-//     // Limit the vel_base to the vel_cruise as a max value
-//     if (fabs(vel_base) > fabs(vel_cruise))
-//     {
-//         // Conserve the sign of the velocity base gained from the sign of the distance_to_goal
-//         vel_base = (vel_base/fabs(vel_base)) * vel_cruise;
-//     }
-
-//     return vel_base;
-// }
 
 
 float p_goal_distance_controller(float distance_to_goal, float vel_cruise)
@@ -354,7 +214,6 @@ struct Velocities p_one_wall_following_right(float distance_right, float vel_bas
 
     // When the robot is closer to the right wall the voltage output by the right sensor increases as the reflected light intensity increases
     // --> distance_right increases --> right wheel should turn faster
-    // float error = distance_right - distanceSensorRightWallThreshold;
     float error = distance_right - SENSOR_VALUE_RIGHT_WHEN_IN_CELL_CENTER;
     float kp = 0.05;
     
@@ -376,7 +235,6 @@ struct Velocities p_one_wall_following_left(float distance_left, float vel_base)
 
     // When the robot is closer to the left wall the voltage output by the left sensor increases as the reflected light intensity increases
     // --> distance_left increases --> left wheel should turn faster
-    // float error = distance_left - distanceSensorLeftWallThreshold;
     float error = distance_left - SENSOR_VALUE_LEFT_WHEN_IN_CELL_CENTER;
     float kp = 0.05;
     

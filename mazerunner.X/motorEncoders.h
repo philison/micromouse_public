@@ -49,7 +49,6 @@ float convertCountsToDistanceInMeters(float counts);
 float getTotalDrivenDistanceInMeters(bool reset_static_variables);
 float getDrivenDistanceInMeters();
 float getDrivenDistanceInMeters2();
-// float getDistanceToGoalInMeters(float initial_distance_to_goal, bool init_starting_position);
 
 float getAngleToGoalInDegrees(float initial_angle_to_goal, bool init_starting_position);
 float getTotalDrivenAngleInDegrees(bool reset_static_variables);
@@ -64,7 +63,6 @@ float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length
 #define GOAL_REACHED_THRESHOLD_DISTANCE 0.01 // in meters
 #define GOAL_REACHED_THRESHOLD_ANGLE 1.0 // in degrees
 
-// extern struct MovementControlParameters currMovementControlParameters;
 
 long getPositionInCountsLong_Left();
 long getPositionInCountsLong_Right();

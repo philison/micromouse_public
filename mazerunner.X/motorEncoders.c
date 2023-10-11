@@ -274,23 +274,6 @@ float getVelocityInRoundsPerMinutes_Right() {
 
 
 
-
-// float getVelocityInRoundsPerMinute_Right() {
-//     static long oldPosition;
-//     float velocity;
-//     long currentPosition;
-
-//     //disable interrupts to make sure we have consistent data
-//     _NSTDIS=1;
-//     GET_ENCODER_2 (currentPosition);
-//     _NSTDIS=0;
-//     float nbr_of_rounds_per_second = (currentPosition-oldPosition) / (33.0*4.0*16.0) * 1000.0;
-//     velocity=60.0 * nbr_of_rounds_per_second;
-
-//     oldPosition=currentPosition;
-//     return velocity;
-// }
-
 float getFlanksPerSecond_Right() {
     static long oldFLankCount;
     float flanksPerSecond;
@@ -307,65 +290,6 @@ float getFlanksPerSecond_Right() {
     return flanksPerSecond;
 }
 
-// !!! returns flanks per second
-// float getRPM_Right() {
-//     static long oldFLankCount;
-//     float flanksPerSecond;
-//     long currentFLankCount;
-
-//     //disable interrupts to make sure we have consistent data
-//     _NSTDIS=1;
-//     GET_ENCODER_1 (currentFLankCount);
-//     _NSTDIS=0;
-
-//     flanksPerSecond = (currentFLankCount-oldFLankCount) * timer_time * 1000; // timer_time * 1000 = timer time in seconds
-
-//     oldFLankCount=currentFLankCount;
-//     return flanksPerSecond;
-// }
-
-
-// float getVelocityInDegreePerSecond_Left()
-// {
-//     static long oldPosition;
-//     float velocity;
-//     long currentPosition;
-
-//         //disable interrupts to make sure we have consistent data
-//     _NSTDIS=1;
-//     GET_ENCODER_1 (currentPosition);
-//     _NSTDIS=0;
-//     velocity=360 *2* ((currentPosition-oldPosition)*0.01) / (33*4*16);
-    
-//     oldPosition=currentPosition;
-//     return velocity;
-// }
-
-
-// Works
-// float getTotalDrivenDistanceInMeters()
-// {
-//     static long oldPosition;
-//     static float distance = 0;
-//     // float distance;
-//     long currentPosition;
-
-//     float wheel_diameter = 0.06;
-//     float wheel_cirumference = wheel_diameter * 3.141592;
-
-//         //disable interrupts to make sure we have consistent data
-//     _NSTDIS=1;
-//     GET_ENCODER_1 (currentPosition);
-//     _NSTDIS=0;
-//     // distance += (currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
-//     distance += (float)(currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
-//     // distance = (float)(currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
-//     // distance = (float)(currentPosition-oldPosition);
-//     // distance = (float)(currentPosition);
-
-//     oldPosition=currentPosition;
-//     return distance;
-// }
 
 /*
 * This function returns the total driven distance in meters since the last reset/init of the starting position
@@ -389,15 +313,7 @@ float getTotalDrivenDistanceInMeters(bool init_starting_position)
         return 1;
     }
 
-    // float wheel_diameter = 0.06;
-    // float wheel_cirumference = wheel_diameter * 3.141592;
-
-    // distance += (currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
-    // WORKS: // distance += (float)(currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
     distance += convertCountsToDistanceInMeters(currentPosition-oldPosition);
-    // distance = (float)(currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
-    // distance = (float)(currentPosition-oldPosition);
-    // distance = (float)(currentPosition);
 
     oldPosition=currentPosition;
     return distance;
@@ -407,30 +323,6 @@ float getTotalDrivenDistanceInMeters(bool init_starting_position)
 // Therefore if the getDrivenDistanceInMeters function gets called from different independent functions the results of this function will be wrong
 // TODO: Each function than needs to have its own getDrivenDistanceInMeters (or find another solution like a function specific key variable that is passed to the getDrivenDistanceInMeters function)
 // Returns the distance since last invocation of this function
-// Works
-// float getDrivenDistanceInMeters()
-// {
-//     static long oldPosition;
-//     float distance;
-//     // float distance;
-//     long currentPosition;
-
-//     float wheel_diameter = 0.06;
-//     float wheel_cirumference = wheel_diameter * 3.141592;
-
-//         //disable interrupts to make sure we have consistent data
-//     _NSTDIS=1;
-//     GET_ENCODER_1 (currentPosition);
-//     _NSTDIS=0;
-//     // distance += (currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
-//     distance = (float)(currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
-//     // distance = (float)(currentPosition-oldPosition) / (33*4*16) * wheel_cirumference;
-//     // distance = (float)(currentPosition-oldPosition);
-//     // distance = (float)(currentPosition);
-
-//     oldPosition=currentPosition;
-//     return distance;
-// }
 
 // float getDrivenDistanceInMetersSinceLastInvocation()
 float getDrivenDistanceInMeters()
@@ -483,90 +375,6 @@ float getDrivenDistanceInMeters2()
 
 
 
-
-// TODO: currently the traveled distance is only meassured on the right (most recently only on the left) wheel !!!
-// and not a mean between the two wheels
-// float getDistanceToGoalInMeters(float initial_distance_to_goal){
-
-//     float wheel_diameter = 0.06;
-//     float wheel_cirumference = wheel_diameter * 3.141592;
-
-//     static float distance_driven = 0;
-//     static float old_position = 0;
-//     float current_position = getPositionInCounts_1();
-//     float distance_driven_in_counts = current_position - old_position;
-//     float distance_driven_in_meters = distance_driven_in_counts / (33.0*4.0*16.0) * wheel_cirumference;
-//     distance_driven += distance_driven_in_meters;
-//     old_position = current_position;
-
-//     return initial_distance_to_goal - distance_driven;
-// }
-
-// Simplified version from above
-// float getDistanceToGoalInMeters(float initial_distance_to_goal){
-
-//     static float distance_driven = 0;
-//     float distance_driven_in_meters = getDrivenDistanceInMeters();
-//     distance_driven += distance_driven_in_meters;
-
-//     return initial_distance_to_goal - distance_driven;
-// }
-
-// Working
-// float getDistanceToGoalInMeters(float initial_distance_to_goal, bool init_starting_position){
-
-//     static float oldPosition;
-//     static float distance_driven;
-//     float currentPosition;
-
-//     currentPosition = getPositionInCounts_Left();
-
-//     if (init_starting_position) {
-//         oldPosition = currentPosition;
-//         distance_driven = 0;
-
-//         // This return will end the function here
-//         // and not execute the rest of the code
-//         return initial_distance_to_goal;
-//     }
-
-//     // currentPosition = getPositionInCounts_Right();
-//     distance_driven += convertCountsToDistanceInMeters(currentPosition-oldPosition);
-
-//     oldPosition=currentPosition;
-
-//     return initial_distance_to_goal - distance_driven;
-// }
-
-// Get the angle difference between the current robot angle and the goal angle
-// TODO: Only the left wheel is used to calculate the angle driven !!!!
-// TODO: angle_driven will not be reseted after the goal is reached !!!!
-// float getAngleToGoalInDegrees(float initial_angle_to_goal) {
-    
-//     float wheel_diameter = 0.06;
-//     float wheel_cirumference = wheel_diameter * 3.141592;
-
-//     static float angle_driven = 0;
-//     static float old_position = 0;
-
-//     // Calculate distance driven
-//     float current_position = getPositionInCounts_2();
-//     float distance_driven_in_counts = current_position - old_position;
-//     float distance_driven_in_meters = distance_driven_in_counts / (33.0*4.0*16.0) * wheel_cirumference;
-    
-//     // Calculate angle driven from distance of right wheel
-//     // a  = d * 360 / (2 * pi * r) with a = angle_driven_in_degrees and r in meters
-//     float angle_driven_in_degrees = distance_driven_in_meters * 3000.0 / 3.141592;
-//     angle_driven += angle_driven_in_degrees;    
-//     old_position = current_position;
-
-//     return initial_angle_to_goal - angle_driven;
-
-//     // float current_angle = getPositionInRad();
-//     // float angle_difference = initial_angle_to_goal - current_angle;
-//     // return angle_difference * 180.0 / 3.141592;
-// }
-
 /* Working
 * This function returns the angle difference between the current robot angle and the goal angle.
 * The static variables are reseted when the init_starting_position parameter is set to true
@@ -592,15 +400,6 @@ float getAngleToGoalInDegrees(float initial_angle_to_goal, bool init_starting_po
         // and not execute the rest of the code
         return initial_angle_to_goal;
     }
-
-    // } else if (reset_static_variables) {
-    //     old_position = current_position;
-    //     angle_driven = 0;
-
-    //     // This return will end the function here
-    //     // and not execute the rest of the code
-    //     return 1;
-    // }
     
     distance_driven_in_meters = convertCountsToDistanceInMeters(current_position-old_position);
     
@@ -609,19 +408,10 @@ float getAngleToGoalInDegrees(float initial_angle_to_goal, bool init_starting_po
     old_position = current_position;
 
     return initial_angle_to_goal - angle_driven;
-
-    // float current_angle = getPositionInRad();
-    // float angle_difference = initial_angle_to_goal - current_angle;
-    // return angle_difference * 180.0 / 3.141592;
 }
 
 
 
-// float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length_in_meters, float turn_radius_in_meters) {
-//     // a  = d * 360 / (2 * pi * r) with a = angle_driven_in_degrees and r in meters
-//     float angle_in_degrees = arc_length_in_meters * 360.0 / (2 * 3.141592 *turn_radius_in_meters);
-//     return angle_in_degrees;
-// }
 
 float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length_in_meters, float turn_radius_in_meters) {
     // a  = d * 360 / (2 * pi * r) with a = angle_driven_in_degrees and r in meters
@@ -630,28 +420,6 @@ float calculateAngleInDegreesFromArcLengthInMetersAndTurnRadius(float arc_length
 }
 
 
-// float getTotalDrivenAngleInDegrees() {
-    
-//     float wheel_diameter = 0.06;
-//     float wheel_cirumference = wheel_diameter * 3.141592;
-
-//     static float angle_driven = 0;
-//     static float old_position = 0;
-
-//     // Calculate distance driven
-//     float current_position = getPositionInCounts_2();
-//     float distance_driven_in_counts = (float) current_position - old_position;
-//     float distance_driven_in_meters = distance_driven_in_counts / (33.0*4.0*16.0) * wheel_cirumference;
-    
-//     // Calculate angle driven from distance of right wheel
-//     // a  = d * 360 / (2 * pi * r) with a = angle_driven_in_degrees and r in meters
-//     float angle_driven_in_degrees = distance_driven_in_meters * 3000.0 / 3.141592;
-//     angle_driven += angle_driven_in_degrees;    
-//     old_position = current_position;
-
-//     // return angle_driven;
-//     return distance_driven_in_meters;
-// }
 
 /*
 *  This function returns the total angle driven since the last reset/init of the static variables.
@@ -686,15 +454,6 @@ float getTotalDrivenAngleInDegrees(bool init_starting_position) {
 }
 
 
-/*
-    // Calc: 1/(2*3.141592) = 0.159154
-    float distance_driven_left = 0.159154 * getVelocityInRadPerSecond_Left() * timer_time * 1000.0;
-    float distance_driven_right = 0.159154 * getVelocityInRadPerSecond_Right() * timer_time * 1000.0;
-
-    distance_driven += (distance_driven_left + distance_driven_right) / 2.0;
-*/
-
-
 
 
 // NEW
@@ -709,11 +468,6 @@ long getPositionInCountsLong_Right() {
 long convertDistanceInMetersToCounts(float distance_to_goal_in_meters) {
     long counts;
 
-    // float wheel_diameter = 0.06;
-    // float wheel_cirumference = wheel_diameter * 3.141592;
-
-    // TODO: check if the sign is correct after converting to long
-    // counts = (long) ( distance_to_goal_in_meters / wheel_cirumference * ENCODER_COUNTS_PER_REVOLUTION );
     counts = (long) ( distance_to_goal_in_meters / WHEEL_CIRCUMFERENCE * ENCODER_COUNTS_PER_REVOLUTION );
 
     return counts;
@@ -781,9 +535,5 @@ float calculateArcLengthInMeters(float angle_to_turn_in_degrees) {
     float arc_length_in_meters = angle_to_turn_in_degrees * (2 * 3.141592 * TURN_RADIUS) / 360.0;
     return arc_length_in_meters;
 }
-
-// float getAngleToGoalInDegrees(float initial_angle_to_goal, bool init_starting_position) {
-
-// }
 
 // ENDNEW

@@ -1047,8 +1047,15 @@ void switchMazeSolverStateTo(enum MazeSolverStates new_state) {
 }
 
 
-/*
-* Replaces the main function of the Maze Solver algorithm from the simulation implementation
+/************************************
+ *
+ *   Maze Solver Algorithm
+ *
+ *************************************/
+
+/**
+ * Replaces the main function of the Maze Solver algorithm from the simulation implementation
+ * Contains the Maze Solver State Machine that gets called in the EXECUTE state of the Robot State Machine
 */
 void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
 
@@ -1067,8 +1074,6 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
     *   Therefore every call to move the robot is now in it's own state
     *   This ensures that the robot waits until the movement is finished before executing the next movement or wall detection procedure
     */
-
-    // TODO: Write down the states in the order of execution
 
     switch (maze_solver_state.curr_state)
     {

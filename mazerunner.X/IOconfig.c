@@ -8,22 +8,12 @@ void setupIO()
 {
 
     int i;
-    // AD1PCFGL=0xFFFF; //all pins are now digital, by default they are analogue
-    // AD1PCFGL=0xFFDF; 
-    // AD1PCFGL=0xFFDE; 
 
     // Set all pins to be digital, except the pins used with the A2DC module (e.g. AN4, AN5, AN6)
     // define inverse of 0b0000000001110000 from AD1CSSL
     AD1PCFGL=0b1111111110001111; // Set all pins to digital except AN4, AN5, AN6 which are analogue to measure the IR-Sensor voltages
-
     
-    // // set LEDs as output
-    // TRISBbits.TRISB15 = 0;
-    // TRISBbits.TRISB14 = 0;
-    // TRISBbits.TRISB13 = 0;
-    // TRISBbits.TRISB12 = 0;
-
-    // LED CONFIG Mazerunner
+    // LED Config - Mazerunner
     // set LEDs as output
     TRISBbits.TRISB6 = 0;
     TRISBbits.TRISB5 = 0;
@@ -32,36 +22,23 @@ void setupIO()
     
     TRISBbits.TRISB8=0;// UART1 TX
 
-    // // Configure RB5 as an input pin to register switch presses
-    // TRISBbits.TRISB5 = 1;  // Set RB5 as an input (Switch in Starter Kit)
-    // __builtin_enable_interrupts();
 
-    // Mazerunner
+    // Button Pin Config - Mazerunner
     // Configure RC5 as an input pin to register switch presses
     TRISCbits.TRISC5 = 1;  // Set RC5 as an input (Switch in Mazerunner)
     __builtin_enable_interrupts();
 
-    // Configure Ponti input Pin, Apperently not needed ?????
-    // TRISBbits.TRISB3 = 1;  // Set RB3 / AN5 as an input
-    // TRISBbits.TRISB3 = 1; 
-    // TRISBbits.TRISB2 = 1;
-    // TRISCbits.TRISC0 = 1;
-    // TRISAbits.TRISA0 = 1;  // Set AN0 as an input
 
-
-    //PIN MAPPING
-    
+    //PIN MAPPING - Mazerunner
     //before we map, we need to unlock
     __builtin_write_OSCCONL(OSCCON & 0xbf); // clear bit 6 (unlock, they are usually write protected)
     
     // PERIPHERAL receives data from which INPUT  
     RPINR18bits.U1RXR = 7; //mapped to RP7 is U1 RX, CHANGE THIS // MAZERUNNER
-    // RPINR19bits.U2RXR = 9; //mapped to RP9 is U2 RX, CHANGE THIS
 
     //OUTPUT PIN receives data from which PERIPHERAL, 
     //see table 11-2 in datasheet to check peripheral codes 
     RPOR4bits.RP8R = 0b00011; //output bin RP8 gets data from peripheral U1 TX  // MAZERUNNER
-
 
 
     //PERIPHERAL QEA Encoder 1, receives data from RP24 and RP25
@@ -72,8 +49,6 @@ void setupIO()
     RPINR16bits.QEA2R = 19; // mazerunner change
     RPINR16bits.QEB2R = 20; // mazerunner change
     
-    
-
     
     // UART to be used with programmer 
     // RPOR4bits.RP8R = 0b00101; //output Pin RP8 gets data from peripheral U2 TX 

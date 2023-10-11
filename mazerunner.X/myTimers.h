@@ -39,9 +39,9 @@
 
 void initTimer1(unsigned int period);
 
+// Timers in MS
 void initTimer1inMS(float period);
 unsigned int calcPeriod(float timeInNS, float Tcycle, float prescaler);
-
 void startTimer1(void); 
 
 void initTimer2inMS(float timeInMS);

@@ -15,6 +15,11 @@
 #endif
 
 
+/************************************
+ *
+ *   Timer 1
+ *
+ *************************************/
 
 void initTimer1(unsigned int period) 
 {
@@ -133,6 +138,58 @@ void startTimer1(void)
  
 }
 
+
+/* MAJOR ARCHITECTURE CHANGE */
+
+/* Motor Control Loop */
+void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+{
+    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag
+
+    static int myCount=0;
+    myCount++;
+
+    // Motor Control Loop
+    // Based on the the current movement primitive the correct motor control loop is executed
+    // The current encoder value will be compared with the global goal encoder value
+    // If the goal is reached a global goal reached flag will be set to true
+
+    switch (currMovementControlParameters.movementPrimitive.type)
+    {
+    case DRIVING_STRAIGHT:
+        // Make sure to check if the goal is reached and update the global flag accordingly
+        drivingStraightForNMeters();
+        break;
+
+    case DRIVING_STRAIGHT_FOREVER:
+        drivingStraightForever();
+        break;
+    
+    case TURNING:
+        turningForNDegrees();
+
+        break;
+
+    case PARKING:
+        set_DC_and_motor_state_left(0.0, "forward_fast_decay");
+        set_DC_and_motor_state_right(0.0, "forward_fast_decay");
+        break;
+
+    default:
+        break;
+    }
+
+}
+
+
+
+/************************************
+ *
+ *   Timer 2
+ *
+ *************************************/
+
+
 /* Timer 2 */
 /**
  * Takes a time in ms and after selecting the suitable prescaler, sets timer1 to that value
@@ -200,17 +257,6 @@ void startTimer2(void)
  
 }
 
-// Original
-// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-// {
-//     /**
-//      * 
-//     */
-//     static int myCount=0;
-//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
-//     myCount++;
-//     // LED6=~LED6;
-// }//
 
 void __attribute__((__interrupt__, auto_psv)) _T2Interrupt(void)
 {
@@ -242,6 +288,29 @@ void __attribute__((__interrupt__, auto_psv)) _T2Interrupt(void)
     }
 
 }
+
+
+
+
+/************************************
+ *
+ *   Mazerunner Testing and Development
+ *
+ *************************************/
+
+
+// Original
+// void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
+// {
+//     /**
+//      * 
+//     */
+//     static int myCount=0;
+//     IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag 
+//     myCount++;
+//     // LED6=~LED6;
+// }//
+
 
 // // Ex 4.4.4
 // void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
@@ -448,6 +517,13 @@ void __attribute__((__interrupt__, auto_psv)) _T2Interrupt(void)
 //    LED4=~LED4;
 // }
 
+
+
+/************************************
+ *
+ *   Mazerunner Testing and Development
+ *
+ *************************************/
 
 // Mazerunner
 /* Read Motor Encoder Values and set Motor Velocity*/
@@ -2703,58 +2779,3 @@ void __attribute__((__interrupt__, auto_psv)) _T2Interrupt(void)
 
 
 
-
-/* MAJOR ARCHITECTURE CHANGE */
-
-
-/* Motor Control Loop */
-void __attribute__((__interrupt__, auto_psv)) _T1Interrupt(void)
-{
-    IFS0bits.T1IF = 0;           // reset Timer 1 interrupt flag
-
-    static int myCount=0;
-    myCount++;
-
-    // Motor Control Loop
-    // Based on the the current movement primitive the correct motor control loop is executed
-    // The current encoder value will be compared with the global goal encoder value
-    // If the goal is reached a global goal reached flag will be set to true
-
-    switch (currMovementControlParameters.movementPrimitive.type)
-    {
-    case DRIVING_STRAIGHT:
-        // Make sure to check if the goal is reached and update the global flag accordingly
-        drivingStraightForNMeters();
-        break;
-
-    case DRIVING_STRAIGHT_FOREVER:
-        drivingStraightForever();
-        break;
-    
-    case TURNING:
-        turningForNDegrees();
-        // Write to Uart that the state was reached
-        // if (myCount >= 100){
-        //     char buffer[3];
-        //     sprintf(buffer, "T\n\r");
-        //     putsUART1(buffer);
-        //     myCount=0;
-        // }
-
-        // // UART
-        // char buffer[10];
-        // sprintf(buffer, "C%i,%2.2f", currMovementControlParameters.movementPrimitive.type, currMovementControlParameters.movementPrimitive.value);
-        // putsUART1(buffer);
-
-        break;
-
-    case PARKING:
-        set_DC_and_motor_state_left(0.0, "forward_fast_decay");
-        set_DC_and_motor_state_right(0.0, "forward_fast_decay");
-        break;
-
-    default:
-        break;
-    }
-
-}
