@@ -63,7 +63,7 @@ General Setup and HAL F:
 
 ### Where to Find Elements from the Report:
 
-#### State Logic
+#### 🔴 State Logic
 
 Robot State Machine: [main.c](./mazerunner.X/main.c)
 
@@ -74,7 +74,7 @@ Robot State Machine: [main.c](./mazerunner.X/main.c)
 | **EM3**        | Maze Solver                               | [mazeSolver.c](./mazerunner.X/mazeSolver.c) |
 | **EM4**        | Remote Controlled Motion Primitive Executor | [abstractControl.c](./mazerunner.X/abstractControl.c) |
 
-#### Control
+#### 🟡 Control
 
 Control Stack:
 
@@ -90,7 +90,7 @@ Control Loop:
 | ----------------------| --------------------------------------------------- |
 | Timer2 ISR            | [myTimers.c](./mazerunner.X/myTimers.c)            |
 
-#### HAL Modules
+#### 🟢 HAL Modules
 
 HAL (Hardware Abstraction Layer) Functionality:
 
