@@ -69,10 +69,10 @@ Robot State Machine: [main.c](./mazerunner.X/main.c)
 
 | Execution Mode | Description                              | File Location                                |
 | -------------- | ---------------------------------------- | --------------------------------------------- |
-| **EM1**        | (Simple) Wall Follower                    | [abstractControl.c](./mazerunner.X/abstractControl.c) |
-| **EM2**        | (Simple) Motion Primitive Executor         | [abstractControl.c](./mazerunner.X/abstractControl.c) |
-| **EM3**        | Maze Solver                               | [mazeSolver.c](./mazerunner.X/mazeSolver.c) |
-| **EM4**        | Remote Controlled Motion Primitive Executor | [abstractControl.c](./mazerunner.X/abstractControl.c) |
+| **EM1**        | (Simple) Wall Follower                    | [abstractControl.c](./mazerunner.X/state_logic/abstractControl.c) |
+| **EM2**        | (Simple) Motion Primitive Executor         | [abstractControl.c](./mazerunner.X/state_logic/abstractControl.c) |
+| **EM3**        | Maze Solver                               | [mazeSolver.c](./mazerunner.X/state_logic/mazeSolver.c) |
+| **EM4**        | Remote Controlled Motion Primitive Executor | [abstractControl.c](./mazerunner.X/state_logic/abstractControl.c) |
 
 #### 🟡 Control
 
@@ -80,15 +80,15 @@ Control Stack:
 
 | Control Type          | File Location                                  |
 | --------------------- | ----------------------------------------------- |
-| Velocity Control      | [controllers.c](./mazerunner.X/controllers.c) |
-| Distance / Angle Control | [controllers.c](./mazerunner.X/controllers.c) |
-| Lateral Control       | [controllers.c](./mazerunner.X/controllers.c) |
+| Velocity Control      | [controllers.c](./mazerunner.X/control/controllers.c) |
+| Distance / Angle Control | [controllers.c](./mazerunner.X/control/controllers.c) |
+| Lateral Control       | [controllers.c](./mazerunner.X/control/controllers.c) |
 
 Control Loop: 
 
 | Loop Component        | File Location                                      |
 | ----------------------| --------------------------------------------------- |
-| Timer2 ISR            | [myTimers.c](./mazerunner.X/myTimers.c)            |
+| Timer2 ISR            | [myTimers.c](./mazerunner.X/hal/myTimers.c)            |
 
 #### 🟢🔵 HAL Modules
 
@@ -96,12 +96,12 @@ HAL (Hardware Abstraction Layer) Functionality:
 
 | HAL Module            | File Location                                   |
 | ----------------------| ------------------------------------------------ |
-| HAL A: QEI            | [motorEncoders.c](./mazerunner.X/motorEncoders.c) |
-| HAL B: PWM            | [myPWM.c](./mazerunner.X/myPWM.c)               |
-| HAL C: ADC, DMA, Distance Sensors | [adc.c](./mazerunner.X/adc.c), [dma.c](./mazerunner.X/dma.c), [distanceSensors.c](./mazerunner.X/distanceSensors.c) |
-| HAL D: Timer          | [myTimers.c](./mazerunner.X/myTimers.c)         |
-| HAL E: UART           | [serialComms.c](./mazerunner.X/serialComms.c)    |
-| General Setup, HAL F:| [IOconfig.c](./mazerunner.X/IOconfig.c), [myButtons.c](./mazerunner.X/myButtons.c) |
+| HAL A: QEI            | [motorEncoders.c](./mazerunner.X/hal/motorEncoders.c) |
+| HAL B: PWM            | [myPWM.c](./mazerunner.X/hal/myPWM.c)               |
+| HAL C: ADC, DMA, Distance Sensors | [adc.c](./mazerunner.X/hal/adc.c), [dma.c](./mazerunner.X/hal/dma.c), [distanceSensors.c](./mazerunner.X/hal/distanceSensors.c) |
+| HAL D: Timer          | [myTimers.c](./mazerunner.X/hal/myTimers.c)         |
+| HAL E: UART           | [serialComms.c](./mazerunner.X/hal/serialComms.c)    |
+| General Setup, HAL F:| [IOconfig.c](./mazerunner.X/hal/IOconfig.c), [myButtons.c](./mazerunner.X/hal/myButtons.c) |
 
 
 
