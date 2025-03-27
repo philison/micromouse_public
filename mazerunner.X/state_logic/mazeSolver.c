@@ -909,55 +909,24 @@ void openNeighbours(int x, int y, struct CellData walls[MAZE_SIZE][MAZE_SIZE], i
     distance_Open_Neighbours[2] = 255;
     distance_Open_Neighbours[3] = 255;
 
-    // print initialized distanceOfOpenNeighbours
-    // printin with a for loop somehow always lead to an error without a message to resolve it.
-
-    // printtoconsoleEnter("distance_Open_Neighbours initialized with 255");
-    // printIntToConsolewithSpace(distance_Open_Neighbours[0]);
-    // printIntToConsolewithSpace(distance_Open_Neighbours[1]);
-    // printIntToConsolewithSpace(distance_Open_Neighbours[2]);
-    // printIntToConsolewithSpace(distance_Open_Neighbours[3]);
-    // printtoconsole("\n");
-
     if (walls[x][y].north == WAY)
     {
         distance_Open_Neighbours[0] = distance[x][y + 1];
-        // printtoconsoleEnter("North = way; Push distance!");
-        // printtoconsoleEnter("the distance of the point north is:");
-        // printIntToConsolewithSpace(distance_Open_Neighbours[0]);
-        // printtoconsoleEnter("\n");
     }
     if (walls[x][y].east == WAY)
     {
         distance_Open_Neighbours[1] = distance[x + 1][y];
-        // printtoconsoleEnter("East = way; Push distance!");
-        // printtoconsoleEnter("the distance of the point east is:");
-        // printIntToConsolewithSpace(distance_Open_Neighbours[1]);
-        // printtoconsoleEnter("\n");
     }
     if (walls[x][y].south == WAY)
     {
         distance_Open_Neighbours[2] = distance[x][y - 1];
-        // printtoconsoleEnter("South = way; Push distance!");
-        // printtoconsoleEnter("the distance of the point south is:");
-        // printIntToConsolewithSpace(distance_Open_Neighbours[2]);
-        // printtoconsoleEnter("\n");
     }
     if (walls[x][y].west == WAY)
     {
         distance_Open_Neighbours[3] = distance[x - 1][y];
-        // printtoconsoleEnter("West = way; Push distance!");
-        // printtoconsoleEnter("the distance of the point west is:");
-        // printIntToConsolewithSpace(distance_Open_Neighbours[3]);
-        // printtoconsoleEnter("\n");
     }
 
-    // printtoconsoleEnter("distance_Open_Neighbours after update");
-    // printIntToConsolewithSpace(distance_Open_Neighbours[0]);
-    // printIntToConsolewithSpace(distance_Open_Neighbours[1]);
-    // printIntToConsolewithSpace(distance_Open_Neighbours[2]);
-    // printIntToConsolewithSpace(distance_Open_Neighbours[3]);
-    // printtoconsole("\n");
+
     char buffer[60];
     sprintf(buffer, "distance_Open_Neighbours after update\n");
     putsUART1(buffer);
@@ -1346,54 +1315,6 @@ void mazeSolver(Stack *currentLevel, Stack *nextLevel) {
     }
 
 }
-
-
-// void explorationToCenter() {
-//     updateWalls(x, y, orientation, walls);
-//     floodFill(currentLevel, nextLevel, distance, walls, 0);
-//     // printDistance_array(distance);
-//     // API_setColor(x, y, 'G'); // set the current cell to green in the simulator, to track which cells have been visited
-//     // printMaze(walls);
-
-//     openNeighbours(x, y, walls, distance_Open_Neighbours, distance);
-
-//     lowestNeighbour = findlowestDistance(distance_Open_Neighbours);
-
-//     orientation = turn_to_lowest_distance(lowestNeighbour, orientation); // orientation should be created as a pointer
-
-//     // move forward to the next cell with the lowest distance
-//     API_moveForward(1);
-
-//     switch (orientation % 4)
-//     {
-//     case 0:
-//         y++;
-//         // printtoconsole("Orientation is north\n");
-//         break;
-//     case 1:
-//         x++;
-//         // printtoconsole("Orientation is east\n");
-//         break;
-//     case 2:
-//         y--;
-//         // printtoconsole("Orientation is south\n");
-//         break;
-//     case 3:
-//         x--;
-//         // printtoconsole("Orientation is west\n");
-//         break;
-//     default:
-//         printtoconsole("orientation is invalid\n");
-//     }
-// }
-
-// void explorationToStart() {}
-
-// void finalRun() {}
-
-
-
-
 
 
 

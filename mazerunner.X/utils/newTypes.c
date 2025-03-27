@@ -9,6 +9,40 @@ struct MovementControlParameters currMovementControlParameters = {
     false // is_movement_goal_reached
 };
 
+/*
+ * RobotState Initialization:
+ * The `robot_state` variable is a global structure that tracks the current state and 
+ * operational parameters of the robot. It is used to manage the robot's behavior, 
+ * timing, and emergency conditions.
+ *
+ * 1. `state` (initial value: IDLE):
+ *    - Represents the current operational state of the robot.
+ *    - Possible states include: IDLE, DELAY_BEFORE_START, EXECUTE, STOP, EMERGENCY
+ *
+ * 2. `previous_state` (initial value: IDLE):
+ *    - Stores the robot's previous state before transitioning to the current state.
+ *
+ * 3. `just_switched_state` (initial value: false):
+ *    - A flag indicating whether the robot has just transitioned to a new state.
+ *
+ * 4. `start_new_timer2` (initial value: false):
+ *    - A flag indicating whether Timer 2 should be started.
+ *
+ * 5. `timer2_expired` (initial value: false):
+ *    - A flag indicating whether Timer 2 has expired.
+ *
+ * 6. `timer2_running` (initial value: false):
+ *    - A flag indicating whether Timer 2 is currently running.
+ *
+ * 7. `emergency_stop` (initial value: false):
+ *    - A flag indicating whether the robot is in an emergency stop condition.
+ *
+ * 8. `timer2_value` (initial value: 32000):
+ *    - Stores the value for Timer 2
+ *
+ * The `robot_state` structure is essential for coordinating the robot's behavior, 
+ * managing state transitions, and ensuring safe and predictable operation.
+ */
 RobotState robot_state = {IDLE, IDLE, false, false, false, false, false, 32000};
 
 void updateMovementPrimitiveParameters(enum MovementPrimitiveTypes type, float value_as_distance_or_angle, float velocity) {
