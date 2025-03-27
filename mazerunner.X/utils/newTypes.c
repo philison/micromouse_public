@@ -1,8 +1,20 @@
 #include "newTypes.h"
 
 // Initialize the global variables
-// struct MovementControlParameters currMovementControlParameters = {PARKING, 0.0, 0.0, {0.0, 0.0}, false};
-// struct MovementControlParameters currMovementControlParameters = {{PARKING, 0.0}, 0.0, 0.0, {0.0, 0.0}, false};
+
+
+/*
+ * Initializes the global `currMovementControlParameters` structure, which manages
+ * the parameters for the robot's current movement primitive.
+ *
+ * Fields:
+ * - `movementPrimitive`: Specifies the type of movement (e.g., PARKING) and its parameters:
+ *    - `type`: The type of movement primitive (e.g., PARKING, DRIVING_STRAIGHT, TURNING).
+ *    - `value`: The target distance (meters) or angle (degrees) for the movement.
+ *    - `vel_cruise`: The cruising velocity for the movement.
+ * - `goalPositionInEncoderCounts`: Stores the target encoder counts for the movement.
+ * - `is_movement_goal_reached`: A flag indicating whether the movement goal has been achieved.
+ */
 struct MovementControlParameters currMovementControlParameters = {
     {PARKING, 0.0, 0.0}, // movementPrimitive
     {0.0, 0.0}, // goalPositionInEncoderCounts
