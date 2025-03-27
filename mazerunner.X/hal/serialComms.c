@@ -155,53 +155,6 @@ void __attribute__((interrupt, no_auto_psv)) _U1RXInterrupt(void) {
 
 }
 
-// void __attribute__((interrupt, no_auto_psv)) _U1RXInterrupt(void)
-// {	
-// 	unsigned int rxData; // a local buffer to copy the data into
-
-// 	/**Set the UART2 receiving interrupt flag to zero*/
- 
-// 	IFS0bits.U1RXIF=0;
-
-//     LED4=~LED4;	
-
-
-	
-// 	//we should now read out the data
-// 	rxData=U1RXREG;
-    
-//     //and copy it back out to UART
-//     U1TXREG=rxData;
-//     //wait until the character is gone...
-
-// 	//we should also clear the overflow bit if it has been set (i.e. if we were to slow to read out the fifo)
-// 	U1STAbits.OERR=0; //we reset it all the time
-// 	//some notes on this from the data sheet
-// 	/*
-// 	If the FIFO is full (four characters) and a fifth character is fully received into the UxRSR register,
-// 	the overrun error bit, OERR (UxSTA<1>), will be set. The word in UxRSR will be kept, but further
-// 	transfers to the receive FIFO are inhibited as long as the OERR bit is set. The user must clear
-// 	the OERR bit in software to allow further data to be received.
-// 	If it is desired to keep the data received prior to the overrun, the user should first read all five
-// 	characters, then clear the OERR bit. If the five characters can be discarded, the user can simply
-// 	clear the OERR bit. This effectively resets the receive FIFO and all prior received data is lost.
-
-// 	The data in the receive FIFO should be read prior to clearing the OERR bit. The
-// 	FIFO is reset when OERR is cleared, which causes all data in the buffer to be lost.
-// 	*/
-
-// }
-
-// void __attribute__((interrupt, no_auto_psv)) _U1TXInterrupt(void)
-// {	
-// 	//unsigned int rxData; // a local buffer to copy the data into
-//    // long i;
-// 	/**Set the UART2 receiving interrupt flag to zero*/
- 
-// 	IFS0bits.U1TXIF=0;
-//    // LED7=0;//;
-// }
-
 
 /************* SENDING *************/
 

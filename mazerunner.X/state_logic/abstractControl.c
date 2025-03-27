@@ -2,6 +2,56 @@
 
 
 /*
+ * File: abstractControl.c
+ * Description:
+ * This file contains the core motion control logic for the micromouse robot. 
+ * It provides functions for driving straight, turning, wall-following, and executing 
+ * motion primitives. The code integrates sensor feedback, state machines, and control 
+ * algorithms to enable autonomous navigation and remote control of the robot.
+ *
+ * Key Features:
+ * 1. Lateral Control:
+ *    - Determines motor velocities based on the current lateral control mode 
+ *      (e.g., wall-following, centering, or free driving).
+ *    - Uses sensor readings to adjust velocities for wall-following or centering.
+ *
+ * 2. Driving Straight:
+ *    - Functions like `initDrivingStraightForNMeters` and `drivingStraightForNMeters` 
+ *      handle straight-line motion for a specified distance.
+ *    - `driveStraightForever` allows indefinite forward motion.
+ *
+ * 3. Turning:
+ *    - Functions like `turnForNDegrees` and `initTurningForNDegrees` handle precise 
+ *      turning by a specified angle.
+ *    - Predefined functions for common turns (e.g., 90° left/right, 180° turns).
+ *
+ * 4. Maze Solving:
+ *    - Implements a simple wall-following algorithm using states like driving straight, 
+ *      turning left/right, or turning around.
+ *    - Functions like `turnLeft`, `turnRight`, and `moveForward` are used during maze solving.
+ *
+ * 5. Motion Primitive Executors:
+ *    - Simple Motion Primitive Executor:
+ *      Executes a predefined sequence of motion primitives (e.g., driving straight, turning).
+ *    - Remote-Controlled Motion Primitive Executor:
+ *      Allows motion primitives to be executed based on commands received via UART.
+ *
+ * 6. Execution Modes:
+ *    - Simple Wall Follower
+ *    - Simple Motion Primitive Executor
+ *    - Maze Solver
+ *    - Remote-Controlled Motion Primitive Executor
+ *
+ * 7. Utility Functions:
+ *    - Includes helper functions for motor control, sensor data processing, and 
+ *      proportional-integral (PI) velocity control.
+ *
+ * This file is a critical component of the micromouse robot's navigation system, 
+ * enabling it to autonomously navigate a maze or respond to remote commands.
+ */
+
+
+/*
 * Retrieves the current lateral control mode (which is based on the current distance sensor readings)
 * Returns the desired motor velocities based on the vel_base and the retrieved control mode
 */
