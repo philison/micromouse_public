@@ -1,8 +1,7 @@
 /* 
  * File:   main.c
- * Author: Alexander Lenz
- *
- * Created on 27 Nov 2020, 09:36
+ * Author of Congiuration Bits: Alexander Lenz
+ * The rest was added.
  */
 
 
